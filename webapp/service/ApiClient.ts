@@ -3,7 +3,11 @@
  * Replaces the localStorage-based StorageService
  * @namespace com.openui5.webdb.service
  */
-const API_BASE = "/api";
+// Local dev (localhost): call backend directly on port 3000 to avoid proxy issues.
+// Production (Vercel etc.): use relative /api path served by the serverless function.
+const isLocalDev = typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+const API_BASE = isLocalDev ? "http://localhost:3000/api" : "/api";
 
 const ApiClient = {
 	getHeaders(): HeadersInit {
