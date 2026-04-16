@@ -22,7 +22,7 @@ dotenv.config();
 
 // Ensure default values to prevent startup crashes if env variables are missing
 process.env.JWT_SECRET = process.env.JWT_SECRET || "sanal_oyuncular_default_secret_key_123";
-process.env.ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || "sanaloyuncular_secret_32_char_key";
+process.env.ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || "sanaloyuncular_secret_32char_key";
 
 let initializationError: string | null = null;
 

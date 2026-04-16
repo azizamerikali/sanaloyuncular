@@ -26,24 +26,32 @@ class DatabaseWrapper {
 
   private async initialize(): Promise<void> {
     try {
-      // On Vercel, ncc bundles all JS so require.resolve() returns an incorrect
-      // virtual path. Always use process.cwd() (/var/task) where includeFiles
-      // copies the WASM file to node_modules/sql.js/dist/sql-wasm.wasm.
-      let wasmPath: string;
-      if (process.env.VERCEL) {
-        wasmPath = path.join(process.cwd(), "node_modules", "sql.js", "dist");
-      } else {
-        try {
-          const sqlJsPath = require.resolve("sql.js");
-          wasmPath = path.dirname(sqlJsPath);
-        } catch (e) {
-          wasmPath = path.join(__dirname, "..", "node_modules", "sql.js", "dist");
+      // Load WASM binary directly from disk to avoid path resolution issues
+      // inside ncc-bundled Vercel functions (where locateFile string paths fail).
+      // Candidate list covers local dev, Vercel /var/task, and fallback locations.
+      const wasmCandidates = [
+        path.join(process.cwd(), "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
+        "/var/task/node_modules/sql.js/dist/sql-wasm.wasm",
+        path.join(__dirname, "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
+        path.join(__dirname, "..", "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
+        path.join(__dirname, "..", "..", "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
+      ];
+
+      let wasmBinary: Buffer | undefined;
+      for (const p of wasmCandidates) {
+        if (fs.existsSync(p)) {
+          wasmBinary = fs.readFileSync(p);
+          console.log(`✅ sql.js WASM loaded from: ${p}`);
+          break;
         }
+        console.log(`  sql.js WASM not at: ${p}`);
       }
 
-      const SQL = await initSqlJs({
-        locateFile: (file) => path.join(wasmPath, file)
-      });
+      if (!wasmBinary) {
+        throw new Error(`sql-wasm.wasm not found. Searched: ${wasmCandidates.join(", ")}`);
+      }
+
+      const SQL = await initSqlJs({ wasmBinary: wasmBinary.buffer as ArrayBuffer });
 
       if (fs.existsSync(DB_PATH)) {
         const buffer = fs.readFileSync(DB_PATH);
