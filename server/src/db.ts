@@ -6,12 +6,6 @@ const DB_PATH = process.env.VERCEL
   ? path.join("/tmp", "webdb.sqlite")
   : path.join(__dirname, "..", "data", "webdb.sqlite");
 
-// Ensure data directory exists
-const dataDir = path.dirname(DB_PATH);
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
-}
-
 /**
  * Wrapper around sql.js Database that provides a better-sqlite3-like API.
  * This allows all route files to use the same synchronous-style calls.
@@ -30,6 +24,12 @@ class DatabaseWrapper {
 
   private async initialize(): Promise<void> {
     try {
+      // Ensure data directory exists
+      const dataDir = path.dirname(DB_PATH);
+      if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true });
+      }
+
       // Load WASM binary directly from disk to avoid path resolution issues
       // inside ncc-bundled Vercel functions (where locateFile string paths fail).
       // Candidate list covers local dev, Vercel /var/task, and fallback locations.
@@ -219,6 +219,17 @@ class DatabaseWrapper {
   }
 }
 
-const db = new DatabaseWrapper();
+// Global singleton instance
+let dbInstance: DatabaseWrapper | null = null;
+
+// Exporting the instance directly for compatibility with existing imports
+const db = new Proxy({} as DatabaseWrapper, {
+  get: (target, prop, receiver) => {
+    if (!dbInstance) {
+      dbInstance = new DatabaseWrapper();
+    }
+    return Reflect.get(dbInstance, prop, receiver);
+  }
+});
 
 export default db;

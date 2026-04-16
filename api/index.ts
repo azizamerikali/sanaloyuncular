@@ -1,4 +1,4 @@
-import app, { startupPromise } from "../server/src/app";
+import { VercelRequest, VercelResponse } from "@vercel/node";
 
 /**
  * Vercel Serverless Function — Express adapter
