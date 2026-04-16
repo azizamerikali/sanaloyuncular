@@ -26,17 +26,17 @@ class DatabaseWrapper {
 
   private async initialize(): Promise<void> {
     try {
-      // Find the wasm file relative to the sql.js package
+      // On Vercel, ncc bundles all JS so require.resolve() returns an incorrect
+      // virtual path. Always use process.cwd() (/var/task) where includeFiles
+      // copies the WASM file to node_modules/sql.js/dist/sql-wasm.wasm.
       let wasmPath: string;
-      try {
-        const sqlJsPath = require.resolve("sql.js");
-        wasmPath = path.dirname(sqlJsPath);
-      } catch (e) {
-        // Fallback for environments where require.resolve might fail
-        if (process.env.VERCEL) {
-          // Vercel bundle location often looks like this
-          wasmPath = path.join(process.cwd(), "node_modules", "sql.js", "dist");
-        } else {
+      if (process.env.VERCEL) {
+        wasmPath = path.join(process.cwd(), "node_modules", "sql.js", "dist");
+      } else {
+        try {
+          const sqlJsPath = require.resolve("sql.js");
+          wasmPath = path.dirname(sqlJsPath);
+        } catch (e) {
           wasmPath = path.join(__dirname, "..", "node_modules", "sql.js", "dist");
         }
       }

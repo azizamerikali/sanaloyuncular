@@ -1,4 +1,4 @@
-import app from "../server/src/app";
+import app, { startupPromise } from "../server/src/app";
 
 /**
  * Vercel Serverless Function — Express adapter
@@ -10,8 +10,14 @@ import app from "../server/src/app";
  *
  * Fix: Restore the original request path from the x-matched-path header,
  * which Vercel sets to the original path that matched the rewrite rule.
+ *
+ * Cold-start fix: await startupPromise so the DB is fully initialized
+ * (WASM loaded + schema created) before handling any request.
  */
-export default function handler(req: any, res: any) {
+export default async function handler(req: any, res: any) {
+    // Wait for DB initialization + schema creation to complete on cold starts
+    await startupPromise;
+
     // x-matched-path = the original source path before the rewrite
     // e.g. for a request to /api/auth/google → x-matched-path = "/api/auth/google"
     const matchedPath = req.headers["x-matched-path"] as string | undefined;

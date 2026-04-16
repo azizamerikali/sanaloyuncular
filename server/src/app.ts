@@ -47,6 +47,9 @@ try {
 const app = express();
 const PORT = parseInt(process.env.SERVER_PORT || "3000");
 
+// Trust Vercel's proxy so req.ip is populated correctly (needed for rate limiting)
+app.set("trust proxy", 1);
+
 // Middleware
 app.use(helmet());
 
@@ -244,11 +247,10 @@ async function start() {
   }
 }
 
-// In serverless environments, we might want to ensure DB is ready BEFORE exporting or on each request.
-// For now, let's just make the 'start' function run once globally.
-start().catch((err) => {
+// Export the startup promise so Vercel handler can await DB readiness before
+// processing the first request (prevents race condition on cold starts).
+export const startupPromise = start().catch((err) => {
   console.error("Failed to initialize server:", err);
-  // Do not exit on Vercel
   if (!process.env.VERCEL) process.exit(1);
 });
 
