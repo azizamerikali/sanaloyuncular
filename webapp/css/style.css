@@ -41,3 +41,31 @@
     border-color: #3f51b1;
     background-color: rgba(63, 81, 177, 0.1);
 }
+
+/* === Responsive Header === */
+.soHeaderEmail {
+    display: inline-block;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* Short title hidden by default; full title shown */
+.soHeaderTitleShort {
+    display: none;
+}
+
+/* On narrow viewports: hide full title, show "SO" abbreviation */
+@media (max-width: 600px) {
+    .soHeaderTitleFull {
+        display: none;
+    }
+    .soHeaderTitleShort {
+        display: inline-flex;
+    }
+    .soHeaderEmail {
+        max-width: 90px;
+    }
+}

@@ -15,7 +15,8 @@
 					type="Transparent"
 					tooltip="{i18n>menuToggle}"
 					press=".onToggleSideNav" />
-				<Title text="{i18n>appTitle}" level="H4" class="sapUiSmallMarginBegin" />
+				<Title text="{i18n>appTitle}" level="H4" class="sapUiSmallMarginBegin soHeaderTitleFull" />
+				<Title text="SO" level="H4" class="sapUiSmallMarginBegin soHeaderTitleShort" />
 				<ToolbarSpacer />
 				<Avatar
 					id="userAvatar"
@@ -24,7 +25,11 @@
 					src="{appView>/userProfilePicture}"
 					initials="{appView>/userInitials}"
 					backgroundColor="Accent6" />
-				<Text text="{appView>/currentUserEmail}" class="sapUiSmallMarginBegin" />
+				<Text
+					text="{appView>/currentUserEmail}"
+					wrapping="false"
+					tooltip="{appView>/currentUserEmail}"
+					class="sapUiSmallMarginBegin soHeaderEmail" />
 				<Button
 					id="logoutBtn"
 					icon="sap-icon://log"
