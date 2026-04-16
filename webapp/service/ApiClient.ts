@@ -3,7 +3,7 @@
  * Replaces the localStorage-based StorageService
  * @namespace com.openui5.webdb.service
  */
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "/api";
 
 const ApiClient = {
 	getHeaders(): HeadersInit {

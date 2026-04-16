@@ -122,16 +122,21 @@ async function start() {
     console.error("❌ Migration failed: verification_codes", e);
   }
 
-  app.listen(PORT, () => {
-    console.log(`🚀 SanalOyuncular API Server running at http://localhost:${PORT}`);
-    console.log(`📦 Database: SQLite`);
-    console.log(`🔗 API: http://localhost:${PORT}/api/health`);
-  });
+  if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+    app.listen(PORT, () => {
+      console.log(`🚀 SanalOyuncular API Server running at http://localhost:${PORT}`);
+      console.log(`📦 Database: SQLite`);
+      console.log(`🔗 API: http://localhost:${PORT}/api/health`);
+    });
+  }
 }
 
+// In serverless environments, we might want to ensure DB is ready BEFORE exporting or on each request.
+// For now, let's just make the 'start' function run once globally.
 start().catch((err) => {
-  console.error("Failed to start server:", err);
-  process.exit(1);
+  console.error("Failed to initialize server:", err);
+  // Do not exit on Vercel
+  if (!process.env.VERCEL) process.exit(1);
 });
 
 export default app;
