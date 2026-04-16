@@ -1,6 +1,7 @@
 {
 	"name": "com.openui5.webdb",
 	"version": "1.0.0",
+	"type": "module",
 	"description": "UI5 Application: com.openui5.webdb",
 	"author": "devaziz",
 	"license": "Apache-2.0",
