@@ -1,0 +1,60 @@
+<mvc:View controllerName="com.openui5.webdb.controller.admin.AdminProjectDetail"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+
+	<Page id="adminProjectDetailPage" title="{i18n>projectDetail}" showNavButton="true"
+		navButtonPress=".onNavBack" class="sapUiContentPadding">
+		<content>
+			<VBox>
+				<ObjectHeader
+					title="{projDetail>/name}"
+					number="{projDetail>/statusText}"
+					numberState="{projDetail>/statusState}"
+					responsive="true"
+					fullScreenOptimized="true">
+					<attributes>
+						<ObjectAttribute text="{projDetail>/description}" />
+					</attributes>
+					<statuses>
+						<ObjectStatus text="Oluşturulma: {projDetail>/createdAtFormatted}" />
+					</statuses>
+				</ObjectHeader>
+
+				<Panel headerText="{i18n>assignedMembers}" class="sapUiSmallMarginTop">
+					<headerToolbar>
+						<Toolbar>
+							<ToolbarSpacer />
+							<Button text="{i18n>assignMember}" icon="sap-icon://add"
+								press=".onAssignMember" />
+						</Toolbar>
+					</headerToolbar>
+					<Table items="{projDetail>/assignedMembers}" noDataText="{i18n>noMembers}"
+						autoPopinMode="true" fixedLayout="false">
+						<columns>
+							<Column>
+								<Text text="{i18n>firstName}" />
+							</Column>
+							<Column>
+								<Text text="{i18n>lastName}" />
+							</Column>
+							<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+								<Text text="{i18n>email}" />
+							</Column>
+							<Column hAlign="End">
+								<Text text="{i18n>actions}" />
+							</Column>
+						</columns>
+						<items>
+							<ColumnListItem>
+								<Text text="{projDetail>firstName}" />
+								<Text text="{projDetail>lastName}" />
+								<Text text="{projDetail>email}" />
+								<Button icon="sap-icon://delete" type="Reject"
+									press=".onRemoveMember" />
+							</ColumnListItem>
+						</items>
+					</Table>
+				</Panel>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

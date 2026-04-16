@@ -1,0 +1,115 @@
+{
+	"_version": "1.21.0",
+	"sap.app": {
+		"id": "com.openui5.webdb",
+		"type": "application",
+		"i18n": "i18n/i18n.properties",
+		"title": "{{appTitle}}",
+		"description": "{{appDescription}}",
+		"applicationVersion": {
+			"version": "${version}"
+		}
+	},
+	"sap.ui": {
+		"technology": "UI5",
+		"icons": {},
+		"deviceTypes": {
+			"desktop": true,
+			"tablet": true,
+			"phone": true
+		}
+	},
+	"sap.ui5": {
+		"rootView": {
+			"viewName": "com.openui5.webdb.view.App",
+			"type": "XML",
+			"id": "app"
+		},
+		"dependencies": {
+			"minUI5Version": "1.146.0",
+			"libs": {
+				"sap.ui.core": {},
+				"sap.m": {},
+				"sap.tnt": {},
+				"sap.ui.layout": {},
+				"sap.ui.unified": {}
+			}
+		},
+		"handleValidation": true,
+		"contentDensities": {
+			"compact": true,
+			"cozy": true
+		},
+		"resources": {
+			"css": [
+				{ "uri": "css/style.css" }
+			]
+		},
+		"models": {
+			"i18n": {
+				"type": "sap.ui.model.resource.ResourceModel",
+				"settings": {
+					"bundleName": "com.openui5.webdb.i18n.i18n",
+					"supportedLocales": [""],
+					"fallbackLocale": "",
+					"async": true
+				}
+			}
+		},
+		"routing": {
+			"config": {
+				"routerClass": "sap.m.routing.Router",
+				"type": "View",
+				"viewType": "XML",
+				"path": "com.openui5.webdb.view",
+				"controlId": "pageContainer",
+				"controlAggregation": "pages",
+				"transition": "slide"
+			},
+			"routes": [
+				{ "pattern": "login", "name": "login", "target": "login" },
+				{ "pattern": "register", "name": "register", "target": "register" },
+				{ "pattern": "", "name": "dashboard", "target": "dashboard" },
+				{ "pattern": "member/profile", "name": "memberProfile", "target": "memberProfile" },
+				{ "pattern": "member/photos", "name": "memberPhotos", "target": "memberPhotos" },
+				{ "pattern": "member/projects", "name": "memberProjects", "target": "memberProjects" },
+				{ "pattern": "member/payments", "name": "memberPayments", "target": "memberPayments" },
+				{ "pattern": "admin", "name": "adminDashboard", "target": "adminDashboard" },
+				{ "pattern": "admin/members", "name": "adminMembers", "target": "adminMembers" },
+				{ "pattern": "admin/members/{memberId}", "name": "adminMemberDetail", "target": "adminMemberDetail" },
+				{ "pattern": "admin/projects", "name": "adminProjects", "target": "adminProjects" },
+				{ "pattern": "admin/projects/{projectId}", "name": "adminProjectDetail", "target": "adminProjectDetail" },
+				{ "pattern": "admin/payments", "name": "adminPayments", "target": "adminPayments" },
+				{ "pattern": "admin/clients", "name": "adminClients", "target": "adminClients" },
+				{ "pattern": "admin/media", "name": "adminMedia", "target": "adminMedia" },
+				{ "pattern": "client", "name": "clientDashboard", "target": "clientDashboard" },
+				{ "pattern": "client/members", "name": "clientMembers", "target": "clientMembers" },
+				{ "pattern": "client/projects", "name": "clientProjects", "target": "clientProjects" },
+				{ "pattern": "client/projects/{projectId}", "name": "clientProjectDetail", "target": "clientProjectDetail" },
+				{ "pattern": "admin/system", "name": "adminSystem", "target": "adminSystem" }
+			],
+			"targets": {
+				"login": { "id": "login", "name": "Login" },
+				"register": { "id": "register", "name": "Register" },
+				"dashboard": { "id": "dashboard", "name": "Dashboard" },
+				"memberProfile": { "id": "memberProfile", "name": "member.MemberProfile" },
+				"memberPhotos": { "id": "memberPhotos", "name": "member.MemberPhotos" },
+				"memberProjects": { "id": "memberProjects", "name": "member.MemberProjects" },
+				"memberPayments": { "id": "memberPayments", "name": "member.MemberPayments" },
+				"adminDashboard": { "id": "adminDashboard", "name": "admin.AdminDashboard" },
+				"adminMembers": { "id": "adminMembers", "name": "admin.AdminMembers" },
+				"adminMemberDetail": { "id": "adminMemberDetail", "name": "admin.AdminMemberDetail" },
+				"adminProjects": { "id": "adminProjects", "name": "admin.AdminProjects" },
+				"adminProjectDetail": { "id": "adminProjectDetail", "name": "admin.AdminProjectDetail" },
+				"adminPayments": { "id": "adminPayments", "name": "admin.AdminPayments" },
+				"adminClients": { "id": "adminClients", "name": "admin.AdminClients" },
+				"adminMedia": { "id": "adminMedia", "name": "admin.AdminMedia" },
+				"clientDashboard": { "id": "clientDashboard", "name": "client.ClientDashboard" },
+				"clientMembers": { "id": "clientMembers", "name": "client.ClientMembers" },
+				"clientProjects": { "id": "clientProjects", "name": "client.ClientProjects" },
+				"clientProjectDetail": { "id": "clientProjectDetail", "name": "client.ClientProjectDetail" },
+				"adminSystem": { "id": "adminSystem", "name": "admin.AdminSystem" }
+			}
+		}
+	}
+}

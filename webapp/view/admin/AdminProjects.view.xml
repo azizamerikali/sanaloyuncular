@@ -1,0 +1,47 @@
+<mvc:View controllerName="com.openui5.webdb.controller.admin.AdminProjects"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+
+	<Page id="adminProjectsPage" title="{i18n>adminProjects}" showNavButton="false" class="sapUiContentPadding">
+		<headerContent>
+			<Button text="{i18n>createProject}" icon="sap-icon://add" type="Emphasized"
+				press=".onCreateProject" />
+		</headerContent>
+		<content>
+			<Table id="adminProjectsTable" items="{projListData>/projects}"
+				noDataText="{i18n>noProjects}" mode="None"
+				autoPopinMode="true" fixedLayout="false"
+				growing="true" growingThreshold="20">
+				<columns>
+					<Column>
+						<Text text="{i18n>projectName}" />
+					</Column>
+					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>projectDesc}" />
+					</Column>
+					<Column minScreenWidth="Phone">
+						<Text text="{i18n>status}" />
+					</Column>
+					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
+						<Text text="Üye Sayısı" />
+					</Column>
+					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>createdAt}" />
+					</Column>
+					<Column hAlign="End" width="8rem">
+						<Text text="{i18n>actions}" />
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem type="Navigation" press=".onProjectPress">
+						<Text text="{projListData>name}" />
+						<Text text="{projListData>description}" />
+						<ObjectStatus text="{projListData>statusText}" state="{projListData>statusState}" />
+						<Text text="{projListData>memberCount}" />
+						<Text text="{projListData>createdAtFormatted}" />
+						<Button icon="sap-icon://delete" type="Reject" press=".onDeleteProject" />
+					</ColumnListItem>
+				</items>
+			</Table>
+		</content>
+	</Page>
+</mvc:View>

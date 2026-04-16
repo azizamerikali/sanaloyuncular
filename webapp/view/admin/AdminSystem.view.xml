@@ -1,0 +1,63 @@
+<mvc:View
+	controllerName="com.openui5.webdb.controller.admin.AdminSystem"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:layout="sap.ui.layout"
+	xmlns:unified="sap.ui.unified"
+	xmlns:core="sap.ui.core">
+
+	<Page title="Sistem Yönetimi" showNavButton="false" class="sapUiContentPadding">
+		<content>
+			<VBox spacing="1rem">
+				
+				<Panel headerText="Veritabanı Yedekleme ve Geri Yükleme" class="sapUiResponsiveMargin">
+					<VBox spacing="Medium">
+						<HBox alignItems="Center">
+							<core:Icon src="sap-icon://status-completed" color="Positive" size="2rem" class="sapUiSmallMarginEnd" />
+							<VBox>
+								<Title text="Veritabanı Yedeği Al" level="H3" />
+								<Text text="Mevcut veritabanını .sqlite dosyası olarak bilgisayarınıza indirin." />
+							</VBox>
+						</HBox>
+						<Button text="Yedek İndir" icon="sap-icon://download" type="Emphasized" press=".onDownloadBackup" width="200px" />
+						
+						<VBox class="sapUiMediumMarginTopBottom" />
+
+						<HBox alignItems="Center">
+							<core:Icon src="sap-icon://upload-to-cloud" color="Critical" size="2rem" class="sapUiSmallMarginEnd" />
+							<VBox>
+								<Title text="Veritabanı Yedeği Yükle" level="H3" />
+								<Text text="Dikkat: Bu işlem tüm mevcut verilerin üzerine yazacaktır! Sadece geçerli bir .sqlite dosyası yükleyin." />
+							</VBox>
+						</HBox>
+						
+						<layout:VerticalLayout>
+							<unified:FileUploader
+								id="dbFileUploader"
+								name="backup"
+								fileType="sqlite"
+								placeholder="Yedek dosyasını seçin (.sqlite)..."
+								style="Emphasized"
+								width="400px"
+								change=".onFileChange" />
+							
+							<CheckBox id="confirmRestore" text="Verilerin üzerine yazılacağını biliyorum ve onaylıyorum." select=".onConfirmationChange" class="sapUiSmallMarginTop" />
+							
+							<Button 
+								id="restoreButton"
+								text="Yedeği Geri Yükle" 
+								icon="sap-icon://refresh" 
+								type="Negative" 
+								press=".onRestoreBackup" 
+								enabled="false"
+								class="sapUiSmallMarginTop"
+								width="200px" />
+						</layout:VerticalLayout>
+					</VBox>
+				</Panel>
+
+			</VBox>
+		</content>
+	</Page>
+
+</mvc:View>

@@ -1,0 +1,34 @@
+<mvc:View controllerName="com.openui5.webdb.controller.member.MemberProjects"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+
+	<Page id="memberProjectsPage" title="{i18n>memberProjects}" showNavButton="false" class="sapUiContentPadding">
+		<content>
+			<Table id="memberProjectsTable" items="{projData>/projects}"
+				noDataText="{i18n>noProjects}"
+				growing="true" growingThreshold="20">
+				<columns>
+					<Column>
+						<Text text="{i18n>projectName}" />
+					</Column>
+					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>projectDesc}" />
+					</Column>
+					<Column minScreenWidth="Phone">
+						<Text text="{i18n>status}" />
+					</Column>
+					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>createdAt}" />
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<Text text="{projData>name}" />
+						<Text text="{projData>description}" />
+						<ObjectStatus text="{projData>statusText}" state="{projData>statusState}" />
+						<Text text="{projData>createdAtFormatted}" />
+					</ColumnListItem>
+				</items>
+			</Table>
+		</content>
+	</Page>
+</mvc:View>

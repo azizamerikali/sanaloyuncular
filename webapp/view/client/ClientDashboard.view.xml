@@ -1,0 +1,48 @@
+<mvc:View controllerName="com.openui5.webdb.controller.client.ClientDashboard"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+
+	<Page id="clientDashboardPage" title="Dashboard" showNavButton="false">
+		<content>
+			<VBox class="sapUiSmallMargin">
+				<Title text="{i18n>welcomeBack}, {appView>/currentUserName}!"
+					level="H2" titleStyle="H4" class="sapUiMediumMarginBottom" />
+
+				<FlexBox wrap="Wrap">
+					<GenericTile
+						header="Favorilerim"
+						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom"
+						press=".onNavToProjects">
+						<TileContent>
+							<NumericContent
+								value="{cDashData>/favCount}"
+								icon="sap-icon://favorite"
+								valueColor="Good" />
+						</TileContent>
+					</GenericTile>
+					<GenericTile
+						header="Projelerim"
+						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom"
+						press=".onNavToProjects">
+						<TileContent>
+							<NumericContent
+								value="{cDashData>/projCount}"
+								icon="sap-icon://project-definition-triangle-2"
+								valueColor="Neutral" />
+						</TileContent>
+					</GenericTile>
+					<GenericTile
+						header="Toplam Üye"
+						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom"
+						press=".onNavToMembers">
+						<TileContent>
+							<NumericContent
+								value="{cDashData>/memberCount}"
+								icon="sap-icon://group"
+								valueColor="Neutral" />
+						</TileContent>
+					</GenericTile>
+				</FlexBox>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

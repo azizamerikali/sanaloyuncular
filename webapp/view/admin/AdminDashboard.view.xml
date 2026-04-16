@@ -1,0 +1,117 @@
+<mvc:View controllerName="com.openui5.webdb.controller.admin.AdminDashboard"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core">
+
+	<Page id="adminDashboardPage" title="{i18n>adminDashboardTitle}" showNavButton="false">
+		<content>
+			<VBox class="sapUiSmallMargin">
+				<Title text="Yönetim Paneli" level="H2" titleStyle="H4" class="sapUiMediumMarginBottom" />
+
+				<!-- KPI Tiles Row 1 -->
+				<FlexBox wrap="Wrap" class="sapUiSmallMarginBottom">
+					<GenericTile
+						header="Üyeler"
+						subheader="{adminData>/pendingCount} onay bekliyor"
+						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom"
+						press=".onNavToMembers">
+						<TileContent>
+							<NumericContent
+								value="{adminData>/memberCount}"
+								icon="sap-icon://group"
+								valueColor="Good" />
+						</TileContent>
+					</GenericTile>
+					<GenericTile
+						header="Projeler"
+						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom"
+						press=".onNavToProjects">
+						<TileContent>
+							<NumericContent
+								value="{adminData>/projectCount}"
+								icon="sap-icon://project-definition-triangle-2"
+								valueColor="Neutral" />
+						</TileContent>
+					</GenericTile>
+					<GenericTile
+						header="Ödemeler"
+						subheader="{adminData>/unpaidTotal} ödenmemiş"
+						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom"
+						press=".onNavToPayments">
+						<TileContent>
+							<NumericContent
+								value="{adminData>/totalAmount}"
+								truncateValueTo="15"
+								icon="sap-icon://money-bills"
+								valueColor="Critical" />
+						</TileContent>
+					</GenericTile>
+				</FlexBox>
+
+				<!-- KPI Tiles Row 2 -->
+				<FlexBox wrap="Wrap" class="sapUiSmallMarginBottom">
+					<GenericTile
+						header="Medya"
+						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom"
+						press=".onNavToMedia">
+						<TileContent>
+							<NumericContent
+								value="{adminData>/mediaCount}"
+								icon="sap-icon://camera"
+								valueColor="Neutral" />
+						</TileContent>
+					</GenericTile>
+					<GenericTile
+						header="Müşteriler"
+						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom"
+						press=".onNavToClients">
+						<TileContent>
+							<NumericContent
+								value="{adminData>/clientCount}"
+								icon="sap-icon://customer"
+								valueColor="Neutral" />
+						</TileContent>
+					</GenericTile>
+					<GenericTile
+						header="Toplam Ödeme"
+						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom"
+						press=".onNavToPayments">
+						<TileContent>
+							<NumericContent
+								value="{adminData>/totalPaymentCount}"
+								icon="sap-icon://receipt"
+								valueColor="Good" />
+						</TileContent>
+					</GenericTile>
+				</FlexBox>
+
+				<!-- Pending Members Table -->
+				<Panel headerText="Onay Bekleyen Üyeler" class="sapUiMediumMarginTop">
+					<Table items="{adminData>/pendingMembers}" noDataText="Onay bekleyen üye yok"
+						autoPopinMode="true" fixedLayout="false">
+						<columns>
+							<Column>
+								<Text text="Ad Soyad" />
+							</Column>
+							<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+								<Text text="E-posta" />
+							</Column>
+							<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
+								<Text text="Kayıt Tarihi" />
+							</Column>
+							<Column hAlign="End">
+								<Text text="İşlem" />
+							</Column>
+						</columns>
+						<items>
+							<ColumnListItem type="Navigation" press=".onMemberPress">
+								<Text text="{adminData>firstName} {adminData>lastName}" />
+								<Text text="{adminData>email}" />
+								<Text text="{adminData>createdAtFormatted}" />
+								<Button text="Onayla" type="Accept" press=".onApproveMember" />
+							</ColumnListItem>
+						</items>
+					</Table>
+				</Panel>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

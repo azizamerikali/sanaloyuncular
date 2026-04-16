@@ -1,0 +1,74 @@
+<mvc:View controllerName="com.openui5.webdb.controller.member.MemberPhotos"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:u="sap.ui.unified" xmlns:core="sap.ui.core">
+
+	<Page id="memberPhotosPage" title="{i18n>memberPhotos}" showNavButton="false" class="sapUiContentPadding">
+		<headerContent>
+			<Button id="uploadBtn" text="{i18n>uploadPhoto}" icon="sap-icon://camera" type="Emphasized" press=".onUploadPress" />
+		</headerContent>
+		<content>
+			<Table id="photosTable" items="{photosData>/photos}"
+				noDataText="{i18n>noPhotos}"
+				autoPopinMode="true" fixedLayout="false"
+				growing="true" growingThreshold="20">
+				<columns>
+					<Column>
+						<Text text="Fotoğraf" />
+					</Column>
+					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>uploadDate}" />
+					</Column>
+					<Column hAlign="End" width="8rem">
+						<Text text="{i18n>actions}" />
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<HBox alignItems="Center" class="sapUiTinyMarginTopBottom">
+							<Image src="{= ${photosData>fileData} || 'sap-icon://attachment-photo'}" height="240px" densityAware="false" press=".onImagePress" class="sapUiSystemPointer" />
+						</HBox>
+						<Text text="{photosData>createdAt}" />
+						<Button icon="sap-icon://delete" type="Reject" press=".onDeletePhoto" />
+					</ColumnListItem>
+				</items>
+			</Table>
+		</content>
+		<dependents>
+			<!-- Kaynak seçim menüsü -->
+			<ActionSheet id="uploadActionSheet" title="Fotoğraf Ekle" showCancelButton="true" cancelButtonText="İptal">
+				<buttons>
+					<Button text="Kamera ile Çek" icon="sap-icon://camera" press=".onCameraCapture" />
+					<Button text="Galeriden / Dosyadan Seç" icon="sap-icon://attachment-photo" press=".onGallerySelect" />
+				</buttons>
+			</ActionSheet>
+
+			<!-- Canlı kamera önizleme diyaloğu -->
+			<Dialog id="cameraDialog" title="Kamera ile Fotoğraf Çek"
+				contentWidth="520px" contentHeight="420px"
+				afterOpen=".onCameraDialogAfterOpen"
+				afterClose=".onCameraDialogAfterClose">
+				<content>
+					<VBox alignItems="Center" justifyContent="Center" width="100%" class="sapUiContentPadding">
+						<core:HTML id="cameraHtml"
+							content="&lt;div style='position:relative;width:100%;text-align:center'&gt;&lt;video id='so-camera-video' autoplay playsinline muted style='width:100%;max-width:480px;max-height:320px;border-radius:8px;background:#000'&gt;&lt;/video&gt;&lt;canvas id='so-camera-canvas' style='display:none'&gt;&lt;/canvas&gt;&lt;/div&gt;" />
+					</VBox>
+				</content>
+				<buttons>
+					<Button id="captureBtn" text="Fotoğraf Çek" icon="sap-icon://camera" type="Emphasized" press=".onCapturePhoto" />
+					<Button text="İptal" press=".onCloseCamera" />
+				</buttons>
+			</Dialog>
+
+			<!-- Önizleme diyaloğu -->
+			<Dialog id="imagePreviewDialog" title="Fotoğraf Önizleme" contentWidth="80vw" contentHeight="80vh" resizable="true">
+				<content>
+					<VBox alignItems="Center" justifyContent="Center" class="sapUiContentPadding" height="100%">
+						<Image src="{preview>/src}" width="auto" height="100%" densityAware="false" />
+					</VBox>
+				</content>
+				<buttons>
+					<Button text="Kapat" press=".onClosePreview" />
+				</buttons>
+			</Dialog>
+		</dependents>
+	</Page>
+</mvc:View>

@@ -1,0 +1,46 @@
+<mvc:View
+	controllerName="com.openui5.webdb.controller.Login"
+	displayBlock="true"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core">
+
+	<Page id="loginPage" showHeader="false" class="antigravityLoginBg">
+		<content>
+			<FlexBox alignItems="Center" justifyContent="Center" height="100%" width="100%"
+				fitContainer="true" direction="Column">
+
+				<VBox class="loginCard sapUiResponsiveMargin" width="25rem">
+					<Panel class="sapUiNoContentPadding" width="100%">
+						<VBox class="sapUiContentPadding" alignItems="Center" width="100%">
+
+							<!-- Logo -->
+							<core:Icon src="sap-icon://photo-voltaic" size="2.5rem"
+								color="{= ${device>/system/phone} ? '#0070f2' : '#0070f2'}"
+								class="sapUiSmallMarginBottom" />
+							<Title text="{i18n>appTitle}" level="H1" titleStyle="H3"
+								class="sapUiSmallMarginBottom" />
+							<Text text="{i18n>loginSubtitle}"
+								class="sapUiSmallMarginBottom sapUiTinyMarginTop" />
+
+							<!-- Input Fields -->
+							<VBox width="100%" class="sapUiSmallMarginBottom">
+								<Input id="usernameInput" placeholder="Kullanıcı Adı" class="sapUiTinyMarginBottom" valueLiveUpdate="true" />
+								<Input id="passwordInput" placeholder="Şifre" type="Password" valueLiveUpdate="true" />
+							</VBox>
+
+							<Button text="Giriş Yap" type="Emphasized" width="100%" 
+								press=".onLoginPress" class="sapUiSmallMarginBottom" />
+
+							<!-- Google Login -->
+							<core:HTML content='&lt;div id="googleButtonContainer" class="sapUiSmallMarginTop sapUiSmallMarginBottom" style="display:flex; justify-content:center; width:100%;"&gt;&lt;/div&gt;' />
+
+						</VBox>
+					</Panel>
+				</VBox>
+
+			</FlexBox>
+		</content>
+	</Page>
+
+</mvc:View>

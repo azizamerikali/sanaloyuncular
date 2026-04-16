@@ -1,0 +1,145 @@
+<mvc:View controllerName="com.openui5.webdb.controller.admin.AdminMemberDetail"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:form="sap.ui.layout.form" xmlns:u="sap.ui.unified" xmlns:core="sap.ui.core">
+
+	<Page id="adminMemberDetailPage" title="{i18n>memberDetail}" showNavButton="true"
+		navButtonPress=".onNavBack" class="sapUiContentPadding">
+		<content>
+			<VBox>
+				<ObjectHeader
+					title="{detailData>/firstName} {detailData>/lastName}"
+					number="{detailData>/statusText}"
+					numberState="{detailData>/statusState}"
+					responsive="true"
+					fullScreenOptimized="true">
+					<attributes>
+						<ObjectAttribute text="{detailData>/email}" />
+						<ObjectAttribute text="{detailData>/phone}" />
+						<ObjectAttribute text="{detailData>/address}" />
+					</attributes>
+					<statuses>
+						<ObjectStatus text="Kayıt: {detailData>/createdAtFormatted}" />
+					</statuses>
+				</ObjectHeader>
+
+				<IconTabBar id="memberTabs" class="sapUiSmallMarginTop">
+					<items>
+						<IconTabFilter text="Profil Bilgileri" icon="sap-icon://account" key="profile">
+							<form:SimpleForm editable="true" layout="ResponsiveGridLayout" labelSpanXL="4" labelSpanL="4" labelSpanM="4" labelSpanS="12">
+								<form:content>
+									<Label text="Ad" required="true" />
+									<Input value="{detailData>/firstName}" liveChange=".onNameChange" />
+									<Label text="Soyad" required="true" />
+									<Input value="{detailData>/lastName}" liveChange=".onNameChange" />
+									<Label text="E-posta" required="true" />
+									<Input value="{detailData>/email}" type="Email" />
+									<Label text="Şifre" />
+									<Input value="{detailData>/password}" placeholder="Yeni şifre belirlemek için yazın (isteğe bağlı)" />
+									<Label text="Telefon" required="true" />
+									<Input value="{detailData>/phone}" type="Tel" />
+									
+									<Label text="Şehir" required="true" />
+									<ComboBox items="{cities>/}" selectedKey="{detailData>/city}">
+										<core:Item key="{cities>key}" text="{cities>name}" />
+									</ComboBox>
+
+									<Label text="Doğum Tarihi" required="true" />
+									<DatePicker displayFormat="dd.MM.yyyy" valueFormat="yyyy-MM-dd" value="{detailData>/birthDate}" change=".onBirthDateChange" />
+
+									<Label text="Anne/Baba/Vasi Ad Soyad" required="{detailData>/isUnder18}" visible="{detailData>/isUnder18}" />
+									<Input value="{detailData>/parentName}" visible="{detailData>/isUnder18}" liveChange=".onParentNameChange" />
+
+									<Label text="Veli Onay Belgesi (Base64)" visible="{detailData>/isUnder18}" />
+									<u:FileUploader width="100%" placeholder="Belgeyi güncellemek için seçin" change=".onConsentFileChange" visible="{detailData>/isUnder18}" />
+
+									<Label text="IBAN Sahibi" required="true" />
+									<ComboBox selectedKey="{detailData>/ibanHolder}" items="{detailData>/ibanHolderList}">
+										<core:Item key="{detailData>name}" text="{detailData>name}" />
+									</ComboBox>
+
+									<Label text="IBAN" required="true" />
+									<Input value="{detailData>/iban}" placeholder="..." liveChange=".onIbanChange" valueState="{detailData>/ibanState}" valueStateText="{detailData>/ibanStateText}" />
+
+									<Label text="Oyunculuk Eğitimi" />
+									<TextArea value="{detailData>/actingTraining}" rows="2" />
+									<Label text="Oyunculuk Deneyimi" />
+									<TextArea value="{detailData>/actingExperience}" rows="2" />
+
+									<Label text="Durum" />
+									<Select selectedKey="{detailData>/status}" width="100%">
+										<core:Item key="active" text="Aktif" />
+										<core:Item key="pending" text="Onay Bekliyor" />
+										<core:Item key="inactive" text="Pasif" />
+									</Select>
+
+									<Label text="" />
+									<Button text="Değişiklikleri Kaydet" type="Emphasized" press=".onUpdateProfile" width="200px" class="sapUiSmallMarginTop" />
+								</form:content>
+							</form:SimpleForm>
+						</IconTabFilter>
+
+						<IconTabFilter text="Fotoğraflar ({detailData>/photoCount})"
+							icon="sap-icon://camera" key="photos">
+							<Table items="{detailData>/photos}" noDataText="{i18n>noPhotos}"
+								autoPopinMode="true" fixedLayout="false">
+								<columns>
+									<Column><Text text="{i18n>fileName}" /></Column>
+									<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+										<Text text="{i18n>uploadDate}" />
+									</Column>
+								</columns>
+								<items>
+									<ColumnListItem>
+										<Text text="{detailData>fileName}" />
+										<Text text="{detailData>createdAtFormatted}" />
+									</ColumnListItem>
+								</items>
+							</Table>
+						</IconTabFilter>
+
+						<IconTabFilter text="Projeler ({detailData>/projectCount})"
+							icon="sap-icon://project-definition-triangle-2" key="projects">
+							<Table items="{detailData>/projects}" noDataText="{i18n>noProjects}"
+								autoPopinMode="true" fixedLayout="false">
+								<columns>
+									<Column><Text text="{i18n>projectName}" /></Column>
+									<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+										<Text text="{i18n>status}" />
+									</Column>
+								</columns>
+								<items>
+									<ColumnListItem>
+										<Text text="{detailData>name}" />
+										<ObjectStatus text="{detailData>statusText}" state="{detailData>statusState}" />
+									</ColumnListItem>
+								</items>
+							</Table>
+						</IconTabFilter>
+
+						<IconTabFilter text="Ödemeler ({detailData>/paymentCount})"
+							icon="sap-icon://money-bills" key="payments">
+							<Table items="{detailData>/payments}" noDataText="{i18n>noPayments}"
+								autoPopinMode="true" fixedLayout="false">
+								<columns>
+									<Column><Text text="{i18n>projectName}" /></Column>
+									<Column hAlign="End" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+										<Text text="{i18n>netAmount}" />
+									</Column>
+									<Column minScreenWidth="Phone">
+										<Text text="{i18n>paymentStatus}" />
+									</Column>
+								</columns>
+								<items>
+									<ColumnListItem>
+										<Text text="{detailData>projectName}" />
+										<Text text="{detailData>netFormatted}" />
+										<ObjectStatus text="{detailData>statusText}" state="{detailData>statusState}" />
+									</ColumnListItem>
+								</items>
+							</Table>
+						</IconTabFilter>
+					</items>
+				</IconTabBar>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

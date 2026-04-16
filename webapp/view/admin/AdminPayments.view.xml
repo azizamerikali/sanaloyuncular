@@ -1,0 +1,58 @@
+<mvc:View controllerName="com.openui5.webdb.controller.admin.AdminPayments"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+
+	<Page id="adminPaymentsPage" title="{i18n>adminPayments}" showNavButton="false" class="sapUiContentPadding">
+		<headerContent>
+			<Button text="{i18n>createPayment}" icon="sap-icon://add" type="Emphasized"
+				press=".onCreatePayment" />
+		</headerContent>
+		<content>
+			<Table id="adminPaymentsTable" items="{payListData>/payments}"
+				noDataText="{i18n>noPayments}"
+				growing="true" growingThreshold="20">
+				<columns>
+					<Column>
+						<Text text="Üye" />
+					</Column>
+					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>projectName}" />
+					</Column>
+					<Column hAlign="End" minScreenWidth="Phone">
+						<Text text="{i18n>grossAmount}" />
+					</Column>
+					<Column hAlign="End" minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>deduction}" />
+					</Column>
+					<Column hAlign="End" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>netAmount}" />
+					</Column>
+					<Column minScreenWidth="Phone">
+						<Text text="{i18n>paymentStatus}" />
+					</Column>
+					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>paymentDate}" />
+					</Column>
+					<Column hAlign="End" width="8rem">
+						<Text text="{i18n>actions}" />
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<Text text="{payListData>memberName}" />
+						<Text text="{payListData>projectName}" />
+						<Text text="{payListData>grossFormatted}" />
+						<Text text="{payListData>deductionFormatted}" />
+						<Text text="{payListData>netFormatted}" />
+						<ObjectStatus text="{payListData>statusText}" state="{payListData>statusState}" />
+						<Text text="{payListData>date}" />
+						<HBox>
+							<Button icon="sap-icon://accept" type="Accept" press=".onMarkPaid"
+								visible="{= ${payListData>status} === 'unpaid'}" class="sapUiTinyMarginEnd" />
+							<Button icon="sap-icon://delete" type="Reject" press=".onDeletePayment" />
+						</HBox>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</content>
+	</Page>
+</mvc:View>

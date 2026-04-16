@@ -1,0 +1,46 @@
+<mvc:View controllerName="com.openui5.webdb.controller.member.MemberProfile"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:f="sap.ui.layout.form" xmlns:core="sap.ui.core">
+
+	<Page id="memberProfilePage" title="{i18n>memberProfile}" showNavButton="false" class="sapUiContentPadding">
+		<content>
+			<VBox>
+				<Panel headerText="{i18n>memberProfile}">
+					<VBox alignItems="Center" class="sapUiMediumMarginBottom">
+						<Avatar src="{profileData>/profilePicture}" displaySize="XL" displayShape="Circle" backgroundColor="Accent6" />
+					</VBox>
+					<f:SimpleForm id="profileForm" editable="true" layout="ResponsiveGridLayout"
+						labelSpanXL="3" labelSpanL="4" labelSpanM="4" labelSpanS="12"
+						columnsXL="1" columnsL="1" columnsM="1">
+
+						<Label text="{i18n>firstName}" required="true" />
+						<Input id="profileFirstName" value="{profileData>/firstName}" />
+
+						<Label text="{i18n>lastName}" required="true" />
+						<Input id="profileLastName" value="{profileData>/lastName}" />
+
+						<Label text="{i18n>email}" />
+						<Input id="profileEmail" value="{profileData>/email}" type="Email" />
+
+						<Label text="{i18n>phone}" />
+						<Input id="profilePhone" value="{profileData>/phone}" type="Tel" />
+
+						<Label text="{i18n>address}" />
+						<TextArea id="profileAddress" value="{profileData>/address}" rows="3" />
+
+						<Label text="{i18n>status}" />
+						<ObjectStatus text="{profileData>/statusText}" state="{profileData>/statusState}" />
+
+						<Label text="{i18n>createdAt}" />
+						<Text text="{profileData>/createdAtFormatted}" />
+					</f:SimpleForm>
+
+					<Toolbar>
+						<ToolbarSpacer />
+						<Button text="{i18n>save}" type="Emphasized" icon="sap-icon://save"
+							press=".onSaveProfile" />
+					</Toolbar>
+				</Panel>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

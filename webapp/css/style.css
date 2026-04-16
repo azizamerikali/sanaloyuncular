@@ -1,0 +1,43 @@
+/* =============================================
+   SanalOyuncular — Minimal Custom Styles
+   Theme: SAP Horizon (all styling via theme)
+   ============================================= */
+
+/* === Login / Register Page centering === */
+.antigravityLoginBg {
+    background-color: var(--sapBackgroundColor, #f5f6f7);
+}
+
+.antigravityLoginBg .sapMPageBgSolid {
+    background-color: var(--sapBackgroundColor, #f5f6f7) !important;
+}
+
+.loginCard {
+    max-width: 28rem;
+    width: 100%;
+}
+
+.registerCard {
+    max-width: 36rem;
+    width: 100%;
+}
+
+/* === GenericTile Dashboard Layout === */
+.tileContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+/* === Photo Capture Slots === */
+.photoSlot {
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.photoSlot.activeSlot {
+    border-color: #3f51b1;
+    background-color: rgba(63, 81, 177, 0.1);
+}

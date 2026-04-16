@@ -1,0 +1,39 @@
+<mvc:View controllerName="com.openui5.webdb.controller.client.ClientMembers"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+
+	<Page id="clientMembersPage" title="{i18n>clientMembers}" showNavButton="false" class="sapUiContentPadding">
+		<content>
+			<Table items="{cMembersData>/members}"
+				noDataText="{i18n>noMembers}"
+				growing="true" growingThreshold="20">
+				<columns>
+					<Column>
+						<Text text="{i18n>firstName}" />
+					</Column>
+					<Column>
+						<Text text="{i18n>lastName}" />
+					</Column>
+					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>email}" />
+					</Column>
+					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
+						<Text text="Fotoğraf Sayısı" />
+					</Column>
+					<Column hAlign="End">
+						<Text text="Favori" />
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<Text text="{cMembersData>firstName}" />
+						<Text text="{cMembersData>lastName}" />
+						<Text text="{cMembersData>email}" />
+						<Text text="{cMembersData>photoCount}" />
+						<Button icon="{= ${cMembersData>isFavorite} ? 'sap-icon://favorite' : 'sap-icon://unfavorite'}"
+							type="Transparent" press=".onToggleFavorite" />
+					</ColumnListItem>
+				</items>
+			</Table>
+		</content>
+	</Page>
+</mvc:View>

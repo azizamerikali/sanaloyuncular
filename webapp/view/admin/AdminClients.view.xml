@@ -1,0 +1,51 @@
+<mvc:View controllerName="com.openui5.webdb.controller.admin.AdminClients"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+
+	<Page id="adminClientsPage" title="{i18n>adminClients}" showNavButton="false" class="sapUiContentPadding">
+		<headerContent>
+			<Button text="{i18n>createClient}" icon="sap-icon://add" type="Emphasized"
+				press=".onCreateClient" />
+		</headerContent>
+		<content>
+			<Table items="{clientData>/clients}"
+				noDataText="{i18n>noClients}"
+				autoPopinMode="true" fixedLayout="false"
+				growing="true" growingThreshold="20">
+				<columns>
+					<Column>
+						<Text text="{i18n>firstName}" />
+					</Column>
+					<Column>
+						<Text text="{i18n>lastName}" />
+					</Column>
+					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>email}" />
+					</Column>
+					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+						<Text text="Şifre" />
+					</Column>
+					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>phone}" />
+					</Column>
+					<Column minScreenWidth="Phone">
+						<Text text="{i18n>status}" />
+					</Column>
+					<Column hAlign="End" width="8rem">
+						<Text text="{i18n>actions}" />
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<Text text="{clientData>firstName}" />
+						<Text text="{clientData>lastName}" />
+						<Text text="{clientData>email}" />
+						<Text text="{clientData>password}" />
+						<Text text="{clientData>phone}" />
+						<ObjectStatus text="{clientData>statusText}" state="{clientData>statusState}" />
+						<Button icon="sap-icon://delete" type="Reject" press=".onDeleteClient" />
+					</ColumnListItem>
+				</items>
+			</Table>
+		</content>
+	</Page>
+</mvc:View>

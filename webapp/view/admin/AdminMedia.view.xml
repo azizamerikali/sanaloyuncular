@@ -1,0 +1,38 @@
+<mvc:View controllerName="com.openui5.webdb.controller.admin.AdminMedia"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core">
+
+	<Page id="adminMediaPage" title="{i18n>adminMedia}" showNavButton="false" class="sapUiContentPadding">
+		<content>
+			<Table id="adminMediaTable" items="{mediaPoolData>/media}"
+				noDataText="{i18n>noPhotos}"
+				autoPopinMode="true" fixedLayout="false"
+				growing="true" growingThreshold="20">
+				<columns>
+					<Column>
+						<Text text="{i18n>fileName}" />
+					</Column>
+					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+						<Text text="Üye" />
+					</Column>
+					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>uploadDate}" />
+					</Column>
+					<Column hAlign="End" width="8rem">
+						<Text text="{i18n>actions}" />
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<HBox alignItems="Center">
+							<core:Icon src="sap-icon://attachment-photo" class="sapUiSmallMarginEnd" />
+							<Text text="{mediaPoolData>fileName}" />
+						</HBox>
+						<Text text="{mediaPoolData>memberName}" />
+						<Text text="{mediaPoolData>createdAtFormatted}" />
+						<Button icon="sap-icon://delete" type="Reject" press=".onDeleteMedia" />
+					</ColumnListItem>
+				</items>
+			</Table>
+		</content>
+	</Page>
+</mvc:View>

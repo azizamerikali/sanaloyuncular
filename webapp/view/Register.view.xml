@@ -1,0 +1,146 @@
+<mvc:View
+	controllerName="com.openui5.webdb.controller.Register"
+	displayBlock="true"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:f="sap.ui.layout.form"
+	xmlns:u="sap.ui.unified"
+	xmlns:core="sap.ui.core">
+
+	<Page id="registerPage" title="{i18n>registerTitle}" showNavButton="true"
+		navButtonPress=".onNavBack" class="antigravityLoginBg">
+		<content>
+			<FlexBox alignItems="Center" justifyContent="Center" width="100%" direction="Column">
+				<VBox class="registerCard sapUiResponsiveMargin">
+					<Panel>
+						<VBox class="sapUiContentPadding">
+							<Title text="{i18n>registerTitle}" level="H2" titleStyle="H4"
+								class="sapUiSmallMarginBottom" />
+							<Text text="{i18n>registerSubtitle}"
+								class="sapUiSmallMarginBottom" />
+
+							<!-- Google Login Gateway -->
+							<VBox visible="{newMember>/isGoogleAuthPending}">
+								<Text text="Kayıt formunu doldurabilmek için önce ad, soyad ve e-posta bilginizi doğrulamalısınız." textAlign="Center" width="100%" class="sapUiSmallMarginBottom" />
+								<core:HTML content='&lt;div id="googleButtonContainerReg" class="sapUiSmallMarginBottom" style="display:flex; justify-content:center; width:100%;"&gt;&lt;/div&gt;' />
+							</VBox>
+
+							<!-- Full Registration Form -->
+							<VBox visible="{newMember>/isGoogleAuthCompleted}">
+								<VBox alignItems="Center" class="sapUiSmallMarginBottom">
+									<Label text="Lütfen Üç Açıdan Fotoğrafınızı Çekin (Zorunlu)" required="true" class="sapUiTinyMarginBottom" />
+									
+									<HBox wrap="Wrap" justifyContent="Center" class="sapUiSmallMarginBottom">
+										<VBox alignItems="Center" class="sapUiSmallMarginEnd">
+											<Avatar src="{newMember>/photoFront}" displaySize="L" press=".onSlotPress" tooltip="Karşıdan" 
+												displayShape="Square" class="photoSlot {= ${newMember>/activeSlot} === 'front' ? 'activeSlot' : '' }" />
+											<Label text="Karşı" />
+										</VBox>
+										<VBox alignItems="Center" class="sapUiSmallMarginEnd">
+											<Avatar src="{newMember>/photoRight}" displaySize="L" press=".onSlotPress" tooltip="Sağ Profil"
+												displayShape="Square" class="photoSlot {= ${newMember>/activeSlot} === 'right' ? 'activeSlot' : '' }" />
+											<Label text="Sağ Profil" />
+										</VBox>
+										<VBox alignItems="Center">
+											<Avatar src="{newMember>/photoLeft}" displaySize="L" press=".onSlotPress" tooltip="Sol Profil"
+												displayShape="Square" class="photoSlot {= ${newMember>/activeSlot} === 'left' ? 'activeSlot' : '' }" />
+											<Label text="Sol Profil" />
+										</VBox>
+									</HBox>
+
+									<SegmentedButton selectedKey="{newMember>/activeSlot}" width="100%" class="sapUiSmallMarginBottom">
+										<items>
+											<SegmentedButtonItem text="Karşı" key="front" />
+											<SegmentedButtonItem text="Sağ Profil" key="right" />
+											<SegmentedButtonItem text="Sol Profil" key="left" />
+										</items>
+									</SegmentedButton>
+
+									<HBox>
+										<Button text="Kamerayı Başlat" icon="sap-icon://camera" press=".onStartCamera" tooltip="Kamerayı başlatın" />
+										<Button text="{= ${newMember>/activeSlot} === 'front' ? 'Karşı Çek' : (${newMember>/activeSlot} === 'right' ? 'Sağ Profil Çek' : 'Sol Profil Çek') }" 
+											type="Emphasized" icon="sap-icon://attachment-photo" press=".onTakePhoto" 
+											visible="{newMember>/isCameraActive}" class="sapUiSmallMarginBegin" />
+									</HBox>
+
+									<VBox visible="{newMember>/isCameraActive}" class="sapUiSmallMarginTop" alignItems="Center">
+										<core:HTML content='&lt;video id="videoPlayer" autoplay width="280" height="210" style="border: 4px solid #3f51b1; border-radius: 8px; object-fit: cover;"&gt;&lt;/video&gt;' />
+										<core:HTML content='&lt;canvas id="captureCanvas" width="280" height="210" style="display:none;"&gt;&lt;/canvas&gt;' />
+										<Text text="Kameraya bakın ve Fotoğraf Çek butonuna basın." class="sapUiTinyMarginTop" />
+									</VBox>
+								</VBox>
+
+								<f:SimpleForm
+									id="registerForm"
+									editable="true"
+									layout="ResponsiveGridLayout"
+									labelSpanXL="3" labelSpanL="4" labelSpanM="4" labelSpanS="12"
+									emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0"
+									columnsXL="1" columnsL="1" columnsM="1">
+
+									<Label text="{i18n>firstName}" required="true" />
+									<Input id="firstNameInput" value="{newMember>/firstName}" liveChange=".onNameChange" />
+
+									<Label text="{i18n>lastName}" required="true" />
+									<Input id="lastNameInput" value="{newMember>/lastName}" liveChange=".onNameChange" />
+
+									<Label text="{i18n>email}" required="true" />
+									<Input id="emailInput" value="{newMember>/email}" type="Email" />
+
+									<Label text="{i18n>phone}" required="true" />
+									<Input id="phoneInput" value="{newMember>/phone}" type="Tel" />
+
+									<Label text="Şehir" required="true" />
+									<ComboBox items="{cities>/}" selectedKey="{newMember>/city}" width="100%">
+										<core:Item key="{cities>key}" text="{cities>name}" />
+									</ComboBox>
+
+									<Label text="Doğum Tarihi" required="true" />
+									<DatePicker id="dpBirthDate" displayFormat="dd.MM.yyyy" valueFormat="yyyy-MM-dd" value="{newMember>/birthDate}" change=".onBirthDateChange" />
+
+									<Label text="Anne/Baba/Vasi Ad Soyad" required="{newMember>/isUnder18}" visible="{newMember>/isUnder18}" />
+									<Input id="inParentName" value="{newMember>/parentName}" visible="{newMember>/isUnder18}" liveChange=".onParentNameChange" />
+
+									<Label text="Veli Onay Belgesi" required="{newMember>/isUnder18}" visible="{newMember>/isUnder18}" />
+									<u:FileUploader id="fuConsent" width="100%" placeholder="Belge yüklemek için seçin" change=".onConsentFileChange" visible="{newMember>/isUnder18}" />
+
+									<Label text="IBAN Sahibi" required="true" />
+									<ComboBox id="cbIbanHolder" selectedKey="{newMember>/ibanHolder}" items="{newMember>/ibanHolderList}" width="100%">
+										<core:Item key="{newMember>name}" text="{newMember>name}" />
+									</ComboBox>
+
+									<Label text="IBAN" required="true" />
+									<Input id="inIban" value="{newMember>/iban}" placeholder="..." liveChange=".onIbanChange" valueState="{newMember>/ibanState}" valueStateText="{newMember>/ibanStateText}" />
+
+									<Label text="Oyunculuk Eğitimi" />
+									<TextArea value="{newMember>/actingTraining}" rows="2" />
+									
+									<Label text="Oyunculuk Deneyimi" />
+									<TextArea value="{newMember>/actingExperience}" rows="2" />
+								</f:SimpleForm>
+
+								<!-- Consent Section -->
+								<Panel headerText="{i18n>consentTitle}" class="sapUiSmallMarginTop">
+									<VBox class="sapUiSmallMargin">
+										<Text id="consentText" text="{appData>/consentText}"
+											class="sapUiSmallMarginBottom" wrapping="true" />
+										<CheckBox id="consentCheckbox" text="{i18n>consentAccept}" />
+									</VBox>
+								</Panel>
+
+								<Button
+									id="registerBtn"
+									text="{i18n>register}"
+									type="Emphasized"
+									width="100%"
+									class="sapUiMediumMarginTop sapUiMediumMarginBottom"
+									press=".onRegister" />
+							</VBox>
+						</VBox>
+					</Panel>
+				</VBox>
+			</FlexBox>
+		</content>
+	</Page>
+
+</mvc:View>

@@ -1,0 +1,42 @@
+<mvc:View controllerName="com.openui5.webdb.controller.client.ClientProjects"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+
+	<Page id="clientProjectsPage" title="{i18n>clientProjects}" showNavButton="false" class="sapUiContentPadding">
+		<headerContent>
+			<Button text="{i18n>createProject}" icon="sap-icon://add" type="Emphasized"
+				press=".onCreateProject" />
+		</headerContent>
+		<content>
+			<Table items="{cProjData>/projects}"
+				noDataText="{i18n>noProjects}"
+				growing="true" growingThreshold="20">
+				<columns>
+					<Column>
+						<Text text="{i18n>projectName}" />
+					</Column>
+					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>projectDesc}" />
+					</Column>
+					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
+						<Text text="Üye Sayısı" />
+					</Column>
+					<Column minScreenWidth="Phone">
+						<Text text="{i18n>status}" />
+					</Column>
+					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>createdAt}" />
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem type="Navigation" press=".onProjectPress">
+						<Text text="{cProjData>name}" />
+						<Text text="{cProjData>description}" />
+						<Text text="{cProjData>memberCount}" />
+						<ObjectStatus text="{cProjData>statusText}" state="{cProjData>statusState}" />
+						<Text text="{cProjData>createdAtFormatted}" />
+					</ColumnListItem>
+				</items>
+			</Table>
+		</content>
+	</Page>
+</mvc:View>

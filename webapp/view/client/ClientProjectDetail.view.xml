@@ -1,0 +1,57 @@
+<mvc:View controllerName="com.openui5.webdb.controller.client.ClientProjectDetail"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+
+	<Page id="clientProjectDetailPage" title="{i18n>projectDetail}" showNavButton="true"
+		navButtonPress=".onNavBack" class="sapUiContentPadding">
+		<content>
+			<VBox>
+				<ObjectHeader
+					title="{cProjDetailData>/name}"
+					number="{cProjDetailData>/statusText}"
+					numberState="{cProjDetailData>/statusState}"
+					responsive="true"
+					fullScreenOptimized="true">
+					<attributes>
+						<ObjectAttribute text="{cProjDetailData>/description}" />
+					</attributes>
+				</ObjectHeader>
+
+				<Panel headerText="{i18n>assignedMembers}" class="sapUiSmallMarginTop">
+					<headerToolbar>
+						<Toolbar>
+							<ToolbarSpacer />
+							<Button text="Favori Üye Ata" icon="sap-icon://add-favorite"
+								press=".onAssignFavorite" />
+						</Toolbar>
+					</headerToolbar>
+					<Table items="{cProjDetailData>/assignedMembers}" noDataText="{i18n>noMembers}"
+						autoPopinMode="true" fixedLayout="false">
+						<columns>
+							<Column>
+								<Text text="{i18n>firstName}" />
+							</Column>
+							<Column>
+								<Text text="{i18n>lastName}" />
+							</Column>
+							<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+								<Text text="{i18n>email}" />
+							</Column>
+							<Column hAlign="End">
+								<Text text="{i18n>actions}" />
+							</Column>
+						</columns>
+						<items>
+							<ColumnListItem>
+								<Text text="{cProjDetailData>firstName}" />
+								<Text text="{cProjDetailData>lastName}" />
+								<Text text="{cProjDetailData>email}" />
+								<Button icon="sap-icon://delete" type="Reject"
+									press=".onRemoveMember" />
+							</ColumnListItem>
+						</items>
+					</Table>
+				</Panel>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

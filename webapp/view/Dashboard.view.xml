@@ -1,0 +1,125 @@
+<mvc:View
+	controllerName="com.openui5.webdb.controller.Dashboard"
+	displayBlock="true"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core">
+
+	<Page id="dashboardPage" title="{i18n>dashboard}" showNavButton="false" class="sapUiContentPadding">
+		<content>
+			<VBox>
+				<!-- Welcome -->
+				<HBox alignItems="Center" class="sapUiMediumMarginBottom">
+					<core:Icon src="sap-icon://hello-world" size="2rem"
+						class="sapUiSmallMarginEnd" />
+					<VBox>
+						<Title text="{i18n>welcomeBack}, {appView>/currentUserName}!" level="H2" titleStyle="H4" />
+						<Text text="{i18n>appDescription}" class="sapUiTinyMarginTop" />
+					</VBox>
+				</HBox>
+
+				<!-- KPI Tiles -->
+				<FlexBox wrap="Wrap" class="sapUiSmallMarginBottom">
+
+					<GenericTile
+						header="{i18n>totalProjects}"
+						press=".onProjectPress"
+						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom">
+						<TileContent>
+							<NumericContent
+								value="{dashData>/projectCount}"
+								icon="sap-icon://project-definition-triangle-2"
+								valueColor="Neutral" />
+						</TileContent>
+					</GenericTile>
+					<GenericTile
+						header="{i18n>totalPayments}"
+						subheader="{dashData>/paidTotal}"
+						press=".onPaymentPress"
+						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom">
+						<TileContent>
+							<NumericContent
+								value="{dashData>/paymentCount}"
+								icon="sap-icon://money-bills"
+								valueColor="Critical" />
+						</TileContent>
+					</GenericTile>
+					<GenericTile
+						header="{i18n>totalMedia}"
+						press=".onMediaPress"
+						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom">
+						<TileContent>
+							<NumericContent
+								value="{dashData>/mediaCount}"
+								icon="sap-icon://camera"
+								valueColor="Neutral" />
+						</TileContent>
+					</GenericTile>
+				</FlexBox>
+
+				<!-- Recent Projects -->
+				<Panel headerText="{i18n>recentProjects}" class="sapUiSmallMarginBottom">
+					<Table id="recentProjectsTable" items="{dashData>/recentProjects}"
+						growing="true" growingThreshold="5"
+						autoPopinMode="true" fixedLayout="false">
+						<columns>
+							<Column>
+								<Text text="{i18n>projectName}" />
+							</Column>
+							<Column minScreenWidth="Tablet" demandPopin="true"
+								popinDisplay="Inline">
+								<Text text="{i18n>status}" />
+							</Column>
+							<Column minScreenWidth="Desktop" demandPopin="true"
+								popinDisplay="Inline">
+								<Text text="{i18n>createdAt}" />
+							</Column>
+						</columns>
+						<items>
+							<ColumnListItem type="Navigation" press=".onProjectPress">
+								<Text text="{dashData>name}" />
+								<ObjectStatus text="{dashData>status}"
+									state="{= ${dashData>status} === 'active' ? 'Success' : 'Information'}" />
+								<Text text="{dashData>createdAt}" />
+							</ColumnListItem>
+						</items>
+					</Table>
+				</Panel>
+
+				<!-- Recent Payments -->
+				<Panel headerText="{i18n>recentPayments}">
+					<Table id="recentPaymentsTable" items="{dashData>/recentPayments}"
+						growing="true" growingThreshold="5"
+						autoPopinMode="true" fixedLayout="false">
+						<columns>
+							<Column hAlign="End">
+								<Text text="{i18n>grossAmount}" />
+							</Column>
+							<Column hAlign="End" minScreenWidth="Tablet" demandPopin="true"
+								popinDisplay="Inline">
+								<Text text="{i18n>netAmount}" />
+							</Column>
+							<Column minScreenWidth="Phone">
+								<Text text="{i18n>paymentStatus}" />
+							</Column>
+							<Column minScreenWidth="Desktop" demandPopin="true"
+								popinDisplay="Inline">
+								<Text text="{i18n>paymentDate}" />
+							</Column>
+						</columns>
+						<items>
+							<ColumnListItem type="Navigation" press=".onPaymentPress">
+								<Text text="{dashData>grossAmount}" />
+								<Text text="{dashData>netAmount}" />
+								<ObjectStatus text="{dashData>status}"
+									state="{= ${dashData>status} === 'paid' ? 'Success' : 'Error'}" />
+								<Text text="{dashData>date}" />
+							</ColumnListItem>
+						</items>
+					</Table>
+				</Panel>
+			</VBox>
+		</content>
+	</Page>
+
+</mvc:View>

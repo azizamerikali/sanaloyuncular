@@ -1,0 +1,146 @@
+<mvc:View controllerName="com.openui5.webdb.controller.admin.AdminMembers"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core"
+	xmlns:form="sap.ui.layout.form" xmlns:u="sap.ui.unified">
+
+	<Page id="adminMembersPage" title="{i18n>adminMembers}" showNavButton="false" class="sapUiContentPadding">
+		<headerContent>
+			<SearchField id="memberSearch" placeholder="{i18n>searchMembers}"
+				liveChange=".onSearchMembers" width="auto" />
+			<Button text="Yeni Üye Ekle" icon="sap-icon://add" type="Emphasized" press=".onOpenAddMember" class="sapUiSmallMarginBegin" />
+		</headerContent>
+		<content>
+			<Table id="adminMembersTable" items="{membersData>/members}"
+				noDataText="{i18n>noMembers}" mode="None"
+				autoPopinMode="true" fixedLayout="false"
+				growing="true" growingThreshold="20">
+				<columns>
+					<Column width="4rem">
+						<Text text="Foto" />
+					</Column>
+					<Column>
+						<Text text="{i18n>firstName}" />
+					</Column>
+					<Column>
+						<Text text="{i18n>lastName}" />
+					</Column>
+					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>email}" />
+					</Column>
+					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+						<Text text="Şifre" />
+					</Column>
+					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>phone}" />
+					</Column>
+					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+						<Text text="Şehir" />
+					</Column>
+					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+						<Text text="D. Tarihi" />
+					</Column>
+					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
+						<Text text="IBAN" />
+					</Column>
+					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
+						<Text text="Eğitim" />
+					</Column>
+					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
+						<Text text="Deneyim" />
+					</Column>
+					<Column minScreenWidth="Phone">
+						<Text text="{i18n>status}" />
+					</Column>
+					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
+						<Text text="{i18n>createdAt}" />
+					</Column>
+					<Column hAlign="End" width="8rem">
+						<Text text="{i18n>actions}" />
+					</Column>
+				</columns>
+				<items>
+					<ColumnListItem type="Navigation" press=".onMemberPress">
+						<Avatar src="{membersData>profilePicture}" displaySize="XS" fallbackIcon="sap-icon://person-placeholder" />
+						<Text text="{membersData>firstName}" />
+						<Text text="{membersData>lastName}" />
+						<Text text="{membersData>email}" />
+						<Text text="{membersData>password}" />
+						<Text text="{membersData>phone}" />
+						<Text text="{membersData>city}" />
+						<Text text="{membersData>birthDate}" />
+						<Text text="{membersData>iban}" />
+						<Text text="{membersData>actingTraining}" />
+						<Text text="{membersData>actingExperience}" />
+						<ObjectStatus text="{membersData>statusText}" state="{membersData>statusState}" />
+						<Text text="{membersData>createdAtFormatted}" />
+						<HBox>
+							<Button icon="sap-icon://accept" type="Accept" press=".onApprove"
+								visible="{= ${membersData>status} !== 'active'}" tooltip="Aktifleştir/Onayla"
+								class="sapUiTinyMarginEnd" />
+							<Button icon="sap-icon://decline" type="Reject" press=".onDeactivate"
+								visible="{= ${membersData>status} === 'active'}" tooltip="Pasifleştir" />
+							<Button icon="sap-icon://delete" type="Reject" press=".onDeleteMember"
+								tooltip="Sil" class="sapUiTinyMarginBegin" />
+						</HBox>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</content>
+		<dependents>
+			<Dialog id="addMemberDialog" title="Yeni Üye Ekle" contentWidth="650px" verticalScrolling="true" stretch="{device>/system/phone}">
+				<content>
+					<form:SimpleForm editable="true" layout="ResponsiveGridLayout" labelSpanXL="4" labelSpanL="4" labelSpanM="4" labelSpanS="12">
+						<form:content>
+							<Label text="Ad" required="true" />
+							<Input value="{newMember>/firstName}" liveChange=".onNameChange" />
+							<Label text="Soyad" required="true" />
+							<Input value="{newMember>/lastName}" liveChange=".onNameChange" />
+							<Label text="E-posta" required="true" />
+							<Input value="{newMember>/email}" type="Email" />
+							<Label text="Şifre" required="true" />
+							<Input value="{newMember>/password}" />
+							<Label text="Telefon" required="true" />
+							<Input value="{newMember>/phone}" type="Tel" />
+							
+							<Label text="Şehir" required="true" />
+							<ComboBox items="{cities>/}" selectedKey="{newMember>/city}">
+								<core:Item key="{cities>key}" text="{cities>name}" />
+							</ComboBox>
+
+							<Label text="Doğum Tarihi" required="true" />
+							<DatePicker id="dpBirthDate" displayFormat="dd.MM.yyyy" valueFormat="yyyy-MM-dd" value="{newMember>/birthDate}" change=".onBirthDateChange" />
+
+							<Label text="Anne/Baba/Vasi Ad Soyad" required="{newMember>/isUnder18}" visible="{newMember>/isUnder18}" />
+							<Input id="inParentName" value="{newMember>/parentName}" visible="{newMember>/isUnder18}" liveChange=".onParentNameChange" />
+
+							<Label text="Veli Onay Belgesi" required="{newMember>/isUnder18}" visible="{newMember>/isUnder18}" />
+							<u:FileUploader id="fuConsent" width="100%" placeholder="Belge yüklemek için seçin" change=".onConsentFileChange" visible="{newMember>/isUnder18}" />
+
+							<Label text="IBAN Sahibi" required="true" />
+							<ComboBox id="cbIbanHolder" selectedKey="{newMember>/ibanHolder}" items="{newMember>/ibanHolderList}">
+								<core:Item key="{newMember>name}" text="{newMember>name}" />
+							</ComboBox>
+
+							<Label text="IBAN" required="true" />
+							<Input id="inIban" value="{newMember>/iban}" placeholder="..." liveChange=".onIbanChange" valueState="{newMember>/ibanState}" valueStateText="{newMember>/ibanStateText}" />
+
+							<Label text="Oyunculuk Eğitimi" />
+							<TextArea value="{newMember>/actingTraining}" rows="2" />
+							<Label text="Oyunculuk Deneyimi" />
+							<TextArea value="{newMember>/actingExperience}" rows="2" />
+
+							<Label text="Durum" />
+							<Select selectedKey="{newMember>/status}" width="100%">
+								<core:Item key="active" text="Aktif" />
+								<core:Item key="pending" text="Onay Bekliyor" />
+							</Select>
+						</form:content>
+					</form:SimpleForm>
+				</content>
+				<buttons>
+					<Button text="Kaydet" type="Emphasized" press=".onSaveNewMember" />
+					<Button text="İptal" press=".onCancelAddMember" />
+				</buttons>
+			</Dialog>
+		</dependents>
+	</Page>
+</mvc:View>
