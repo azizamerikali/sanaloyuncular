@@ -16,16 +16,28 @@ import favoritesRouter from "./routes/favorites";
 import systemRouter from "./routes/system";
 import verifyRouter from "./routes/verify";
 import { protect, AuthenticatedRequest } from "./middleware/authMiddleware";
+import { getEncryptionKeyInfo } from "./utils/cryptoUtil";
 
 dotenv.config();
 
+let initializationError: string | null = null;
+
 // Validate required environment variables at startup
-const REQUIRED_ENV_VARS = ["JWT_SECRET", "ENCRYPTION_KEY"];
-for (const key of REQUIRED_ENV_VARS) {
-  if (!process.env[key]) {
-    console.error(`❌ FATAL: Missing required environment variable: ${key}`);
-    process.exit(1);
+try {
+  const REQUIRED_ENV_VARS = ["JWT_SECRET", "ENCRYPTION_KEY"];
+  for (const key of REQUIRED_ENV_VARS) {
+    if (!process.env[key]) {
+      throw new Error(`Missing required environment variable: ${key}`);
+    }
   }
+  // Also check encryption key specifically
+  const keyInfo = getEncryptionKeyInfo();
+  if (!keyInfo.isValid) {
+    throw new Error(`ENCRYPTION_KEY is invalid: length is ${keyInfo.length}, expected 32.`);
+  }
+} catch (err: any) {
+  initializationError = err.message;
+  console.error(`❌ Initialization Error: ${initializationError}`);
 }
 
 const app = express();
@@ -81,11 +93,30 @@ app.use("/api/verify", verifyRouter);
 
 // Health check
 app.get("/api/health", (_req, res) => {
+  const keyInfo = getEncryptionKeyInfo();
   try {
     const userCount = db.prepare("SELECT COUNT(*) as cnt FROM users").get() as { cnt: number } | undefined;
-    res.json({ status: "ok", database: "sqlite", users: userCount?.cnt || 0 });
-  } catch {
-    res.json({ status: "ok", database: "sqlite", users: 0 });
+    res.status(initializationError ? 503 : 200).json({ 
+      status: initializationError ? "error" : "ok",
+      initError: initializationError,
+      envStatus: {
+        jwtSecret: !!process.env.JWT_SECRET,
+        encryptionKey: keyInfo
+      },
+      database: "sqlite", 
+      users: userCount?.cnt || 0 
+    });
+  } catch (err: any) {
+    res.status(503).json({ 
+      status: "error", 
+      initError: initializationError || err.message,
+      envStatus: {
+        jwtSecret: !!process.env.JWT_SECRET,
+        encryptionKey: keyInfo
+      },
+      database: "sqlite", 
+      users: 0 
+    });
   }
 });
 

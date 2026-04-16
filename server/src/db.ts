@@ -25,21 +25,31 @@ class DatabaseWrapper {
   }
 
   private async initialize(): Promise<void> {
-    const SQL = await initSqlJs();
+    try {
+      const SQL = await initSqlJs();
 
-    if (fs.existsSync(DB_PATH)) {
-      const buffer = fs.readFileSync(DB_PATH);
-      this.db = new SQL.Database(buffer);
-    } else {
-      this.db = new SQL.Database();
+      if (fs.existsSync(DB_PATH)) {
+        const buffer = fs.readFileSync(DB_PATH);
+        this.db = new SQL.Database(buffer);
+      } else {
+        this.db = new SQL.Database();
+      }
+
+      // Enable foreign keys
+      this.db.run("PRAGMA foreign_keys = ON;");
+      console.log(`✅ Database initialized at ${DB_PATH}`);
+    } catch (err: any) {
+      console.error(`❌ Database Initialization Failed: ${err.message}`);
+      throw err;
     }
-
-    // Enable foreign keys
-    this.db.run("PRAGMA foreign_keys = ON;");
   }
 
   async ready(): Promise<void> {
-    await this.initPromise;
+    try {
+      await this.initPromise;
+    } catch (err: any) {
+      throw new Error(`Database failed to initialize: ${err.message}`);
+    }
   }
 
   getDbPath(): string {

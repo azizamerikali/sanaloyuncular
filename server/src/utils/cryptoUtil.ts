@@ -3,17 +3,28 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Ensure ENCRYPTION_KEY is exactly 32 bytes (256 bits) for aes-256-gcm
-// Must be set via environment variable - no fallback allowed.
-const rawKey = process.env.ENCRYPTION_KEY as string;
-const ENCRYPTION_KEY_BUF = Buffer.from(rawKey, "utf8");
-if (ENCRYPTION_KEY_BUF.length !== 32) {
-  throw new Error(
-    `ENCRYPTION_KEY must be exactly 32 bytes for AES-256-GCM. Got ${ENCRYPTION_KEY_BUF.length} bytes. ` +
-    `Generate a valid key with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
-  );
-}
-const ENCRYPTION_KEY = ENCRYPTION_KEY_BUF;
+// ENCRYPTION_KEY must be exactly 32 bytes (256 bits) for aes-256-gcm
+// We'll validate this during initialization or use to prevent startup crashes.
+const getEncryptionKey = (): Buffer => {
+  const rawKey = process.env.ENCRYPTION_KEY || "";
+  const buf = Buffer.from(rawKey, "utf8");
+  if (buf.length !== 32) {
+    throw new Error(`ENCRYPTION_KEY must be exactly 32 bytes. Got ${buf.length}.`);
+  }
+  return buf;
+};
+
+// Diagnostic helper
+export const getEncryptionKeyInfo = () => {
+  const rawKey = process.env.ENCRYPTION_KEY || "";
+  const buf = Buffer.from(rawKey, "utf8");
+  return {
+    exists: !!rawKey,
+    length: buf.length,
+    isValid: buf.length === 32
+  };
+};
+
 const IV_LENGTH = 12; // GCM typically uses a 96-bit (12 byte) IV
 const ALGORITHM = "aes-256-gcm";
 
@@ -25,7 +36,7 @@ export function encryptField(text: string): string {
   if (!text) return text;
   
   const iv = crypto.randomBytes(IV_LENGTH);
-  const cipher = crypto.createCipheriv(ALGORITHM, ENCRYPTION_KEY, iv);
+  const cipher = crypto.createCipheriv(ALGORITHM, getEncryptionKey(), iv);
   
   let encrypted = cipher.update(text, "utf8", "hex");
   encrypted += cipher.final("hex");
@@ -48,7 +59,7 @@ export function decryptField(text: string): string {
 
     const iv = Buffer.from(ivHex, "hex");
     const authTag = Buffer.from(authTagHex, "hex");
-    const decipher = crypto.createDecipheriv(ALGORITHM, ENCRYPTION_KEY, iv);
+    const decipher = crypto.createDecipheriv(ALGORITHM, getEncryptionKey(), iv);
 
     decipher.setAuthTag(authTag);
 
