@@ -135,14 +135,87 @@ async function start() {
   await db.ready();
   console.log("✅ Database initialized");
 
-  // Basic migration
-  try {
-    db.exec("ALTER TABLE users ADD COLUMN profile_picture TEXT DEFAULT '';");
-    console.log("✅ Migration applied: users.profile_picture");
-  } catch (e) {}
-
+  // Ensure full schema exists — safe to run on every startup (CREATE TABLE IF NOT EXISTS).
+  // Required on Vercel where /tmp database is empty on every cold start.
   try {
     db.exec(`
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        first_name TEXT NOT NULL DEFAULT '',
+        last_name TEXT NOT NULL DEFAULT '',
+        email TEXT NOT NULL DEFAULT '',
+        phone TEXT NOT NULL DEFAULT '',
+        address TEXT NOT NULL DEFAULT '',
+        password TEXT NOT NULL DEFAULT '',
+        birth_date TEXT DEFAULT '',
+        parent_name TEXT DEFAULT '',
+        consent_document TEXT DEFAULT '',
+        iban TEXT DEFAULT '',
+        iban_holder TEXT DEFAULT '',
+        city TEXT DEFAULT '',
+        acting_training TEXT DEFAULT '',
+        acting_experience TEXT DEFAULT '',
+        profile_picture TEXT DEFAULT '',
+        role TEXT NOT NULL DEFAULT 'member',
+        status TEXT NOT NULL DEFAULT 'pending',
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS media (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        file_name TEXT NOT NULL DEFAULT '',
+        file_path TEXT NOT NULL DEFAULT '',
+        file_data TEXT NOT NULL DEFAULT '',
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE TABLE IF NOT EXISTS consents (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        version TEXT NOT NULL DEFAULT '1.0',
+        accepted_at TEXT NOT NULL DEFAULT (datetime('now')),
+        ip_address TEXT NOT NULL DEFAULT '',
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE TABLE IF NOT EXISTS projects (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL DEFAULT '',
+        description TEXT NOT NULL DEFAULT '',
+        created_by TEXT NOT NULL DEFAULT '',
+        status TEXT NOT NULL DEFAULT 'active',
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS assignments (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        UNIQUE(project_id, user_id),
+        FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE TABLE IF NOT EXISTS payments (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        project_id TEXT NOT NULL,
+        date TEXT NOT NULL DEFAULT (date('now')),
+        gross_amount REAL NOT NULL DEFAULT 0,
+        deduction REAL NOT NULL DEFAULT 0,
+        net_amount REAL NOT NULL DEFAULT 0,
+        status TEXT NOT NULL DEFAULT 'unpaid',
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+      );
+      CREATE TABLE IF NOT EXISTS favorites (
+        id TEXT PRIMARY KEY,
+        client_id TEXT NOT NULL,
+        member_id TEXT NOT NULL,
+        FOREIGN KEY (client_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE
+      );
+      CREATE TABLE IF NOT EXISTS consent_text (
+        id INTEGER PRIMARY KEY DEFAULT 1,
+        content TEXT NOT NULL DEFAULT ''
+      );
       CREATE TABLE IF NOT EXISTS verification_codes (
         id TEXT PRIMARY KEY,
         email TEXT NOT NULL,
@@ -152,10 +225,15 @@ async function start() {
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
     `);
-    console.log("✅ Migration applied: verification_codes table");
+    console.log("✅ Schema ready");
   } catch (e) {
-    console.error("❌ Migration failed: verification_codes", e);
+    console.error("❌ Schema creation failed:", e);
   }
+
+  // Column migrations (safe to fail if already applied)
+  try {
+    db.exec("ALTER TABLE users ADD COLUMN profile_picture TEXT DEFAULT '';");
+  } catch (e) {}
 
   if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
     app.listen(PORT, () => {
