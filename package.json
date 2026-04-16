@@ -48,7 +48,7 @@
 		"globals": "^16.4.0",
 		"rimraf": "^6.0.1",
 		"ts-node": "^10.9.2",
-		"typescript": "^5.9.3",
+		"typescript": "^5.7.2",
 		"typescript-eslint": "^8.44.1",
 		"ui5-middleware-livereload": "^3.1.4",
 		"ui5-test-runner": "^5.9.1",
