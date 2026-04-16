@@ -2,7 +2,9 @@ import initSqlJs, { Database as SqlJsDatabase } from "sql.js";
 import path from "path";
 import fs from "fs";
 
-const DB_PATH = path.join(__dirname, "..", "data", "webdb.sqlite");
+const DB_PATH = process.env.VERCEL 
+  ? path.join("/tmp", "webdb.sqlite")
+  : path.join(__dirname, "..", "data", "webdb.sqlite");
 
 // Ensure data directory exists
 const dataDir = path.dirname(DB_PATH);
