@@ -6,8 +6,8 @@
 	"license": "Apache-2.0",
 	"scripts": {
 		"clean": "rimraf dist coverage",
-		"build": "ui5 build --clean-dest",
-		"build:opt": "ui5 build self-contained --clean-dest --all",
+		"build": "ui5 build --clean-dest --dest ./public",
+		"build:opt": "ui5 build self-contained --clean-dest --all --dest ./public",
 		"start": "ui5 serve --port 8080 -o index.html",
 		"start-cdn": "ui5 serve --port 8080 -o index-cdn.html",
 		"start-coverage": "ui5 serve --port 8080 --config ui5-coverage.yaml",
