@@ -25,3 +25,9 @@ server:
       afterMiddleware: compression
     - name: ui5-middleware-livereload
       afterMiddleware: compression
+    - name: ui5-middleware-proxy
+      afterMiddleware: compression
+      configuration:
+        debug: true
+        baseUrl: "http://localhost:3000"
+        context: "/api"
