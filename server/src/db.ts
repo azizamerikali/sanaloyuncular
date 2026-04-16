@@ -21,7 +21,11 @@ class DatabaseWrapper {
   private initPromise: Promise<void>;
 
   constructor() {
-    this.initPromise = this.initialize();
+    this.initPromise = this.initialize().catch(err => {
+      console.error(`❌ Global Database Initialization Error: ${err.message}`);
+      // We don't re-throw here to prevent process crash.
+      // The ready() method will still fail when called by routes.
+    });
   }
 
   private async initialize(): Promise<void> {
