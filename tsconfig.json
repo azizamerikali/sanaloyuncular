@@ -8,8 +8,7 @@
 		"strict": true,
 		"strictNullChecks": false,
 		"strictPropertyInitialization": false,
-		"rootDir": "./webapp",
-		"types": ["@openui5/types", "@types/qunit"],
+		"types": ["@openui5/types", "@types/qunit", "@vercel/node"],
 		"paths": {
 			"com/openui5/webdb/*": ["./webapp/*"],
 			"unit/*": ["./webapp/test/unit/*"],
@@ -17,5 +16,5 @@
 		}
 	},
 	"exclude": ["./webapp/test/e2e/**/*"],
-	"include": ["./webapp/**/*"]
+	"include": ["./webapp/**/*", "./api/**/*"]
 }
