@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
 import db from "./db";
 
 import usersRouter from "./routes/users";
@@ -246,6 +247,9 @@ async function start() {
     db.exec("ALTER TABLE users ADD COLUMN profile_picture TEXT DEFAULT '';");
   } catch (e) {}
 
+  // Bootstrap default admins if they don't exist
+  await bootstrapAdmins();
+
   if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
     app.listen(PORT, () => {
       console.log(`🚀 SanalOyuncular API Server running at http://localhost:${PORT}`);
@@ -261,5 +265,38 @@ export const startupPromise = start().catch((err) => {
   console.error("Failed to initialize server:", err);
   if (!process.env.VERCEL) process.exit(1);
 });
+
+async function bootstrapAdmins() {
+  const admins = [
+    { id: "admin1", first: "Aziz", last: "Amerikalı", email: "azizakal@gmail.com" },
+    { id: "admin2", first: "Ufuk", last: "Tosun", email: "uufuktason@gmail.com" }
+  ];
+
+  const defaultPassword = "Q1w2e3r!";
+  const passwordHash = await bcrypt.hash(defaultPassword, 12);
+
+  for (const admin of admins) {
+    try {
+      const existing = db.prepare("SELECT id FROM users WHERE email = ?").get(admin.email);
+      if (!existing) {
+        db.prepare(
+          "INSERT INTO users (id, first_name, last_name, email, password, role, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+        ).run(
+          admin.id,
+          admin.first,
+          admin.last,
+          admin.email,
+          passwordHash,
+          "admin",
+          "active",
+          new Date().toISOString()
+        );
+        console.log(`👤 Bootstrap: Admin created (${admin.email})`);
+      }
+    } catch (err: any) {
+      console.error(`❌ Bootstrap: Failed to create admin ${admin.email}:`, err.message);
+    }
+  }
+}
 
 export default app;
