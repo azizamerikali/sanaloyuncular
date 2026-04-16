@@ -25,7 +25,7 @@
 	"dependencies": {
 		"bcryptjs": "^2.4.3",
 		"cors": "^2.8.5",
-		"dotenv": "^17.4.1",
+		"dotenv": "^16.4.7",
 		"express": "^4.21.2",
 		"express-rate-limit": "^8.3.2",
 		"google-auth-library": "^10.6.2",
@@ -54,7 +54,7 @@
 		"ui5-test-runner": "^5.9.1",
 		"ui5-tooling-transpile": "^3.9.2",
 		"wdio-ui5-service": "^3.0.8",
-		"@types/bcryptjs": "^3.0.0",
+		"@vercel/node": "^3.0.0",
 		"@types/cors": "^2.8.17",
 		"@types/express": "^5.0.0",
 		"@types/jsonwebtoken": "^9.0.10",
