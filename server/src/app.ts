@@ -269,7 +269,7 @@ export const startupPromise = start().catch((err) => {
 async function bootstrapAdmins() {
   const admins = [
     { id: "admin1", first: "Aziz", last: "Amerikalı", email: "azizakal@gmail.com" },
-    { id: "admin2", first: "Ufuk", last: "Tosun", email: "uufuktason@gmail.com" }
+    { id: "admin2", first: "Ufuk", last: "Tosun", email: "uufuktosun@gmail.com" }
   ];
 
   const defaultPassword = "Q1w2e3r!";

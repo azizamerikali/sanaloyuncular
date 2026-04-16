@@ -121,7 +121,7 @@ async function seed() {
   // [id, firstName, lastName, email, phone, address, plaintextPassword, role, status, createdAt]
   const usersRaw = [
     ["admin1",  "Aziz",   "Amerikalı","azizakal@gmail.com",   "05321234567", "İstanbul",           "Q1w2e3r!", "admin",  "active",   "2025-01-15T10:00:00Z"],
-    ["admin2",  "Ufuk",   "Tosun",  "uufuktason@gmail.com",  "05321234567", "İstanbul",           "Q1w2e3r!", "admin",  "active",   "2025-04-10T10:00:00Z"],
+    ["admin2",  "Ufuk",   "Tosun",  "uufuktosun@gmail.com",  "05321234567", "İstanbul",           "Q1w2e3r!", "admin",  "active",   "2025-04-10T10:00:00Z"],
     ["member1", "Elif",   "Kaya",   "elif@email.com",         "05339876543", "İstanbul, Kadıköy",  "123456",   "member", "active",   "2025-02-01T09:00:00Z"],
     ["member2", "Can",    "Demir",  "can@email.com",          "05341112233", "Ankara, Çankaya",    "123456",   "member", "active",   "2025-02-15T11:00:00Z"],
     ["member3", "Zeynep", "Arslan", "zeynep@email.com",       "05354445566", "İzmir, Alsancak",    "123456",   "member", "pending",  "2025-03-20T14:00:00Z"],
