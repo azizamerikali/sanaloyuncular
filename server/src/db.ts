@@ -26,7 +26,10 @@ class DatabaseWrapper {
 
   private async initialize(): Promise<void> {
     try {
-      const SQL = await initSqlJs();
+      const SQL = await initSqlJs({
+        // Load WASM from CDN for serverless reliability
+        locateFile: (file) => `https://sql.js.org/dist/${file}`
+      });
 
       if (fs.existsSync(DB_PATH)) {
         const buffer = fs.readFileSync(DB_PATH);
