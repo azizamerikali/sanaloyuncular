@@ -4,6 +4,11 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "framework": null,
+  "functions": {
+    "api/index.ts": {
+      "includeFiles": "node_modules/sql.js/dist/sql-wasm.wasm"
+    }
+  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/(.*)", "destination": "/index.html" }

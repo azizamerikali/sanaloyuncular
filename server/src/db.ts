@@ -33,7 +33,12 @@ class DatabaseWrapper {
         wasmPath = path.dirname(sqlJsPath);
       } catch (e) {
         // Fallback for environments where require.resolve might fail
-        wasmPath = path.join(__dirname, "..", "node_modules", "sql.js", "dist");
+        if (process.env.VERCEL) {
+          // Vercel bundle location often looks like this
+          wasmPath = path.join(process.cwd(), "node_modules", "sql.js", "dist");
+        } else {
+          wasmPath = path.join(__dirname, "..", "node_modules", "sql.js", "dist");
+        }
       }
 
       const SQL = await initSqlJs({
