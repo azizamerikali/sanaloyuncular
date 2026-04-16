@@ -59,12 +59,20 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. mobile apps, curl, same-origin)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS: Bu kaynaktan erişim izni yok."));
+    // No Origin header (curl, mobile apps, server-to-server)
+    if (!origin) return callback(null, true);
+    // Explicitly configured origins
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    // On Vercel: allow the auto-generated deployment URL
+    if (process.env.VERCEL_URL && origin === `https://${process.env.VERCEL_URL}`) {
+      return callback(null, true);
     }
+    // On Vercel without explicit ALLOWED_ORIGINS: allow all origins.
+    // Frontend and API are on the same deployment; JWT tokens provide auth.
+    if (process.env.VERCEL && !process.env.ALLOWED_ORIGINS) {
+      return callback(null, true);
+    }
+    callback(new Error("CORS: Bu kaynaktan erişim izni yok."));
   },
   credentials: true,
 }));
