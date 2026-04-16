@@ -26,9 +26,18 @@ class DatabaseWrapper {
 
   private async initialize(): Promise<void> {
     try {
+      // Find the wasm file relative to the sql.js package
+      let wasmPath: string;
+      try {
+        const sqlJsPath = require.resolve("sql.js");
+        wasmPath = path.dirname(sqlJsPath);
+      } catch (e) {
+        // Fallback for environments where require.resolve might fail
+        wasmPath = path.join(__dirname, "..", "node_modules", "sql.js", "dist");
+      }
+
       const SQL = await initSqlJs({
-        // Load WASM from CDN for serverless reliability
-        locateFile: (file) => `https://sql.js.org/dist/${file}`
+        locateFile: (file) => path.join(wasmPath, file)
       });
 
       if (fs.existsSync(DB_PATH)) {
