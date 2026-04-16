@@ -10,8 +10,8 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // 1. Lazy load the Express application
-    // Using the default export from the compiled TS app
-    const app = (await import("../server/src/app.ts")).default;
+    // Note: In Node ESM, we must use the compiled extension .js
+    const app = (await import("../server/src/app.js")).default;
 
     // 2. Handle routing fix for Vercel
     const matchedPath = req.headers["x-matched-path"] as string | undefined;
