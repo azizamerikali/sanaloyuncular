@@ -70,7 +70,6 @@ class DatabaseWrapper {
   async ready(): Promise<void> {
     try {
       await this.initPromise;
-      // Wait if a restore is in progress
       while (this.isRestoring) {
         await new Promise(resolve => setTimeout(resolve, 50));
       }
@@ -84,15 +83,19 @@ class DatabaseWrapper {
   }
 
   private getDb(): SqlJsDatabase {
-    if (!this.db) throw new Error("Database not initialized. Call await db.ready() first.");
+    if (!this.db) throw new Error("Database not initialized. Please retry in a moment.");
     return this.db;
   }
 
   private save(): void {
-    if (this.isRestoring) return; // Don't save while restoring
-    const data = this.getDb().export();
-    const buffer = Buffer.from(data);
-    fs.writeFileSync(DB_PATH, buffer);
+    if (this.isRestoring || !this.db) return;
+    try {
+      const data = this.db.export();
+      const buffer = Buffer.from(data);
+      fs.writeFileSync(DB_PATH, buffer);
+    } catch (e) {
+      console.warn("DB save warn (auto-save skipped):", e);
+    }
   }
 
   exec(sql: string): void {
@@ -148,8 +151,9 @@ class DatabaseWrapper {
   }
 
   /**
-   * Safe Hot-Reloading Restore.
-   * Follows user's logic: Close -> Load -> Open while ensuring atomicity.
+   * Final Stability Restore.
+   * Closes the old DB FIRST to free WASM heap memory, then loads the new one.
+   * The 'isRestoring' flag protects other requests from accessing a null DB.
    */
   async restore(buffer: Buffer): Promise<void> {
     await this.ready();
@@ -160,25 +164,27 @@ class DatabaseWrapper {
 
       const uint8Array = new Uint8Array(buffer);
       
-      // 1. Create the NEW database instance BEFORE closing the old one.
-      // This validates the buffer before we touch the current state.
-      const newDb = new this.sqlHandle.Database(uint8Array);
-      newDb.run("PRAGMA foreign_keys = ON;");
+      // 1. Physically close the old database to free WASM memory
+      if (this.db) {
+        try {
+          this.db.close();
+          console.log("🛠️ Old database closed for restore");
+        } catch (e) {
+          console.warn("Error while closing old DB:", e);
+        }
+        this.db = null;
+      }
 
-      // 2. ONLY NOW write to disk (physical part)
+      // 2. Write new content to disk
       fs.writeFileSync(DB_PATH, buffer);
       
-      // 3. Safely swap the pointers (the "Close -> Load -> Open" part)
-      const oldDb = this.db;
-      this.db = newDb;
-
-      if (oldDb) {
-        try { oldDb.close(); } catch (e) { console.warn("Old DB close warn:", e); }
-      }
+      // 3. Open the NEW database instance
+      this.db = new this.sqlHandle.Database(uint8Array);
+      this.db.run("PRAGMA foreign_keys = ON;");
       
-      console.log("♻️ Database successfully hot-swapped during restore");
+      console.log("✅ Database successfully restored and re-opened");
     } catch (err: any) {
-      console.error(`❌ Atomic Restore failed: ${err.message || 'Unknown error'}`);
+      console.error(`❌ Restore failed: ${err.message || 'Unknown error'}`);
       throw err;
     } finally {
       this.isRestoring = false;
