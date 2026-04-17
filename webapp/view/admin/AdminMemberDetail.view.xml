@@ -82,9 +82,8 @@
 							<ScrollContainer vertical="true" horizontal="false" height="100%">
 								<FlexBox wrap="Wrap" items="{detailData>/photos}" justifyContent="Start" alignItems="Start" class="sapUiSmallMargin">
 									<items>
-										<VBox class="sapUiMediumMarginEnd sapUiMediumMarginBottom" width="320px">
-											<Image src="{detailData>fileData}" height="240px" width="100%"
-												mode="Background" backgroundSize="Contain"
+										<VBox class="sapUiMediumMarginEnd sapUiMediumMarginBottom" width="320px" alignItems="Center">
+											<Image src="{detailData>fileData}" height="240px" 
 												press=".onImagePress" densityAware="false" 
 												class="sapUiSystemPointer" />
 											<Label text="{detailData>fileName}" design="Bold" class="sapUiTinyMarginTop" />
