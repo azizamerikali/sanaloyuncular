@@ -10,6 +10,8 @@
     "seed": "ts-node src/seed.ts"
   },
   "dependencies": {
+    "@vercel/blob": "^0.27.2",
+    "@vercel/functions": "^3.4.3",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.4.1",
@@ -19,8 +21,7 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
-    "sql.js": "^1.11.0",
-    "@vercel/blob": "^0.27.2"
+    "sql.js": "^1.11.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",

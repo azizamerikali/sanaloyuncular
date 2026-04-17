@@ -200,8 +200,9 @@ class DatabaseWrapper {
         if (!process.env.VERCEL) {
           fs.writeFileSync(DB_PATH, buffer);
         } else {
-          // Write to /tmp as fast local cache + persist to Blob (AWAIT this)
+          // Write to /tmp as fast local cache
           try { fs.writeFileSync(DB_PATH, buffer); } catch (_) {}
+          // Persist to Blob (production)
           await uploadToBlob(buffer);
         }
       } catch (e) {
@@ -210,8 +211,18 @@ class DatabaseWrapper {
     };
 
     if (process.env.VERCEL) {
-      // Production: Always await to ensure persistence before function termination
-      await performSave();
+      // Production: Use waitUntil to respond immediately while uploading in background
+      try {
+        const { waitUntil } = await import("@vercel/functions");
+        waitUntil(performSave());
+        // We still write to /tmp synchronously to ensure immediate consistency for subsequent requests 
+        // in the same instance, but the user doesn't wait for the Blob upload.
+        const data = this.db!.export();
+        try { fs.writeFileSync(DB_PATH, Buffer.from(data)); } catch (_) {}
+      } catch (e) {
+        // Fallback if waitUntil is not available
+        await performSave();
+      }
     } else {
       // Local: Use debounce to keep performance snappy
       if (this._saveTimeout) return;
