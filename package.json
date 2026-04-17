@@ -34,7 +34,8 @@
 		"multer": "^2.1.1",
 		"sql.js": "^1.11.0",
 		"ts-node": "^10.9.2",
-		"typescript": "^5.7.2"
+		"typescript": "^5.7.2",
+		"@vercel/blob": "^0.27.2"
 	},
 	"devDependencies": {
 		"@openui5/types": "^1.146.0",
