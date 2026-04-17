@@ -132,10 +132,31 @@ router.post("/", async (req: Request, res: Response) => {
     // Hash password with bcrypt (salt rounds: 12)
     const passwordHash = password ? await bcrypt.hash(password, 12) : "";
 
-    // 1. Insert User — role is always "member", status always "pending"
+    const userStatus = req.body.status || "pending";
+    const userRole = req.body.role || "member";
+
+    // 1. Insert User
     db.prepare(
       "INSERT INTO users (id, first_name, last_name, email, phone, address, password, role, status, birth_date, parent_name, consent_document, iban, iban_holder, city, acting_training, acting_experience, profile_picture, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    ).run(id, firstName || "", lastName || "", email || "", encryptField(phone || ""), encryptField(address || ""), passwordHash, "member", "pending", birthDate || "", parentName || "", consentDocument || "", encryptField(iban || ""), ibanHolder || "", city || "", actingTraining || "", actingExperience || "", profilePicture || "", createdAt);
+    ).run(id, firstName || "", lastName || "", email || "", encryptField(phone || ""), encryptField(address || ""), passwordHash, userRole, userStatus, birthDate || "", parentName || "", consentDocument || "", encryptField(iban || ""), ibanHolder || "", city || "", actingTraining || "", actingExperience || "", profilePicture || "", createdAt);
+
+    // Auto-create legal record if created as active member
+    if (userStatus === "active" && userRole === "member") {
+      const recordId = "LR_ADM_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+      db.prepare(
+        "INSERT INTO member_legal_records (id, email, first_name, last_name, approved_at, contract_content, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+      ).run(
+        recordId,
+        email,
+        firstName || "",
+        lastName || "",
+        createdAt,
+        "Bu üye yönetici tarafından manuel olarak sisteme eklenmiş ve onaylanmıştır. (Administratively Approved)",
+        "Admin Panel",
+        "Server Internal"
+      );
+      console.log(`📜 Auto-created legal record for new member ${email} (Admin creation)`);
+    }
 
     // 2. Insert Initial Photos into Media table if provided
     if (Array.isArray(initialPhotos)) {
@@ -155,7 +176,7 @@ router.post("/", async (req: Request, res: Response) => {
       }
     }
 
-    res.status(201).json({ id, firstName, lastName, email, phone, address, profilePicture, role: "member", status: "pending", createdAt });
+    res.status(201).json({ id, firstName, lastName, email, phone, address, profilePicture, role: userRole, status: userStatus, createdAt });
   } catch (error: any) {
     console.error("Registration error:", error);
     res.status(500).json({ error: "Kayıt işlemi sırasında sunucu hatası oluştu." });
@@ -194,6 +215,33 @@ router.put("/:id", protect, (req: AuthenticatedRequest, res: Response) => {
     profilePicture ?? existing.profile_picture,
     req.params.id
   );
+
+  // Check if status is transitioning to active to auto-create legal record if missing
+  if (status === "active" && existing.status !== "active" && existing.role === "member") {
+    try {
+      const email = email ?? existing.email;
+      const recordExists = db.prepare("SELECT id FROM member_legal_records WHERE email = ?").get(email);
+      
+      if (!recordExists) {
+        const recordId = "LR_ADM_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+        db.prepare(
+          "INSERT INTO member_legal_records (id, email, first_name, last_name, approved_at, contract_content, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+        ).run(
+          recordId,
+          email,
+          firstName ?? existing.first_name,
+          lastName ?? existing.last_name,
+          new Date().toISOString(),
+          "Bu üye yönetici tarafından manuel olarak aktif hale getirilmiştir. Sistem onayı otomatik olarak arşivlenmiştir. (Administratively Approved)",
+          "Admin Panel",
+          "Server Internal"
+        );
+        console.log(`📜 Auto-created legal record for ${email} (Admin activation)`);
+      }
+    } catch (err) {
+      console.error("Failed to auto-create legal record during admin activation:", err);
+    }
+  }
 
   const updated = db.prepare("SELECT * FROM users WHERE id = ?").get(req.params.id) as UserRow;
   res.json(toApi(updated));

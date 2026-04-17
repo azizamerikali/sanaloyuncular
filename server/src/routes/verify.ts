@@ -115,19 +115,29 @@ router.post("/legal-approve", verifyLimiter, (req: Request, res: Response) => {
 
         // 3. Record Detailed Legal Archive (New table)
         const { firstName, lastName, legalText } = req.body;
-        const recordId = "LR_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
-        db.prepare(
-            "INSERT INTO member_legal_records (id, email, first_name, last_name, approved_at, contract_content, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-        ).run(
-            recordId, 
-            email, 
-            firstName || "", 
-            lastName || "", 
-            acceptedAt, 
-            legalText || "", 
-            req.ip || "unknown", 
-            req.headers["user-agent"] || "unknown"
-        );
+        
+        // Prevent duplicate records for the same email if one was already created recently (e.g. within 1 minute)
+        // to handle potential double-clicks or retry logic in frontend.
+        const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
+        const existingRecord = db.prepare(
+            "SELECT id FROM member_legal_records WHERE email = ? AND approved_at > ?"
+        ).get(email, oneMinuteAgo);
+
+        if (!existingRecord) {
+            const recordId = "LR_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+            db.prepare(
+                "INSERT INTO member_legal_records (id, email, first_name, last_name, approved_at, contract_content, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            ).run(
+                recordId, 
+                email, 
+                firstName || "", 
+                lastName || "", 
+                acceptedAt, 
+                legalText || "", 
+                req.ip || "unknown", 
+                req.headers["user-agent"] || "unknown"
+            );
+        }
 
         res.json({ success: true, message: "Sözleşme onaylandı ve hesabınız aktifleştirildi." });
     } catch (error: any) {
