@@ -1,4 +1,5 @@
 import express from "express";
+// Deployment trigger: Vercel Blob synchronization fixes applied.
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
