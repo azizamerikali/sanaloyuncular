@@ -185,26 +185,15 @@ app.get("/api/health-blob", async (_req, res) => {
   try {
     const { list, put } = await import("@vercel/blob");
     
-    // Attempt tiny test uploads to verify write permission
+    // Attempt a default test upload
     let uploadTest: any = { attempted: true };
     try {
-      const privateResult = await put("health-test-private.txt", "OK", { 
-        access: "private",
+      const result = await put("health-test-default.txt", "OK", { 
         addRandomSuffix: true 
       });
-      uploadTest.private = { success: true, url: privateResult.url };
+      uploadTest.result = { success: true, url: result.url };
     } catch (e: any) {
-      uploadTest.private = { success: false, error: e.message };
-    }
-
-    try {
-      const publicResult = await put("health-test-public.txt", "OK", { 
-        access: "public",
-        addRandomSuffix: true 
-      });
-      uploadTest.public = { success: true, url: publicResult.url };
-    } catch (e: any) {
-      uploadTest.public = { success: false, error: e.message };
+      uploadTest.result = { success: false, error: e.message };
     }
 
     const blobList = await list();
