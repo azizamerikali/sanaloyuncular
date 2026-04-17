@@ -195,16 +195,18 @@ class DatabaseWrapper {
   }
 
   async exec(sql: string): Promise<void> {
+    await this.ready();
     this.getDb().exec(sql);
     await this.save();
   }
 
   prepare(sql: string) {
-    const database = this.getDb();
     const wrapper = this;
 
     return {
-      all(...params: any[]): any[] {
+      async all(...params: any[]): Promise<any[]> {
+        await wrapper.ready();
+        const database = wrapper.getDb();
         let stmt;
         try {
           stmt = database.prepare(sql);
@@ -216,7 +218,9 @@ class DatabaseWrapper {
           if (stmt) stmt.free();
         }
       },
-      get(...params: any[]): any {
+      async get(...params: any[]): Promise<any> {
+        await wrapper.ready();
+        const database = wrapper.getDb();
         let stmt;
         try {
           stmt = database.prepare(sql);
@@ -229,6 +233,8 @@ class DatabaseWrapper {
         }
       },
       async run(...params: any[]): Promise<{ changes: number }> {
+        await wrapper.ready();
+        const database = wrapper.getDb();
         if (params.length > 0) database.run(sql, wrapper.normalizeParams(params));
         else database.run(sql);
         const changesRow = database.exec("SELECT changes() as changes");
@@ -239,13 +245,14 @@ class DatabaseWrapper {
     };
   }
 
-  transaction<T>(fn: () => T): () => T {
-    return () => {
+  transaction<T>(fn: () => T): () => Promise<T> {
+    return async () => {
+      await this.ready();
       this.getDb().run("BEGIN TRANSACTION");
       try {
         const result = fn();
         this.getDb().run("COMMIT");
-        this.save();
+        await this.save();
         return result;
       } catch (e) {
         this.getDb().run("ROLLBACK");
