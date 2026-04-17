@@ -10,10 +10,10 @@ const upload = multer({
     limits: { fileSize: 50 * 1024 * 1024 } // 50MB
 });
 
-// Max 5 backup downloads per hour per IP
+// Max 30 backup downloads per hour per IP (admin-only endpoint)
 const backupLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
-    max: 5,
+    max: 30,
     message: "Çok fazla yedek indirme isteği. Lütfen bir saat sonra tekrar deneyin.",
 });
 
