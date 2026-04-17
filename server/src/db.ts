@@ -56,9 +56,17 @@ async function downloadFromBlob(): Promise<Buffer | null> {
     console.log(`[DB-LOAD] Found blob at ${target.url}. Downloading...`);
     const resp = await fetch(target.url);
     const ab = await resp.arrayBuffer();
+    const buffer = Buffer.from(ab);
+
+    // Safety check: SQLite files must start with "SQLite format 3"
+    const header = buffer.toString("utf8", 0, 15);
+    if (!header.startsWith("SQLite format 3")) {
+      console.error("❌ [DB-LOAD] Error: Downloaded file is not a valid SQLite database! (Header mismatch)");
+      return null;
+    }
     
-    console.log(`✅ [DB-LOAD] SUCCESS! Loaded from Vercel Blob (${ab.byteLength} bytes)`);
-    return Buffer.from(ab);
+    console.log(`✅ [DB-LOAD] SUCCESS! Loaded from Vercel Blob (${buffer.byteLength} bytes)`);
+    return buffer;
   } catch (e: any) {
     console.error("❌ [DB-LOAD] FATAL: Blob download failed:", e.message);
     return null;
