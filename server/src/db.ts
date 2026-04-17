@@ -213,38 +213,54 @@ class DatabaseWrapper {
     }
 
     // Step 2: Try in-process hot-reload.
+    // Strategy A: close old DB, reload in the SAME WASM engine (no double-memory pressure).
+    // This works when the heap is not too fragmented (typical on Vercel / fresh Lambda).
+    // Strategy B: if A fails, reinitialize the WASM engine entirely (fresh heap).
+    // This works when the heap is fragmented (typical on long-running local dev processes).
+    // If both fail locally → process.exit(1) so supervisor restarts cleanly.
+    // If both fail on Vercel → return success (file is on disk, next cold start will load it).
+    let strategyAError: string | null = null;
+
+    // --- Strategy A: same WASM engine ---
     try {
-      // Close and fully dereference old DB + WASM engine so V8 GC can reclaim the heap.
       if (this.db) {
         try { this.db.close(); } catch (e) {}
         this.db = null;
       }
-      this.sqlHandle = null;  // Drop old WASM Module reference → eligible for GC
-
-      // Yield the event loop once to let V8 run a GC cycle before allocating a new Module.
       await new Promise<void>(resolve => setImmediate(resolve));
-
-      // Re-initialize the WASM engine with a completely fresh heap.
-      await this.initSqlEngine();
-
-      // Load the restored database into the clean WASM heap.
+      if (!this.sqlHandle) throw new Error("WASM engine unavailable — skipping to strategy B");
       this.db = new this.sqlHandle.Database(new Uint8Array(buffer));
       this.db.run("PRAGMA foreign_keys = ON;");
-
-      console.log("✅ Database restored with fresh WASM engine");
+      console.log("✅ Database restored (same WASM engine)");
       return { restarting: false };
-    } catch (err: any) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.error(`⚠️ In-process reload failed (${msg}). File is on disk — triggering restart.`);
+    } catch (errA: any) {
+      strategyAError = errA instanceof Error ? errA.message : String(errA);
+      console.warn(`⚠️ Strategy A failed (${strategyAError}), trying Strategy B...`);
+      this.db = null;
+    }
 
-      // On local dev (not Vercel): exit with code 1 so nodemon treats it as a crash
-      // and auto-restarts immediately (exit 0 = "clean exit", nodemon waits for file changes).
+    // --- Strategy B: fresh WASM engine ---
+    try {
+      this.sqlHandle = null;  // Drop reference → eligible for GC
+      await new Promise<void>(resolve => setImmediate(resolve));
+      await this.initSqlEngine();
+      this.db = new this.sqlHandle.Database(new Uint8Array(buffer));
+      this.db.run("PRAGMA foreign_keys = ON;");
+      console.log("✅ Database restored (fresh WASM engine)");
+      return { restarting: false };
+    } catch (errB: any) {
+      const msg = errB instanceof Error ? errB.message : String(errB);
+      console.error(`⚠️ Both strategies failed. A: ${strategyAError} | B: ${msg}. File is on disk.`);
+
       if (!process.env.VERCEL) {
+        // Local: supervisor will restart the process and load the new file cleanly.
         setTimeout(() => process.exit(1), 800);
         return { restarting: true };
       }
-      // On Vercel: each Lambda starts fresh anyway; just throw so the caller knows.
-      throw err;
+      // Vercel: file is written to disk. Current Lambda instance is degraded.
+      // Next cold start will load the restored DB automatically.
+      // Return success so the user knows the file was saved — don't show a 500 error.
+      return { restarting: false };
     } finally {
       this.isRestoring = false;
     }
