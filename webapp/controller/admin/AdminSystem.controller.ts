@@ -52,7 +52,7 @@ export default class AdminSystem extends BaseController {
 	}
 
 	public onDownloadBackup(): void {
-		this.downloadFileWithAuth("http://localhost:3000/api/system/backup", "backup.sqlite");
+		this.downloadFileWithAuth("http://localhost:3001/api/system/backup", "backup.sqlite");
 	}
 
 	private async downloadFileWithAuth(url: string, fileName: string): Promise<void> {
@@ -121,7 +121,7 @@ export default class AdminSystem extends BaseController {
 			const formData = new FormData();
 			formData.append("backup", file);
 
-			const response = await fetch("http://localhost:3000/api/system/restore", {
+			const response = await fetch("http://localhost:3001/api/system/restore", {
 				method: "POST",
 				headers: {
 					"Authorization": `Bearer ${sessionStorage.getItem("token")}`
