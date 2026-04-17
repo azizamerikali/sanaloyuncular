@@ -6,14 +6,11 @@ const DB_PATH = process.env.VERCEL
   ? path.join("/tmp", "webdb.sqlite")
   : path.join(__dirname, "..", "data", "webdb.sqlite");
 
-/**
- * Wrapper around sql.js Database that provides a better-sqlite3-like API.
- * This allows all route files to use the same synchronous-style calls.
- */
 class DatabaseWrapper {
   private db: SqlJsDatabase | null = null;
   private initPromise: Promise<void>;
   private sqlHandle: any = null;
+  private isRestoring: boolean = false;
 
   constructor() {
     this.initPromise = this.initialize().catch(err => {
@@ -73,6 +70,10 @@ class DatabaseWrapper {
   async ready(): Promise<void> {
     try {
       await this.initPromise;
+      // Wait if a restore is in progress
+      while (this.isRestoring) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
     } catch (err: any) {
       throw new Error(`Database failed to initialize: ${err.message}`);
     }
@@ -88,6 +89,7 @@ class DatabaseWrapper {
   }
 
   private save(): void {
+    if (this.isRestoring) return; // Don't save while restoring
     const data = this.getDb().export();
     const buffer = Buffer.from(data);
     fs.writeFileSync(DB_PATH, buffer);
@@ -105,42 +107,25 @@ class DatabaseWrapper {
     return {
       all(...params: any[]): any[] {
         const stmt = database.prepare(sql);
-        if (params.length > 0) {
-          stmt.bind(wrapper.normalizeParams(params));
-        }
-
+        if (params.length > 0) stmt.bind(wrapper.normalizeParams(params));
         const results: any[] = [];
-        while (stmt.step()) {
-          results.push(stmt.getAsObject());
-        }
+        while (stmt.step()) results.push(stmt.getAsObject());
         stmt.free();
         return results;
       },
-
       get(...params: any[]): any {
         const stmt = database.prepare(sql);
-        if (params.length > 0) {
-          stmt.bind(wrapper.normalizeParams(params));
-        }
-
+        if (params.length > 0) stmt.bind(wrapper.normalizeParams(params));
         let result: any = undefined;
-        if (stmt.step()) {
-          result = stmt.getAsObject();
-        }
+        if (stmt.step()) result = stmt.getAsObject();
         stmt.free();
         return result;
       },
-
       run(...params: any[]): { changes: number } {
-        if (params.length > 0) {
-          database.run(sql, wrapper.normalizeParams(params));
-        } else {
-          database.run(sql);
-        }
+        if (params.length > 0) database.run(sql, wrapper.normalizeParams(params));
+        else database.run(sql);
         const changesRow = database.exec("SELECT changes() as changes");
-        const changes = changesRow.length > 0 && changesRow[0].values.length > 0
-          ? (changesRow[0].values[0][0] as number)
-          : 0;
+        const changes = changesRow.length > 0 && changesRow[0].values.length > 0 ? (changesRow[0].values[0][0] as number) : 0;
         wrapper.save();
         return { changes };
       },
@@ -162,58 +147,56 @@ class DatabaseWrapper {
     };
   }
 
+  /**
+   * Safe Hot-Reloading Restore.
+   * Follows user's logic: Close -> Load -> Open while ensuring atomicity.
+   */
   async restore(buffer: Buffer): Promise<void> {
     await this.ready();
+    this.isRestoring = true;
     
     try {
-      if (!this.sqlHandle) {
-        throw new Error("SQL handle not available for restore");
-      }
+      if (!this.sqlHandle) throw new Error("SQL handle not available");
 
-      // Convert Node Buffer to Uint8Array explicitly for sql.js
       const uint8Array = new Uint8Array(buffer);
+      
+      // 1. Create the NEW database instance BEFORE closing the old one.
+      // This validates the buffer before we touch the current state.
+      const newDb = new this.sqlHandle.Database(uint8Array);
+      newDb.run("PRAGMA foreign_keys = ON;");
 
-      // 1. Safely close current DB FIRST to free Emscripten memory
-      if (this.db) {
-        try { 
-          this.db.close(); 
-        } catch (e) {
-          console.warn("DB close warning:", e);
-        }
-        this.db = null;
-      }
-
-      // 2. Write to disk
+      // 2. ONLY NOW write to disk (physical part)
       fs.writeFileSync(DB_PATH, buffer);
       
-      // 3. Reload from fresh Uint8Array
-      this.db = new this.sqlHandle.Database(uint8Array);
-      this.db.run("PRAGMA foreign_keys = ON;");
+      // 3. Safely swap the pointers (the "Close -> Load -> Open" part)
+      const oldDb = this.db;
+      this.db = newDb;
+
+      if (oldDb) {
+        try { oldDb.close(); } catch (e) { console.warn("Old DB close warn:", e); }
+      }
       
-      console.log("♻️ Database hot-reloaded from restore success");
+      console.log("♻️ Database successfully hot-swapped during restore");
     } catch (err: any) {
-      console.error(`❌ Restore operation failed: ${err.message || 'Unknown error'}`);
+      console.error(`❌ Atomic Restore failed: ${err.message || 'Unknown error'}`);
       throw err;
+    } finally {
+      this.isRestoring = false;
     }
   }
 
   pragma(_statement: string): void { }
 
   private normalizeParams(params: any[]): any[] {
-    if (params.length === 1 && Array.isArray(params[0])) {
-      return params[0];
-    }
+    if (params.length === 1 && Array.isArray(params[0])) return params[0];
     return params;
   }
 }
 
 let dbInstance: DatabaseWrapper | null = null;
-
 const db = new Proxy({} as DatabaseWrapper, {
   get: (target, prop, receiver) => {
-    if (!dbInstance) {
-      dbInstance = new DatabaseWrapper();
-    }
+    if (!dbInstance) dbInstance = new DatabaseWrapper();
     return Reflect.get(dbInstance, prop, receiver);
   }
 });
