@@ -71,11 +71,11 @@ export default class AdminMedia extends BaseController {
 
 	public onFilter(): void {
 		const oView = this.getView();
-		const sName = (oView.byId("filterFirstName") as any).getValue();
-		const sSurname = (oView.byId("filterLastName") as any).getValue();
-		const sEmail = (oView.byId("filterEmail") as any).getValue();
-		const sFile = (oView.byId("filterFileName") as any).getValue();
-		const sStatus = (oView.byId("filterStatus") as any).getSelectedKey();
+		const sName = (oView.byId("filterFirstName") as any)?.getValue() || "";
+		const sSurname = (oView.byId("filterLastName") as any)?.getValue() || "";
+		const sEmail = (oView.byId("filterEmail") as any)?.getValue() || "";
+		const sFile = (oView.byId("filterFileName") as any)?.getValue() || "";
+		const sStatus = (oView.byId("filterStatus") as any)?.getSelectedKey() || "all";
 
 		const aFilters = [];
 		if (sName) aFilters.push(new Filter("firstName", FilterOperator.Contains, sName));

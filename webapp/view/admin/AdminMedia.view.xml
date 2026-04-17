@@ -32,6 +32,13 @@
 					</Input>
 
 					<Label text="Dosya:" class="sapUiTinyMarginBegin" />
+					<Input id="filterFileName" width="8rem" placeholder="Dosya Adı" liveChange=".onFilter" 
+						showSuggestion="true" suggestionItems="{mediaPoolData>/suggestions/fileNames}">
+						<suggestionItems>
+							<core:Item text="{mediaPoolData>text}" />
+						</suggestionItems>
+					</Input>
+
 					<Label text="Durum:" class="sapUiTinyMarginBegin" />
 					<Select id="filterStatus" change=".onFilter" width="10rem">
 						<items>
