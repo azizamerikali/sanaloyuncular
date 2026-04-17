@@ -66,10 +66,10 @@ export default class AdminSystem extends BaseController {
 
 			if (!response.ok) throw new Error("Yedek indirilemedi.");
 
-			// Use filename from Content-Disposition header if present, otherwise fallback
-			const disposition = response.headers.get("Content-Disposition") || "";
-			const match = disposition.match(/filename="?([^"]+)"?/);
-			const fileName = match?.[1] || `SanalOyuncular_Backup_${new Date().toISOString().split("T")[0]}.sqlite`;
+			const now = new Date();
+			const pad = (n: number) => String(n).padStart(2, "0");
+			const ts = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}`;
+			const fileName = `SanalOyuncular_Backup_${ts}.sqlite`;
 
 			const blob = await response.blob();
 			const blobUrl = window.URL.createObjectURL(blob);
