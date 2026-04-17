@@ -52,9 +52,23 @@ export default class MemberPhotos extends BaseController {
 		const media = await MediaService.getByUser(user.id);
 		const photos = media.map(p => ({
 			...p,
+			fileData: "",
 			createdAt: formatter.formatDate(p.createdAt)
 		}));
-		this.getView().setModel(new JSONModel({ photos }), "photosData");
+		const oModel = new JSONModel({ photos });
+		this.getView().setModel(oModel, "photosData");
+
+		// Arka planda resim içeriklerini teker teker çek
+		photos.forEach(async (photo, index) => {
+			try {
+				const content = await MediaService.getContent(photo.id);
+				if (content) {
+					oModel.setProperty(`/photos/${index}/fileData`, content);
+				}
+			} catch (e) {
+				console.error("Resim içeriği yüklenemedi:", photo.id, e);
+			}
+		});
 	}
 
 	// ─── Kaynak seçim menüsü ─────────────────────────────────────────────────
