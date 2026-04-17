@@ -145,11 +145,11 @@ router.post("/", async (req: Request, res: Response) => {
       for (const photo of initialPhotos) {
         const mediaId = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
         insertMedia.run(
-          mediaId, 
-          id, 
-          photo.fileName || "Registration Photo", 
-          "", 
-          encryptField(photo.fileData || ""), 
+          mediaId,
+          id,
+          photo.fileName || "Registration Photo",
+          "",
+          encryptField(photo.fileData || ""),
           createdAt
         );
       }
