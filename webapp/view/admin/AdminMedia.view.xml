@@ -15,7 +15,7 @@
 					</OverflowToolbar>
 				</headerToolbar>
 				<columns>
-					<Column width="5rem">
+					<Column width="18rem">
 						<Text text="Önizleme" />
 					</Column>
 					<Column>
@@ -33,12 +33,12 @@
 				</columns>
 				<items>
 					<ColumnListItem>
-						<Avatar src="{mediaPoolData>fileData}" displaySize="S" displayShape="Square" 
-							press=".onImagePress" displayActive="true" 
-							imageFitType="Cover" class="sapUiTinyMarginTop sapUiTinyMarginBottom" />
-						<Text text="{mediaPoolData>fileName}" />
-						<Text text="{mediaPoolData>memberName}" />
-						<Text text="{mediaPoolData>createdAtFormatted}" />
+						<Image src="{mediaPoolData>fileData}" height="240px" 
+							press=".onImagePress" densityAware="false" 
+							class="sapUiTinyMarginTopBottom sapUiSystemPointer" />
+						<Text text="{mediaPoolData>fileName}" verticalAlign="Middle" />
+						<Text text="{mediaPoolData>memberName}" verticalAlign="Middle" />
+						<Text text="{mediaPoolData>createdAtFormatted}" verticalAlign="Middle" />
 						<Button icon="sap-icon://delete" type="Reject" press=".onDeleteMedia" />
 					</ColumnListItem>
 				</items>
