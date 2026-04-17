@@ -18,6 +18,7 @@ import systemRouter from "./routes/system";
 import verifyRouter from "./routes/verify";
 import adminLegalRouter from "./routes/admin_legal";
 import { protect, AuthenticatedRequest } from "./middleware/authMiddleware";
+import { dbReadyMiddleware } from "./middleware/dbReadyMiddleware";
 import { getEncryptionKeyInfo } from "./utils/cryptoUtil";
 
 dotenv.config();
@@ -133,6 +134,7 @@ app.use((req, _res, next) => {
 });
 
 // Routes
+app.use("/api", dbReadyMiddleware);
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/projects", protect, projectsRouter);
