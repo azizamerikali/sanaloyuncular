@@ -17,13 +17,13 @@ interface LegalRecordRow {
 
 // GET /api/admin/legal-records
 // Admin only list of all compliance records
-router.get("/legal-records", protect, (req: AuthenticatedRequest, res: Response) => {
+router.get("/legal-records", protect, async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "admin") {
     return res.status(403).json({ error: "Erişim engellendi. Sadece adminler bu verileri görebilir." });
   }
 
   try {
-    const rows = db.prepare("SELECT * FROM member_legal_records ORDER BY approved_at DESC").all() as LegalRecordRow[];
+    const rows = await db.prepare("SELECT * FROM member_legal_records ORDER BY approved_at DESC").all() as LegalRecordRow[];
     
     const results = rows.map(row => ({
       id: row.id,

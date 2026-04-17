@@ -148,7 +148,7 @@ app.use("/api/admin-legal", adminLegalRouter);
 app.use("/api/verify", verifyRouter);
 
 // Health check
-app.get("/api/health", (_req, res) => {
+app.get("/api/health", async (_req, res) => {
   const keyInfo = getEncryptionKeyInfo();
   try {
     const userCount = await db.prepare("SELECT COUNT(*) as cnt FROM users").get() as { cnt: number } | undefined;

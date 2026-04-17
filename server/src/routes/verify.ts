@@ -31,7 +31,7 @@ router.post("/send", verifyLimiter, async (req: Request, res: Response) => {
         await db.prepare("DELETE FROM verification_codes WHERE email = ?").run(email);
 
         // Save new code
-        db.prepare(
+        await db.prepare(
             "INSERT INTO verification_codes (id, email, code, expires_at) VALUES (?, ?, ?, ?)"
         ).run(id, email, code, expiresAt);
 
@@ -53,7 +53,7 @@ router.post("/check", verifyLimiter, async (req: Request, res: Response) => {
     }
 
     try {
-        const row = db.prepare(
+        const row = await db.prepare(
             "SELECT * FROM verification_codes WHERE email = ? AND code = ? AND status = 'pending'"
         ).get(email, code) as any;
 
@@ -95,7 +95,7 @@ router.post("/legal-approve", verifyLimiter, async (req: Request, res: Response)
     try {
         // Verify the account exists, is still pending, and was created recently (within 2 hours)
         const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
-        const user = db.prepare(
+        const user = await db.prepare(
             "SELECT id FROM users WHERE email = ? AND status = 'pending' AND created_at > ?"
         ).get(email, twoHoursAgo) as { id: string } | undefined;
 
@@ -110,7 +110,7 @@ router.post("/legal-approve", verifyLimiter, async (req: Request, res: Response)
         // 2. Record Consent (Legacy table)
         const consentId = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
         const acceptedAt = new Date().toISOString();
-        db.prepare(
+        await db.prepare(
             "INSERT INTO consents (id, user_id, version, accepted_at, ip_address) VALUES (?, ?, ?, ?, ?)"
         ).run(consentId, user.id, version || "Registration_Legal_v1", acceptedAt, req.ip || req.socket?.remoteAddress || "unknown");
 
@@ -120,13 +120,13 @@ router.post("/legal-approve", verifyLimiter, async (req: Request, res: Response)
         // Prevent duplicate records for the same email if one was already created in the LAST 10 SECONDS
         // (Simplified from 1 minute to avoid issues with fast test cycles)
         const recently = new Date(Date.now() - 10 * 1000).toISOString();
-        const existingRecord = db.prepare(
+        const existingRecord = await db.prepare(
             "SELECT id FROM member_legal_records WHERE email = ? AND approved_at > ?"
         ).get(email, recently);
 
         if (!existingRecord) {
             const recordId = "LR_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
-            db.prepare(
+            await db.prepare(
                 "INSERT INTO member_legal_records (id, email, first_name, last_name, approved_at, contract_content, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
             ).run(
                 recordId, 

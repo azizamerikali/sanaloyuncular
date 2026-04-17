@@ -55,7 +55,7 @@ router.post("/", protect, async (req: AuthenticatedRequest, res: Response) => {
   const acceptedAt = new Date().toISOString();
   const ipAddress = req.ip || req.socket?.remoteAddress || "unknown";
 
-  db.prepare(
+  await db.prepare(
     "INSERT INTO consents (id, user_id, version, accepted_at, ip_address) VALUES (?, ?, ?, ?, ?)"
   ).run(id, userId, version || "1.0", acceptedAt, ipAddress);
 
@@ -63,7 +63,7 @@ router.post("/", protect, async (req: AuthenticatedRequest, res: Response) => {
 });
 
 // GET /api/consents/text — public
-router.get("/text", (_req: Request, res: Response) => {
+router.get("/text", async (_req: Request, res: Response) => {
   const row = await db.prepare("SELECT content FROM consent_text WHERE id = 1").get() as { content: string } | undefined;
   res.json({ text: row?.content || "" });
 });
