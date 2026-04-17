@@ -23,10 +23,9 @@ async function uploadToBlob(buffer: Buffer): Promise<void> {
   try {
     console.log(`[DB-SYNC] Attempting to upload to Vercel Blob (${buffer.byteLength} bytes)...`);
     const { put } = await import("@vercel/blob");
-    // Using access: "public" by default as "private" might require special plan/config.
-    // The URL is still unguessable (random hash).
+    // The store is configured with private access, so we must use "private".
     const result = await put(BLOB_PATHNAME, buffer, {
-      access: "public", 
+      access: "private", 
       addRandomSuffix: false,
       contentType: "application/octet-stream",
     });
@@ -61,10 +60,8 @@ async function downloadFromBlob(): Promise<Buffer | null> {
     }
     
     console.log(`[DB-LOAD] Found blob at ${target.url}. Downloading...`);
-    // We fetch directly from the URL.
-    const response = await fetch(target.url);
-    if (!response.ok) throw new Error(`Fetch failed with status ${response.status}`);
-    const ab = await response.arrayBuffer();
+    const result = await get(target.url, { access: "private" });
+    const ab = await result.blob.arrayBuffer();
     
     console.log(`✅ [DB-LOAD] SUCCESS! Loaded from Vercel Blob (${ab.byteLength} bytes)`);
     return Buffer.from(ab);

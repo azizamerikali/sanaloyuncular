@@ -188,7 +188,7 @@ app.get("/api/health-blob", async (_req, res) => {
     let uploadTest = null;
     try {
       const testResult = await put("health-test.txt", "OK", { 
-        access: "public",
+        access: "private",
         addRandomSuffix: true 
       });
       uploadTest = { success: true, url: testResult.url };
