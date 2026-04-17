@@ -124,7 +124,7 @@
 									<VBox class="sapUiSmallMargin">
 										<Text id="consentText" text="{appData>/consentText}"
 											class="sapUiSmallMarginBottom" wrapping="true" />
-										<CheckBox id="consentCheckbox" text="{i18n>consentAccept}" />
+										<CheckBox id="consentCheckbox" text="{= (${newMember>/firstName} || '') + ' ' + (${newMember>/lastName} || '') + ' olarak iş bu sözleşme maddelerini okudum ve kabul ediyorum' }" />
 									</VBox>
 								</Panel>
 
