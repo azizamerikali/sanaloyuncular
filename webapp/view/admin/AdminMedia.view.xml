@@ -7,7 +7,14 @@
 				<OverflowToolbar>
 					<Title text="{i18n>adminMedia}" level="H2" />
 					<ToolbarSpacer />
-					<SearchField width="15rem" placeholder="Arama (Üye veya Dosya)" search=".onSearch" liveChange=".onSearch" />
+					<Label text="Ad:" class="sapUiTinyMarginBegin" />
+					<Input id="filterFirstName" width="8rem" placeholder="Üye Adı" liveChange=".onFilter" />
+					<Label text="Soyad:" class="sapUiTinyMarginBegin" />
+					<Input id="filterLastName" width="8rem" placeholder="Soyadı" liveChange=".onFilter" />
+					<Label text="E-posta:" class="sapUiTinyMarginBegin" />
+					<Input id="filterEmail" width="10rem" placeholder="E-posta" liveChange=".onFilter" />
+					<Label text="Dosya:" class="sapUiTinyMarginBegin" />
+					<Input id="filterFileName" width="8rem" placeholder="Dosya Adı" liveChange=".onFilter" />
 				</OverflowToolbar>
 				<ScrollContainer vertical="true" horizontal="false" height="100%">
 					<FlexBox id="adminMediaGallery" wrap="Wrap" items="{mediaPoolData>/media}" justifyContent="Start" alignItems="Start" class="sapUiSmallMargin">

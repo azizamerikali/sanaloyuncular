@@ -30,27 +30,37 @@ export default class AdminMedia extends BaseController {
 			const user = await UserService.getById(m.userId);
 			media.push({ 
 				...m, 
-				memberName: user ? `${user.firstName} ${user.lastName}` : "-", 
+				memberName: user ? `${user.firstName} ${user.lastName}` : "-",
+				firstName: user ? user.firstName : "",
+				lastName: user ? user.lastName : "",
+				email: user ? user.email : "",
 				createdAtFormatted: formatter.formatDate(m.createdAt) 
 			});
 		}
 		this.getView().setModel(new JSONModel({ media }), "mediaPoolData");
 	}
 
-	public onSearch(oEvent: Event): void {
-		const sQuery = oEvent.getParameter("newValue") || oEvent.getParameter("query") || "";
+	public onFilter(): void {
+		const oView = this.getView();
+		const sName = (oView.byId("filterFirstName") as any).getValue();
+		const sSurname = (oView.byId("filterLastName") as any).getValue();
+		const sEmail = (oView.byId("filterEmail") as any).getValue();
+		const sFile = (oView.byId("filterFileName") as any).getValue();
+
+		const aFilters = [];
+		if (sName) aFilters.push(new Filter("firstName", FilterOperator.Contains, sName));
+		if (sSurname) aFilters.push(new Filter("lastName", FilterOperator.Contains, sSurname));
+		if (sEmail) aFilters.push(new Filter("email", FilterOperator.Contains, sEmail));
+		if (sFile) aFilters.push(new Filter("fileName", FilterOperator.Contains, sFile));
+
 		const oGallery = this.getView().byId("adminMediaGallery") as any;
 		const oBinding = oGallery.getBinding("items") as ListBinding;
 		
-		if (sQuery) {
-			const oFilter = new Filter({
-				filters: [
-					new Filter("fileName", FilterOperator.Contains, sQuery),
-					new Filter("memberName", FilterOperator.Contains, sQuery)
-				],
-				and: false
-			});
-			oBinding.filter([oFilter]);
+		if (aFilters.length > 0) {
+			oBinding.filter(new Filter({
+				filters: aFilters,
+				and: true
+			}));
 		} else {
 			oBinding.filter([]);
 		}
