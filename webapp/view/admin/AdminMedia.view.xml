@@ -33,7 +33,8 @@
 				</columns>
 				<items>
 					<ColumnListItem>
-						<Image src="{mediaPoolData>fileData}" height="240px" 
+						<Image src="{mediaPoolData>fileData}" height="240px" width="100%"
+							mode="Background" backgroundSize="Contain"
 							press=".onImagePress" densityAware="false" 
 							class="sapUiTinyMarginTopBottom sapUiSystemPointer" />
 						<Text text="{mediaPoolData>fileName}" verticalAlign="Middle" />
