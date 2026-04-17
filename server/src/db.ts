@@ -6,6 +6,45 @@ const DB_PATH = process.env.VERCEL
   ? path.join("/tmp", "webdb.sqlite")
   : path.join(__dirname, "..", "data", "webdb.sqlite");
 
+const BLOB_PATHNAME = "webdb/production.sqlite";
+
+/** Upload DB buffer to Vercel Blob (overwrites). No-op if not on Vercel or token missing. */
+async function uploadToBlob(buffer: Buffer): Promise<void> {
+  if (!process.env.VERCEL || !process.env.BLOB_READ_WRITE_TOKEN) return;
+  try {
+    const { put } = await import("@vercel/blob");
+    await put(BLOB_PATHNAME, buffer, {
+      access: "public",
+      addRandomSuffix: false,
+      contentType: "application/octet-stream",
+    });
+  } catch (e) {
+    console.warn("⚠️ Blob upload failed:", e);
+  }
+}
+
+/** Download DB from Vercel Blob. Returns null if not found or token missing. */
+async function downloadFromBlob(): Promise<Buffer | null> {
+  if (!process.env.VERCEL || !process.env.BLOB_READ_WRITE_TOKEN) return null;
+  try {
+    const { list } = await import("@vercel/blob");
+    const { blobs } = await list({ prefix: "webdb/" });
+    const target = blobs.find(b => b.pathname === BLOB_PATHNAME);
+    if (!target) {
+      console.log("ℹ️ No existing DB blob found — starting fresh.");
+      return null;
+    }
+    const res = await fetch(target.url);
+    if (!res.ok) throw new Error(`Blob fetch failed: ${res.status}`);
+    const ab = await res.arrayBuffer();
+    console.log(`✅ DB loaded from Vercel Blob (${ab.byteLength} bytes)`);
+    return Buffer.from(ab);
+  } catch (e) {
+    console.warn("⚠️ Blob download failed:", e);
+    return null;
+  }
+}
+
 class DatabaseWrapper {
   private db: SqlJsDatabase | null = null;
   private initPromise: Promise<void>;
@@ -59,7 +98,19 @@ class DatabaseWrapper {
 
       await this.initSqlEngine();
 
-      if (fs.existsSync(DB_PATH)) {
+      // On Vercel: try to restore DB from Blob Storage (persists across cold starts)
+      if (process.env.VERCEL) {
+        const blobBuffer = await downloadFromBlob();
+        if (blobBuffer) {
+          fs.writeFileSync(DB_PATH, blobBuffer); // cache in /tmp too
+          this.db = new this.sqlHandle.Database(new Uint8Array(blobBuffer));
+          this.db.run("PRAGMA foreign_keys = ON;");
+          console.log(`✅ Database initialized from Vercel Blob`);
+          return;
+        }
+        // No blob yet — start fresh (first deploy or blob was deleted)
+        this.db = new this.sqlHandle.Database();
+      } else if (fs.existsSync(DB_PATH)) {
         const buffer = fs.readFileSync(DB_PATH);
         this.db = new this.sqlHandle.Database(new Uint8Array(buffer));
       } else {
@@ -100,26 +151,32 @@ class DatabaseWrapper {
   }
 
   /**
-   * Debounced Save to prevent OOM.
-   * sql.js.export() is very memory intensive.
+   * Debounced save: writes to disk (local) or Vercel Blob (production).
    */
   private save(): void {
     if (this._saveTimeout) return;
-    
-    this._saveTimeout = setTimeout(() => {
+
+    this._saveTimeout = setTimeout(async () => {
       if (this.isRestoring || !this.db) {
         this._saveTimeout = null;
         return;
       }
       try {
         const data = this.db.export();
-        fs.writeFileSync(DB_PATH, Buffer.from(data));
+        const buffer = Buffer.from(data);
+        if (!process.env.VERCEL) {
+          fs.writeFileSync(DB_PATH, buffer);
+        } else {
+          // Write to /tmp as fast local cache + persist to Blob
+          try { fs.writeFileSync(DB_PATH, buffer); } catch (_) {}
+          await uploadToBlob(buffer);
+        }
       } catch (e) {
-        console.warn("⚠️ DB Backup skip (possible OOM or Lock):", e);
+        console.warn("⚠️ DB save failed:", e);
       } finally {
         this._saveTimeout = null;
       }
-    }, 2000); // Wait 2s before writing to disk
+    }, 2000);
   }
 
   exec(sql: string): void {
@@ -184,15 +241,7 @@ class DatabaseWrapper {
 
   /**
    * Restores the database from a backup buffer.
-   *
-   * Strategy:
-   * 1. Always write the file to disk first (safe, reversible).
-   * 2. Attempt an in-process hot-reload (close → drop old WASM refs → yield for GC → reinit).
-   * 3. If the in-process reload fails (e.g. WASM heap OOM from stale allocations),
-   *    trigger process.exit(0) so the supervisor (nodemon) restarts cleanly from the new file.
-   *
-   * Returns { restarting: true } when the process is about to exit so the caller can
-   * send an appropriate response before the exit fires.
+   * On Vercel, also uploads the new DB to Blob Storage immediately (no wait for debounce).
    */
   async restore(buffer: Buffer): Promise<{ restarting: boolean }> {
     await this.ready();
@@ -204,7 +253,7 @@ class DatabaseWrapper {
       this._saveTimeout = null;
     }
 
-    // Step 1: Write to disk unconditionally — this is always safe.
+    // Step 1: Persist unconditionally — disk + Blob (Vercel)
     try {
       fs.writeFileSync(DB_PATH, buffer);
     } catch (err: any) {
@@ -212,16 +261,12 @@ class DatabaseWrapper {
       throw new Error(`Veritabanı dosyası diske yazılamadı: ${err.message}`);
     }
 
-    // Step 2: Try in-process hot-reload.
-    // Strategy A: close old DB, reload in the SAME WASM engine (no double-memory pressure).
-    // This works when the heap is not too fragmented (typical on Vercel / fresh Lambda).
-    // Strategy B: if A fails, reinitialize the WASM engine entirely (fresh heap).
-    // This works when the heap is fragmented (typical on long-running local dev processes).
-    // If both fail locally → process.exit(1) so supervisor restarts cleanly.
-    // If both fail on Vercel → return success (file is on disk, next cold start will load it).
-    let strategyAError: string | null = null;
+    // Upload to Blob immediately (before in-memory reload, so data is safe even if reload fails)
+    if (process.env.VERCEL) {
+      await uploadToBlob(buffer);
+    }
 
-    // --- Strategy A: same WASM engine ---
+    // Strategy A: same WASM engine
     try {
       if (this.db) {
         try { this.db.close(); } catch (e) {}
@@ -234,14 +279,14 @@ class DatabaseWrapper {
       console.log("✅ Database restored (same WASM engine)");
       return { restarting: false };
     } catch (errA: any) {
-      strategyAError = errA instanceof Error ? errA.message : String(errA);
+      const strategyAError = errA instanceof Error ? errA.message : String(errA);
       console.warn(`⚠️ Strategy A failed (${strategyAError}), trying Strategy B...`);
       this.db = null;
     }
 
-    // --- Strategy B: fresh WASM engine ---
+    // Strategy B: fresh WASM engine
     try {
-      this.sqlHandle = null;  // Drop reference → eligible for GC
+      this.sqlHandle = null;
       await new Promise<void>(resolve => setImmediate(resolve));
       await this.initSqlEngine();
       this.db = new this.sqlHandle.Database(new Uint8Array(buffer));
@@ -250,16 +295,13 @@ class DatabaseWrapper {
       return { restarting: false };
     } catch (errB: any) {
       const msg = errB instanceof Error ? errB.message : String(errB);
-      console.error(`⚠️ Both strategies failed. A: ${strategyAError} | B: ${msg}. File is on disk.`);
+      console.error(`⚠️ Both strategies failed. B: ${msg}. File is on disk/blob.`);
 
       if (!process.env.VERCEL) {
-        // Local: supervisor will restart the process and load the new file cleanly.
         setTimeout(() => process.exit(1), 800);
         return { restarting: true };
       }
-      // Vercel: file is written to disk. Current Lambda instance is degraded.
-      // Next cold start will load the restored DB automatically.
-      // Return success so the user knows the file was saved — don't show a 500 error.
+      // Vercel: file saved to blob, next cold start will load correctly.
       return { restarting: false };
     } finally {
       this.isRestoring = false;
