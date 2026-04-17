@@ -32,41 +32,63 @@ export default class AdminMedia extends BaseController {
 		const fileNames = new Set<string>();
 
 		for (const m of mediaList) {
-			const user = await UserService.getById(m.userId);
-			const status = user ? user.status : "inactive";
-			let statusState = "None";
-			if (status === "active") statusState = "Success";
-			else if (status === "inactive") statusState = "Warning"; // User requested yellow for Passive
-			else if (status === "pending") statusState = "Information";
-
+			const status = "active"; // Default or fetch later if needed for list
+			let statusState = "Success";
+			
 			const item = { 
 				...m, 
-				memberName: user ? `${user.firstName} ${user.lastName}` : "-",
-				firstName: user ? user.firstName : "",
-				lastName: user ? user.lastName : "",
-				email: user ? user.email : "",
+				memberName: "Yükleniyor...",
 				memberStatus: status,
-				memberStatusText: formatter.formatStatus(status),
+				memberStatusText: "Yükleniyor...",
 				statusState: statusState,
+				fileData: "", // Empty initially
 				createdAtFormatted: formatter.formatDate(m.createdAt) 
 			};
 			media.push(item);
 			
-			if (item.firstName) firstNames.add(item.firstName);
-			if (item.lastName) lastNames.add(item.lastName);
-			if (item.email) emails.add(item.email);
 			if (item.fileName) fileNames.add(item.fileName);
 		}
 
-		this.getView().setModel(new JSONModel({ 
+		const oModel = new JSONModel({ 
 			media,
 			suggestions: {
-				firstNames: Array.from(firstNames).map(s => ({ text: s })),
-				lastNames: Array.from(lastNames).map(s => ({ text: s })),
-				emails: Array.from(emails).map(s => ({ text: s })),
+				firstNames: [],
+				lastNames: [],
+				emails: [],
 				fileNames: Array.from(fileNames).map(s => ({ text: s }))
 			}
-		}), "mediaPoolData");
+		});
+		this.getView().setModel(oModel, "mediaPoolData");
+
+		// Background enrichment: Fetch user info and image data for each item
+		media.forEach(async (item, index) => {
+			try {
+				// 1. Fetch user info
+				const user = await UserService.getById(item.userId);
+				if (user) {
+					item.memberName = `${user.firstName} ${user.lastName}`;
+					item.firstName = user.firstName;
+					item.lastName = user.lastName;
+					item.email = user.email;
+					item.memberStatus = user.status;
+					item.memberStatusText = formatter.formatStatus(user.status);
+					
+					if (user.status === "inactive") item.statusState = "Warning";
+					else if (user.status === "pending") item.statusState = "Information";
+				}
+
+				// 2. Fetch image content
+				const content = await MediaService.getContent(item.id);
+				if (content) {
+					item.fileData = content;
+				}
+				
+				// Update model only for this specific item to reflect changes in UI
+				oModel.setProperty(`/media/${index}`, item);
+			} catch (e) {
+				console.error("Failed to enrich media item", item.id, e);
+			}
+		});
 	}
 
 	public onFilter(): void {

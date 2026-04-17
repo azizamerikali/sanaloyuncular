@@ -14,20 +14,22 @@ interface MediaRow {
   created_at: string;
 }
 
-function toApi(row: MediaRow) {
+// toApi without media content for lists
+function toApi(row: any) {
   return {
     id: row.id,
     userId: row.user_id,
     fileName: row.file_name,
     filePath: row.file_path,
-    fileData: decryptField(row.file_data),
+    fileData: row.file_data ? decryptField(row.file_data) : null,
     createdAt: row.created_at,
   };
 }
 
-// GET /api/media
+// GET /api/media - LIST ONLY (No content)
 router.get("/", (req: AuthenticatedRequest, res: Response) => {
-  let sql = "SELECT * FROM media WHERE 1=1";
+  // We explicitly EXCLUDE file_data from global listing to prevent OOM
+  let sql = "SELECT id, user_id, file_name, file_path, created_at FROM media WHERE 1=1";
   const params: string[] = [];
 
   if (req.query.userId) {
@@ -36,8 +38,23 @@ router.get("/", (req: AuthenticatedRequest, res: Response) => {
   }
 
   sql += " ORDER BY created_at DESC";
-  const rows = db.prepare(sql).all(...params) as MediaRow[];
-  res.json(rows.map(toApi));
+  try {
+    const rows = db.prepare(sql).all(...params);
+    res.json(rows);
+  } catch (error) {
+    console.error("Media list fetch error:", error);
+    res.status(500).json({ error: "Medya listesi alinamadi." });
+  }
+});
+
+// GET /api/media/:id/content - View specific media content
+router.get("/:id/content", (req: AuthenticatedRequest, res: Response) => {
+  const row = db.prepare("SELECT file_data FROM media WHERE id = ?").get(req.params.id) as any;
+  if (!row) return res.status(404).json({ error: "Medya bulunamadı" });
+  
+  res.json({
+    fileData: decryptField(row.file_data)
+  });
 });
 
 // GET /api/media/count

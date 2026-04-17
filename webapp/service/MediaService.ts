@@ -39,6 +39,15 @@ const MediaService = {
 	async getCountByUser(userId: string): Promise<number> {
 		const data = await ApiClient.get<{ count: number }>(`/media/count?userId=${userId}`);
 		return data.count;
+	},
+
+	async getContent(id: string): Promise<string | null> {
+		try {
+			const data = await ApiClient.get<{ fileData: string }>(`/media/${id}/content`);
+			return data.fileData;
+		} catch {
+			return null;
+		}
 	}
 };
 
