@@ -1,85 +1,85 @@
 KULLANICI SÖZLEŞMESİ VE AÇIK RIZA METNİ
 1. TARAFLAR
 
-İşbu sözleşme,
+İşbu Kullanıcı Sözleşmesi ve Açık Rıza Metni,
 [ŞİRKET ADI] (bundan sonra “Şirket” olarak anılacaktır)
-ile
-Platforma üye olan kullanıcı (bundan sonra “Kullanıcı” olarak anılacaktır)
+ile Platforma üye olan kullanıcı (bundan sonra “Kullanıcı” olarak anılacaktır)
 arasında elektronik ortamda akdedilmiştir.
 
 2. SÖZLEŞMENİN KONUSU
 
-İşbu sözleşme, Kullanıcı tarafından sağlanan fotoğraf, video ve kişisel verilerin, Şirket tarafından yapay zekâ destekli video projelerinde kullanılmasına ilişkin şartları ve tarafların hak ve yükümlülüklerini düzenler.
+İşbu sözleşme, Kullanıcı tarafından platforma yüklenen fotoğraf, video, ses ve diğer görsel-işitsel içeriklerin, yapay zekâ teknolojileri kullanılarak işlenmesi, dönüştürülmesi ve ticari projelerde kullanılmasına ilişkin şartları düzenler.
 
 3. KULLANICI BEYANI VE TAAHHÜDÜ
 
-Kullanıcı, platforma yüklediği tüm fotoğraf ve görsellerin:
+Kullanıcı:
+•	Yüklediği tüm içeriklerin kendisine ait olduğunu, 
+•	Üçüncü kişilerin telif, marka, kişilik ve gizlilik haklarını ihlal etmediğini, 
+•	İçeriklerde yer alan diğer kişilerin açık rızasının bulunduğunu 
+kabul ve taahhüt eder.
 
-Kendisine ait olduğunu,
-Üçüncü kişilerin haklarını ihlal etmediğini,
-Telif, kişilik ve gizlilik haklarına aykırılık teşkil etmediğini
+4. TELİF, LİSANS VE YAPAY ZEKÂ KULLANIM HAKLARI
 
-kabul, beyan ve taahhüt eder.
+Kullanıcı, yüklediği içeriklere ilişkin olarak Şirket’e:
+•	Süresiz, geri alınamaz, dünya çapında geçerli, devredilebilir ve alt lisanslanabilir lisans verdiğini kabul eder. 
+•	İçeriklerin: 
+    o	Yapay zekâ ile işlenmesi 
+    o	Deepfake / sentetik medya üretimi 
+    o	Ses ve mimik sentezi 
+    o	Farklı sahnelerde yeniden kurgulanması 
+için kullanılabileceğini kabul eder.
 
-Aksi durumda doğabilecek tüm hukuki ve cezai sorumluluk Kullanıcı’ya aittir.
+5. TÜREV ESER VE HAK SAHİPLİĞİ
 
-4. TELİF VE KULLANIM HAKLARI (5846 SAYILI KANUN KAPSAMINDA)
+•	Yapay zekâ ile oluşturulan içerikler yeni eser sayılır. 
+•	Bu eserler üzerindeki tüm mali haklar Şirket’e aittir. 
+•	Kullanıcı, bu içerikler üzerinde herhangi bir hak, telif veya ek ücret talep etmeyeceğini kabul eder. 
 
-Kullanıcı, yüklediği içeriklere ilişkin olarak:
+6. ÜCRET VE ÖDEME
 
-Şirket’e, içeriklerin işlenmesi, çoğaltılması, değiştirilmesi, yapay zekâ ile işlenmesi, dijital ortamlarda kullanılması ve yayınlanması için süresiz, geri alınamaz ve münhasır olmayan lisans verdiğini kabul eder.
-Bu kullanımın reklam, tanıtım, sosyal medya, dijital içerik üretimi ve yapay zekâ video projelerini kapsadığını kabul eder.
-Oluşturulan yapay zekâ içeriklerinin yeni eser niteliğinde olabileceğini ve bu içerikler üzerinde herhangi bir hak talep etmeyeceğini kabul eder.
-5. ÜCRET VE ÖDEME
-Kullanıcıya yapılacak ödemeler, Şirket tarafından belirlenen tarife üzerinden yapılır.
-Ödeme, Kullanıcı tarafından beyan edilen IBAN numarasına yapılır.
-Kullanıcı, verdiği IBAN bilgilerinin doğru olduğunu kabul eder.
-Yanlış IBAN nedeniyle oluşabilecek sorunlardan Şirket sorumlu değildir.
-6. KİŞİSEL VERİLERİN KORUNMASI (KVKK 6698)
+•	Kullanıcıya yapılacak ödemeler, proje bazlı ve kullanım kapsamına göre belirlenir. 
+•	Şirket, elde edilen gelir üzerinden komisyon kesme hakkına sahiptir. 
+•	Ödemeler Kullanıcı’nın bildirdiği IBAN’a yapılır. 
 
-Kullanıcı, aşağıdaki kişisel verilerinin işlenmesine açık rıza verir:
 
-Ad, soyad
-E-posta adresi
-Telefon numarası
-Şehir bilgisi
-Doğum tarihi
-IBAN ve finansal bilgiler
-Fotoğraf ve görsel veriler (biyometrik veri kapsamında değerlendirilebilir)
-Veri İşleme Amaçları:
-Üyelik işlemlerinin yürütülmesi
-Ödeme süreçlerinin gerçekleştirilmesi
-Yapay zekâ video içeriklerinin oluşturulması
-Reklam ve pazarlama faaliyetleri
-Hizmet geliştirme
-Veri Aktarımı:
+7. KİŞİSEL VERİLERİN KORUNMASI (KVKK)
 
-Kullanıcı, verilerinin:
+Kullanıcı aşağıdaki verilerin işlenmesine açık rıza verir:
+•	Kimlik ve iletişim bilgileri 
+•	Finansal bilgiler 
+•	Fotoğraf, video ve biyometrik veriler 
 
-Yurt içi ve yurt dışındaki iş ortaklarıyla,
-Bulut servis sağlayıcılarıyla,
-Yapay zekâ teknolojisi sağlayıcılarıyla
+8. VERİ AKTARIMI
 
-paylaşılabileceğini kabul eder.
+Kullanıcı verilerinin:
+•	Yurt içi ve yurt dışı sunuculara 
+•	Yapay zekâ servis sağlayıcılarına 
+•	İş ortaklarına 
+aktarılabileceğini kabul eder.
 
-7. AÇIK RIZA
 
-Kullanıcı, yukarıda belirtilen kişisel verilerinin işlenmesine ve fotoğraflarının yapay zekâ sistemleri tarafından kullanılmasına açık rıza verdiğini kabul eder.
+9. AÇIK RIZA BEYANI
 
-8. SÖZLEŞMENİN SÜRESİ VE FESİH
-İşbu sözleşme, Kullanıcı üyeliği devam ettiği sürece yürürlüktedir.
-Kullanıcı üyeliğini sonlandırabilir; ancak daha önce üretilmiş içeriklerin kullanımı devam edebilir.
-Şirket, gerekli gördüğü durumlarda sözleşmeyi tek taraflı feshedebilir.
-9. SORUMLULUK SINIRLARI
-Şirket, yapay zekâ ile oluşturulan içeriklerin üçüncü kişiler tarafından kullanımından sorumlu değildir.
-Kullanıcı, içeriklerin dijital ortamda yayılabileceğini kabul eder.
-10. UYUŞMAZLIKLARIN ÇÖZÜMÜ
+Kullanıcı açıkça:
+•	Görüntüsünün yapay zekâ ile işlenmesine 
+•	Dijital olarak değiştirilmesine 
+•	Ticari projelerde kullanılmasına 
+rıza verdiğini kabul eder.
 
-İşbu sözleşmeden doğabilecek uyuşmazlıklarda Türkiye Cumhuriyeti kanunları uygulanır ve [ŞİRKET MERKEZİ İLİ] Mahkemeleri ve İcra Daireleri yetkilidir.
 
-11. YÜRÜRLÜK
+10. SÜRE VE FESİH
 
-Kullanıcı, platforma üye olarak ve “Onaylıyorum” seçeneğini işaretleyerek işbu sözleşmenin tüm hükümlerini okuduğunu, anladığını ve kabul ettiğini beyan eder.
+•	Kullanıcı üyeliğini sonlandırabilir 
+•	Ancak önceden üretilmiş içeriklerin kullanımı devam eder 
+
+11. SORUMLULUK SINIRI
+
+•	AI çıktılarının üçüncü kişilerce kullanımından 
+•	İçeriğin yeniden paylaşılmasından 
+
+12. UYUŞMAZLIKLAR
+
+İstanbul Mahkemeleri yetkilidir.
 
 ŞİRKET: [ŞİRKET ADI]
 KULLANICI: [Ad Soyad]

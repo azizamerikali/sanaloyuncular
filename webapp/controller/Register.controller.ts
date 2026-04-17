@@ -458,11 +458,16 @@ export default class Register extends BaseController {
 	}
 
 	private async openLegalConsentDialog(email: string, fullName: string, isPreCheck: boolean = false): Promise<boolean> {
+		// Ensure template is loaded before showing dialog
+		if (!this._legalTextTemplate) {
+			await this.loadLegalTemplate();
+		}
+
 		const oBundle = await this.getResourceBundle();
 		const sDate = new Date().toLocaleDateString('tr-TR');
 		const sCompany = "Ludens Casting";
 		
-		const sFinalText = this._legalTextTemplate
+		const sFinalText = (this._legalTextTemplate || "Sözleşme metni yüklenemedi. Lütfen sayfayı yenileyiniz.")
 			.replace(/\[ŞİRKET ADI\]/g, sCompany)
 			.replace(/\[Ad Soyad\]/g, fullName)
 			.replace(/\[Tarih\]/g, sDate)
