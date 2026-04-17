@@ -13,29 +13,22 @@ const DB_PATH = process.env.VERCEL
 class DatabaseWrapper {
   private db: SqlJsDatabase | null = null;
   private initPromise: Promise<void>;
+  private sqlHandle: any = null;
 
   constructor() {
     this.initPromise = this.initialize().catch(err => {
       console.error(`❌ Global Database Initialization Error: ${err.message}`);
-      // Swallow here so Node.js doesn't crash on unhandled rejection.
-      // The ready() method re-throws so callers get the error.
     });
-    // Prevent Node.js 15+ from crashing on unhandled promise rejection
-    // if no one calls ready() before the micro-task queue drains.
     this.initPromise.catch(() => {});
   }
 
   private async initialize(): Promise<void> {
     try {
-      // Ensure data directory exists
       const dataDir = path.dirname(DB_PATH);
       if (!fs.existsSync(dataDir)) {
         fs.mkdirSync(dataDir, { recursive: true });
       }
 
-      // Load WASM binary directly from disk to avoid path resolution issues
-      // inside ncc-bundled Vercel functions (where locateFile string paths fail).
-      // Candidate list covers local dev, Vercel /var/task, and fallback locations.
       const wasmCandidates = [
         path.join(process.cwd(), "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
         "/var/task/node_modules/sql.js/dist/sql-wasm.wasm",
@@ -51,29 +44,24 @@ class DatabaseWrapper {
           console.log(`✅ sql.js WASM loaded from: ${p}`);
           break;
         }
-        console.log(`  sql.js WASM not at: ${p}`);
       }
 
-      if (!wasmBinary) {
-        throw new Error(`sql-wasm.wasm not found. Searched: ${wasmCandidates.join(", ")}`);
-      }
+      if (!wasmBinary) throw new Error(`sql-wasm.wasm not found.`);
 
-      // Copy into a fresh ArrayBuffer — Buffer.buffer is a shared pool slice and
-      // passing it directly to sql.js/Emscripten corrupts the WASM heap.
       const wasmArrayBuffer = wasmBinary.buffer.slice(
         wasmBinary.byteOffset,
         wasmBinary.byteOffset + wasmBinary.byteLength
       ) as ArrayBuffer;
-      const SQL = await initSqlJs({ wasmBinary: wasmArrayBuffer });
+      
+      this.sqlHandle = await initSqlJs({ wasmBinary: wasmArrayBuffer });
 
       if (fs.existsSync(DB_PATH)) {
         const buffer = fs.readFileSync(DB_PATH);
-        this.db = new SQL.Database(buffer);
+        this.db = new this.sqlHandle.Database(buffer);
       } else {
-        this.db = new SQL.Database();
+        this.db = new this.sqlHandle.Database();
       }
 
-      // Enable foreign keys
       this.db.run("PRAGMA foreign_keys = ON;");
       console.log(`✅ Database initialized at ${DB_PATH}`);
     } catch (err: any) {
@@ -105,25 +93,16 @@ class DatabaseWrapper {
     fs.writeFileSync(DB_PATH, buffer);
   }
 
-  /**
-   * Execute raw SQL (multiple statements). Used for schema creation.
-   */
   exec(sql: string): void {
     this.getDb().exec(sql);
     this.save();
   }
 
-  /**
-   * Returns a statement-like object with .all(), .get(), .run() methods.
-   */
   prepare(sql: string) {
     const database = this.getDb();
     const wrapper = this;
 
     return {
-      /**
-       * Execute and return all rows as an array of objects.
-       */
       all(...params: any[]): any[] {
         const stmt = database.prepare(sql);
         if (params.length > 0) {
@@ -138,9 +117,6 @@ class DatabaseWrapper {
         return results;
       },
 
-      /**
-       * Execute and return first row as an object, or undefined.
-       */
       get(...params: any[]): any {
         const stmt = database.prepare(sql);
         if (params.length > 0) {
@@ -155,9 +131,6 @@ class DatabaseWrapper {
         return result;
       },
 
-      /**
-       * Execute a statement (INSERT, UPDATE, DELETE) and return changes info.
-       */
       run(...params: any[]): { changes: number } {
         if (params.length > 0) {
           database.run(sql, wrapper.normalizeParams(params));
@@ -174,9 +147,6 @@ class DatabaseWrapper {
     };
   }
 
-  /**
-   * Simple transaction helper — executes the function and saves.
-   */
   transaction<T>(fn: () => T): () => T {
     return () => {
       this.getDb().run("BEGIN TRANSACTION");
@@ -192,51 +162,34 @@ class DatabaseWrapper {
     };
   }
 
-  /**
-   * Overwrite the database file and reload the internal state.
-   */
   async restore(buffer: Buffer): Promise<void> {
     await this.ready();
-    // Re-use the same WASM loading logic as initialize()
-    const wasmCandidates = [
-      path.join(process.cwd(), "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
-      "/var/task/node_modules/sql.js/dist/sql-wasm.wasm",
-      path.join(__dirname, "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
-      path.join(__dirname, "..", "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
-      path.join(__dirname, "..", "..", "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
-    ];
-    let wasmBinary: Buffer | undefined;
-    for (const p of wasmCandidates) {
-      if (fs.existsSync(p)) { wasmBinary = fs.readFileSync(p); break; }
+    
+    try {
+      if (!this.sqlHandle) {
+        throw new Error("SQL handle not available for restore");
+      }
+
+      fs.writeFileSync(DB_PATH, buffer);
+      
+      if (this.db) {
+        try { this.db.close(); } catch (e) {}
+        this.db = null;
+      }
+      
+      this.db = new this.sqlHandle.Database(buffer);
+      this.db.run("PRAGMA foreign_keys = ON;");
+      
+      console.log("♻️ Database hot-reloaded from restore success");
+    } catch (err: any) {
+      console.error(`❌ Restore operation failed: ${err.message}`);
+      throw err;
     }
-    if (!wasmBinary) throw new Error("sql-wasm.wasm not found during restore");
-    const wasmArrayBuffer = wasmBinary.buffer.slice(
-      wasmBinary.byteOffset, wasmBinary.byteOffset + wasmBinary.byteLength
-    ) as ArrayBuffer;
-    const SQL = await initSqlJs({ wasmBinary: wasmArrayBuffer });
-    
-    // 1. Write to file
-    fs.writeFileSync(DB_PATH, buffer);
-    
-    // 2. Clear current DB and reload from new buffer
-    if (this.db) {
-      this.db.close();
-    }
-    this.db = new SQL.Database(buffer);
-    this.db.run("PRAGMA foreign_keys = ON;");
-    
-    console.log("♻️ Database hot-reloaded from restore");
   }
 
-  pragma(_statement: string): void {
-    // No-op — pragmas handled in init
-  }
+  pragma(_statement: string): void { }
 
-  /**
-   * Normalize params: sql.js expects a flat array for positional params.
-   */
   private normalizeParams(params: any[]): any[] {
-    // If called with spread args like .all("a", "b"), flatten them
     if (params.length === 1 && Array.isArray(params[0])) {
       return params[0];
     }
@@ -244,10 +197,8 @@ class DatabaseWrapper {
   }
 }
 
-// Global singleton instance
 let dbInstance: DatabaseWrapper | null = null;
 
-// Exporting the instance directly for compatibility with existing imports
 const db = new Proxy({} as DatabaseWrapper, {
   get: (target, prop, receiver) => {
     if (!dbInstance) {
