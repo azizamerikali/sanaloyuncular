@@ -57,7 +57,7 @@ router.get("/:id", (req: AuthenticatedRequest, res: Response) => {
 });
 
 // POST /api/projects — only admin or client
-router.post("/", (req: AuthenticatedRequest, res: Response) => {
+router.post("/", async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "admin" && req.user?.role !== "client") {
     return res.status(403).json({ error: "Erişim engellendi. Sadece admin veya müşteriler proje oluşturabilir." });
   }
@@ -66,7 +66,7 @@ router.post("/", (req: AuthenticatedRequest, res: Response) => {
   const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
   const createdAt = new Date().toISOString();
 
-  db.prepare(
+  await db.prepare(
     "INSERT INTO projects (id, name, description, created_by, status, created_at) VALUES (?, ?, ?, ?, ?, ?)"
   ).run(id, name || "", description || "", createdBy || req.user?.id || "", status || "active", createdAt);
 
@@ -74,7 +74,7 @@ router.post("/", (req: AuthenticatedRequest, res: Response) => {
 });
 
 // PUT /api/projects/:id — only admin or client
-router.put("/:id", (req: AuthenticatedRequest, res: Response) => {
+router.put("/:id", async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "admin" && req.user?.role !== "client") {
     return res.status(403).json({ error: "Erişim engellendi. Sadece admin veya müşteriler proje güncelleyebilir." });
   }
@@ -83,7 +83,7 @@ router.put("/:id", (req: AuthenticatedRequest, res: Response) => {
   if (!existing) return res.status(404).json({ error: "Proje bulunamadı" });
 
   const { name, description, createdBy, status } = req.body;
-  db.prepare(
+  await db.prepare(
     "UPDATE projects SET name = ?, description = ?, created_by = ?, status = ? WHERE id = ?"
   ).run(name ?? existing.name, description ?? existing.description, createdBy ?? existing.created_by, status ?? existing.status, req.params.id);
 
@@ -92,12 +92,12 @@ router.put("/:id", (req: AuthenticatedRequest, res: Response) => {
 });
 
 // DELETE /api/projects/:id — only admin
-router.delete("/:id", (req: AuthenticatedRequest, res: Response) => {
+router.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "admin") {
     return res.status(403).json({ error: "Erişim engellendi. Sadece adminler proje silebilir." });
   }
 
-  const result = db.prepare("DELETE FROM projects WHERE id = ?").run(req.params.id);
+  const result = await db.prepare("DELETE FROM projects WHERE id = ?").run(req.params.id);
   if (result.changes === 0) return res.status(404).json({ error: "Proje bulunamadı" });
   res.json({ success: true });
 });

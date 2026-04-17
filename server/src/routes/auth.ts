@@ -73,7 +73,7 @@ router.post("/login", loginLimiter, async (req: Request, res: Response) => {
     passwordValid = storedPassword === password;
     if (passwordValid) {
       const hash = await bcrypt.hash(password, 12);
-      db.prepare("UPDATE users SET password = ? WHERE id = ?").run(hash, row.id);
+      await db.prepare("UPDATE users SET password = ? WHERE id = ?").run(hash, row.id);
     }
   }
 

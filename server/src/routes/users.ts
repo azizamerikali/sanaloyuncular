@@ -136,14 +136,14 @@ router.post("/", async (req: Request, res: Response) => {
     const userRole = req.body.role || "member";
 
     // 1. Insert User
-    db.prepare(
+    await db.prepare(
       "INSERT INTO users (id, first_name, last_name, email, phone, address, password, role, status, birth_date, parent_name, consent_document, iban, iban_holder, city, acting_training, acting_experience, profile_picture, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     ).run(id, firstName || "", lastName || "", email || "", encryptField(phone || ""), encryptField(address || ""), passwordHash, userRole, userStatus, birthDate || "", parentName || "", consentDocument || "", encryptField(iban || ""), ibanHolder || "", city || "", actingTraining || "", actingExperience || "", profilePicture || "", createdAt);
 
     // Auto-create legal record if created as active member
     if (userStatus === "active" && userRole === "member") {
       const recordId = "LR_ADM_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
-      db.prepare(
+      await db.prepare(
         "INSERT INTO member_legal_records (id, email, first_name, last_name, approved_at, contract_content, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
       ).run(
         recordId,
@@ -165,7 +165,7 @@ router.post("/", async (req: Request, res: Response) => {
       );
       for (const photo of initialPhotos) {
         const mediaId = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
-        insertMedia.run(
+        await insertMedia.run(
           mediaId,
           id,
           photo.fileName || "Registration Photo",
@@ -184,7 +184,7 @@ router.post("/", async (req: Request, res: Response) => {
 });
 
 // PUT /api/users/:id
-router.put("/:id", protect, (req: AuthenticatedRequest, res: Response) => {
+router.put("/:id", protect, async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "admin" && req.user?.id !== req.params.id) {
     return res.status(403).json({ error: "Erişim engellendi." });
   }
@@ -194,7 +194,7 @@ router.put("/:id", protect, (req: AuthenticatedRequest, res: Response) => {
 
   const { firstName, lastName, email, phone, address, role, status, birthDate, parentName, consentDocument, iban, ibanHolder, city, actingTraining, actingExperience, profilePicture } = req.body;
 
-  db.prepare(
+  await db.prepare(
     "UPDATE users SET first_name = ?, last_name = ?, email = ?, phone = ?, address = ?, role = ?, status = ?, birth_date = ?, parent_name = ?, consent_document = ?, iban = ?, iban_holder = ?, city = ?, acting_training = ?, acting_experience = ?, profile_picture = ? WHERE id = ?"
   ).run(
     firstName ?? existing.first_name,
@@ -224,7 +224,7 @@ router.put("/:id", protect, (req: AuthenticatedRequest, res: Response) => {
       
       if (!recordExists) {
         const recordId = "LR_ADM_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
-        db.prepare(
+        await db.prepare(
           "INSERT INTO member_legal_records (id, email, first_name, last_name, approved_at, contract_content, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
         ).run(
           recordId,
@@ -248,12 +248,12 @@ router.put("/:id", protect, (req: AuthenticatedRequest, res: Response) => {
 });
 
 // DELETE /api/users/:id
-router.delete("/:id", protect, (req: AuthenticatedRequest, res: Response) => {
+router.delete("/:id", protect, async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "admin") {
     return res.status(403).json({ error: "Erişim engellendi. Sadece adminler silebilir." });
   }
 
-  const result = db.prepare("DELETE FROM users WHERE id = ?").run(req.params.id);
+  const result = await db.prepare("DELETE FROM users WHERE id = ?").run(req.params.id);
   if (result.changes === 0) return res.status(404).json({ error: "Kullanıcı bulunamadı" });
   res.json({ success: true });
 });

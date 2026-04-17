@@ -81,7 +81,7 @@ router.get("/:id", (req: AuthenticatedRequest, res: Response) => {
 });
 
 // POST /api/payments — sadece admin ve client
-router.post("/", (req: AuthenticatedRequest, res: Response) => {
+router.post("/", async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "admin" && req.user?.role !== "client") {
     return res.status(403).json({ error: "Erişim engellendi. Sadece admin veya müşteriler ödeme oluşturabilir." });
   }
@@ -92,7 +92,7 @@ router.post("/", (req: AuthenticatedRequest, res: Response) => {
   const net = gross - ded;
   const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
 
-  db.prepare(
+  await db.prepare(
     "INSERT INTO payments (id, user_id, project_id, date, gross_amount, deduction, net_amount, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
   ).run(id, userId || "", projectId || "", date || new Date().toISOString().split("T")[0], gross, ded, net, status || "unpaid");
 
@@ -100,7 +100,7 @@ router.post("/", (req: AuthenticatedRequest, res: Response) => {
 });
 
 // PUT /api/payments/:id — sadece admin
-router.put("/:id", (req: AuthenticatedRequest, res: Response) => {
+router.put("/:id", async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "admin") {
     return res.status(403).json({ error: "Erişim engellendi. Sadece adminler ödeme güncelleyebilir." });
   }
@@ -113,7 +113,7 @@ router.put("/:id", (req: AuthenticatedRequest, res: Response) => {
   const ded = Math.max(0, Number(deduction ?? existing.deduction));
   const net = gross - ded;
 
-  db.prepare(
+  await db.prepare(
     "UPDATE payments SET user_id = ?, project_id = ?, date = ?, gross_amount = ?, deduction = ?, net_amount = ?, status = ? WHERE id = ?"
   ).run(
     userId ?? existing.user_id,
@@ -129,12 +129,12 @@ router.put("/:id", (req: AuthenticatedRequest, res: Response) => {
 });
 
 // DELETE /api/payments/:id — sadece admin
-router.delete("/:id", (req: AuthenticatedRequest, res: Response) => {
+router.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "admin") {
     return res.status(403).json({ error: "Erişim engellendi. Sadece adminler ödeme silebilir." });
   }
 
-  const result = db.prepare("DELETE FROM payments WHERE id = ?").run(req.params.id);
+  const result = await db.prepare("DELETE FROM payments WHERE id = ?").run(req.params.id);
   if (result.changes === 0) return res.status(404).json({ error: "Ödeme bulunamadı" });
   res.json({ success: true });
 });

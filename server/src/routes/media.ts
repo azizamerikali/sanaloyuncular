@@ -111,7 +111,7 @@ router.post("/", (req: AuthenticatedRequest, res: Response) => {
   
   const encryptedFileData = encryptField(fileData || "");
 
-  db.prepare(
+  await db.prepare(
     "INSERT INTO media (id, user_id, file_name, file_path, file_data, created_at) VALUES (?, ?, ?, ?, ?, ?)"
   ).run(id, userId || req.user?.id || "", fileName || "", filePath || "", encryptedFileData, createdAt);
 
@@ -119,7 +119,7 @@ router.post("/", (req: AuthenticatedRequest, res: Response) => {
 });
 
 // DELETE /api/media/:id
-router.delete("/:id", (req: AuthenticatedRequest, res: Response) => {
+router.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
   const media = db.prepare("SELECT * FROM media WHERE id = ?").get(req.params.id) as MediaRow | undefined;
   if (!media) return res.status(404).json({ error: "Medya bulunamadı" });
 
@@ -127,7 +127,7 @@ router.delete("/:id", (req: AuthenticatedRequest, res: Response) => {
     return res.status(403).json({ error: "Access denied." });
   }
 
-  const result = db.prepare("DELETE FROM media WHERE id = ?").run(req.params.id);
+  const result = await db.prepare("DELETE FROM media WHERE id = ?").run(req.params.id);
   if (result.changes === 0) return res.status(404).json({ error: "Media not found" });
   res.json({ success: true });
 });
