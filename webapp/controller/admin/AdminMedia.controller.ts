@@ -39,8 +39,8 @@ export default class AdminMedia extends BaseController {
 
 	public onSearch(oEvent: Event): void {
 		const sQuery = oEvent.getParameter("newValue") || oEvent.getParameter("query") || "";
-		const oTable = this.getView().byId("adminMediaTable") as any;
-		const oBinding = oTable.getBinding("items") as ListBinding;
+		const oGallery = this.getView().byId("adminMediaGallery") as any;
+		const oBinding = oGallery.getBinding("items") as ListBinding;
 		
 		if (sQuery) {
 			const oFilter = new Filter({
