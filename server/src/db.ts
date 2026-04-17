@@ -22,22 +22,11 @@ async function uploadToBlob(buffer: Buffer): Promise<void> {
 
   try {
     const { put } = await import("@vercel/blob");
-    // Use fallback strategy for access mode
-    let result;
-    try {
-      result = await put(BLOB_PATHNAME, buffer, {
-        access: "public",
-        addRandomSuffix: false,
-        contentType: "application/octet-stream",
-      });
-    } catch (e: any) {
-      // If public fails, try private (though we know public works now)
-      result = await put(BLOB_PATHNAME, buffer, {
-        access: "private",
-        addRandomSuffix: false,
-        contentType: "application/octet-stream",
-      });
-    }
+    const result = await put(BLOB_PATHNAME, buffer, {
+      access: "public",
+      addRandomSuffix: false,
+      contentType: "application/octet-stream",
+    });
     console.log(`✅ [DB-SYNC] SUCCESS! DB uploaded to Vercel Blob. URL: ${result.url}`);
   } catch (e: any) {
     console.error("❌ [DB-SYNC] FATAL: Blob upload failed:", e.message);
@@ -211,18 +200,9 @@ class DatabaseWrapper {
     };
 
     if (process.env.VERCEL) {
-      // Production: Use waitUntil to respond immediately while uploading in background
-      try {
-        const { waitUntil } = await import("@vercel/functions");
-        waitUntil(performSave());
-        // We still write to /tmp synchronously to ensure immediate consistency for subsequent requests 
-        // in the same instance, but the user doesn't wait for the Blob upload.
-        const data = this.db!.export();
-        try { fs.writeFileSync(DB_PATH, Buffer.from(data)); } catch (_) {}
-      } catch (e) {
-        // Fallback if waitUntil is not available
-        await performSave();
-      }
+      // Production: MUST await to ensure the next request (like legal-approve) 
+      // sees the newly created record.
+      await performSave();
     } else {
       // Local: Use debounce to keep performance snappy
       if (this._saveTimeout) return;
