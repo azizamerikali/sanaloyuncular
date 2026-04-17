@@ -43,29 +43,52 @@ async function downloadFromBlob(): Promise<Buffer | null> {
   }
 
   try {
-    console.log("[DB-LOAD] Checking Vercel Blob for existing database...");
-    const { list, get } = await import("@vercel/blob");
-    const { blobs } = await list(); // List all to be safe and find by pathname
-    const target = blobs.find(b => b.pathname === BLOB_PATHNAME || b.pathname.endsWith(BLOB_PATHNAME));
+    const baseUrl = "https://lnxa7pbesoqdq9h8.public.blob.vercel-storage.com";
+    const directUrl = `${baseUrl}/${BLOB_PATHNAME}`;
     
-    if (!target) {
-      console.log("ℹ️ [DB-LOAD] No existing DB blob found in storage — starting with fresh database.");
-      return null;
+    let buffer: Buffer | null = null;
+    
+    // Strategy A: Direct fetch (Fastest & most consistent)
+    try {
+      console.log(`[DB-LOAD] Attempting direct fetch from: ${directUrl}`);
+      const resp = await fetch(`${directUrl}?t=${Date.now()}`); // Cache buster
+      if (resp.ok) {
+        const ab = await resp.arrayBuffer();
+        const candidate = Buffer.from(ab);
+        if (candidate.toString("utf8", 0, 15).startsWith("SQLite format 3")) {
+          buffer = candidate;
+          console.log(`✅ [DB-LOAD] SUCCESS! (Direct Fetch) - ${buffer.byteLength} bytes`);
+        }
+      }
+    } catch (e) {
+      console.log(`ℹ️ [DB-LOAD] Direct fetch skipped or failed, trying list()...`);
     }
-    
-    console.log(`[DB-LOAD] Found blob at ${target.url}. Downloading...`);
-    const resp = await fetch(target.url);
-    const ab = await resp.arrayBuffer();
-    const buffer = Buffer.from(ab);
 
-    // Safety check: SQLite files must start with "SQLite format 3"
-    const header = buffer.toString("utf8", 0, 15);
-    if (!header.startsWith("SQLite format 3")) {
-      console.error("❌ [DB-LOAD] Error: Downloaded file is not a valid SQLite database! (Header mismatch)");
+    // Strategy B: List search (Fallback if direct fetch failed or not yet applicable)
+    if (!buffer) {
+      const { list } = await import("@vercel/blob");
+      const { blobs } = await list();
+      const target = blobs.find(b => b.pathname === BLOB_PATHNAME || b.pathname.endsWith(BLOB_PATHNAME));
+      
+      if (target) {
+        console.log(`[DB-LOAD] Found in list() at ${target.url}. Downloading...`);
+        const resp = await fetch(target.url);
+        if (resp.ok) {
+          const ab = await resp.arrayBuffer();
+          const candidate = Buffer.from(ab);
+          if (candidate.toString("utf8", 0, 15).startsWith("SQLite format 3")) {
+            buffer = candidate;
+            console.log(`✅ [DB-LOAD] SUCCESS! (List Search) - ${buffer.byteLength} bytes`);
+          }
+        }
+      }
+    }
+
+    if (!buffer) {
+      console.warn("ℹ️ [DB-LOAD] No valid database found in storage — starting fresh.");
       return null;
     }
     
-    console.log(`✅ [DB-LOAD] SUCCESS! Loaded from Vercel Blob (${buffer.byteLength} bytes)`);
     return buffer;
   } catch (e: any) {
     console.error("❌ [DB-LOAD] FATAL: Blob download failed:", e.message);
