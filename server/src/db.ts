@@ -14,7 +14,7 @@ async function uploadToBlob(buffer: Buffer): Promise<void> {
   try {
     const { put } = await import("@vercel/blob");
     await put(BLOB_PATHNAME, buffer, {
-      access: "public",
+      access: "private",
       addRandomSuffix: false,
       contentType: "application/octet-stream",
     });
@@ -27,17 +27,19 @@ async function uploadToBlob(buffer: Buffer): Promise<void> {
 async function downloadFromBlob(): Promise<Buffer | null> {
   if (!process.env.VERCEL || !process.env.BLOB_READ_WRITE_TOKEN) return null;
   try {
-    const { list } = await import("@vercel/blob");
+    const { list, get } = await import("@vercel/blob");
     const { blobs } = await list({ prefix: "webdb/" });
     const target = blobs.find(b => b.pathname === BLOB_PATHNAME);
     if (!target) {
       console.log("ℹ️ No existing DB blob found — starting fresh.");
       return null;
     }
-    const res = await fetch(target.url);
-    if (!res.ok) throw new Error(`Blob fetch failed: ${res.status}`);
-    const ab = await res.arrayBuffer();
-    console.log(`✅ DB loaded from Vercel Blob (${ab.byteLength} bytes)`);
+    
+    // For Private Blobs, we must use get() or include the token in headers
+    const result = await get(target.url, { access: "private" });
+    const ab = await result.blob.arrayBuffer();
+    
+    console.log(`✅ DB loaded from Vercel Private Blob (${ab.byteLength} bytes)`);
     return Buffer.from(ab);
   } catch (e) {
     console.warn("⚠️ Blob download failed:", e);
