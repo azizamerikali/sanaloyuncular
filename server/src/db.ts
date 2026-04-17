@@ -23,14 +23,19 @@ async function uploadToBlob(buffer: Buffer): Promise<void> {
   try {
     console.log(`[DB-SYNC] Attempting to upload to Vercel Blob (${buffer.byteLength} bytes)...`);
     const { put } = await import("@vercel/blob");
+    // Using access: "public" by default as "private" might require special plan/config.
+    // The URL is still unguessable (random hash).
     const result = await put(BLOB_PATHNAME, buffer, {
-      access: "private",
+      access: "public", 
       addRandomSuffix: false,
       contentType: "application/octet-stream",
     });
     console.log(`✅ [DB-SYNC] SUCCESS! DB uploaded to Vercel Blob. URL: ${result.url}`);
   } catch (e: any) {
     console.error("❌ [DB-SYNC] FATAL: Blob upload failed with error:", e.message);
+    if (e.message.includes("Token")) {
+      console.error("💡 Hint: Your BLOB_READ_WRITE_TOKEN might be invalid or expired.");
+    }
     if (e.stack) console.error(e.stack);
   }
 }
@@ -47,8 +52,8 @@ async function downloadFromBlob(): Promise<Buffer | null> {
   try {
     console.log("[DB-LOAD] Checking Vercel Blob for existing database...");
     const { list, get } = await import("@vercel/blob");
-    const { blobs } = await list({ prefix: "webdb/" });
-    const target = blobs.find(b => b.pathname === BLOB_PATHNAME);
+    const { blobs } = await list(); // List all to be safe and find by pathname
+    const target = blobs.find(b => b.pathname === BLOB_PATHNAME || b.pathname.endsWith(BLOB_PATHNAME));
     
     if (!target) {
       console.log("ℹ️ [DB-LOAD] No existing DB blob found in storage — starting with fresh database.");
@@ -56,10 +61,10 @@ async function downloadFromBlob(): Promise<Buffer | null> {
     }
     
     console.log(`[DB-LOAD] Found blob at ${target.url}. Downloading...`);
-    const result = await get(target.url, { 
-      access: "private",
-    });
-    const ab = await result.blob.arrayBuffer();
+    // We fetch directly from the URL.
+    const response = await fetch(target.url);
+    if (!response.ok) throw new Error(`Fetch failed with status ${response.status}`);
+    const ab = await response.arrayBuffer();
     
     console.log(`✅ [DB-LOAD] SUCCESS! Loaded from Vercel Blob (${ab.byteLength} bytes)`);
     return Buffer.from(ab);
@@ -73,8 +78,8 @@ class DatabaseWrapper {
   private db: SqlJsDatabase | null = null;
   private initPromise: Promise<void>;
   private sqlHandle: any = null;
-  private isRestoring: boolean = false;
   private _saveTimeout: NodeJS.Timeout | null = null;
+  private _skipSave: boolean = false;
 
   constructor() {
     this.initPromise = this.initialize().catch(err => {
@@ -174,14 +179,17 @@ class DatabaseWrapper {
     return this.db;
   }
 
+  /** Sets whether to skip auto-saving during bulk operations. */
+  setSkipSave(skip: boolean): void {
+    this._skipSave = skip;
+  }
+
   /**
    * Save: writes to disk (local) or Vercel Blob (production).
-   * In Serverless environments, we MUST NOT use setTimeout for background tasks
-   * as the process might be frozen immediately after response.
    */
   async save(): Promise<void> {
-    // If we're already saving or restoring, don't overlap
-    if (this.isRestoring || !this.db) return;
+    // If we're already saving or restoring, don't overlap. Also skip if _skipSave is true.
+    if (this.isRestoring || !this.db || this._skipSave) return;
 
     const performSave = async () => {
       try {

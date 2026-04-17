@@ -21,3 +21,5 @@ node_modules/
 # Database files (contain user data - never commit)
 server/data/*.sqlite
 server/data/*.db
+
+.vercel

@@ -182,12 +182,26 @@ app.get("/api/health-blob", async (_req, res) => {
   const isVercel = !!process.env.VERCEL;
   
   try {
-    const { list } = await import("@vercel/blob");
+    const { list, put } = await import("@vercel/blob");
+    
+    // Attempt a tiny test upload to verify write permission
+    let uploadTest = null;
+    try {
+      const testResult = await put("health-test.txt", "OK", { 
+        access: "public",
+        addRandomSuffix: true 
+      });
+      uploadTest = { success: true, url: testResult.url };
+    } catch (putErr: any) {
+      uploadTest = { success: false, error: putErr.message };
+    }
+
     const blobList = await list();
     res.json({
       isVercel,
       tokenPresent: !!token,
       tokenLength: token?.length || 0,
+      uploadTest,
       blobCount: blobList.blobs.length,
       blobs: blobList.blobs.map(b => ({ pathname: b.pathname, size: b.size }))
     });
@@ -212,8 +226,10 @@ async function start() {
   await db.ready();
   console.log("✅ Database initialized");
 
+  // Disable auto-save during bootstrap to prevent massive upload overhead on Vercel
+  (db as any).setSkipSave(true);
+
   // Ensure full schema exists — safe to run on every startup (CREATE TABLE IF NOT EXISTS).
-  // Required on Vercel where /tmp database is empty on every cold start.
   try {
     db.exec(`
       CREATE TABLE IF NOT EXISTS users (
@@ -343,6 +359,10 @@ async function start() {
 
   // Bootstrap default admins if they don't exist
   await bootstrapAdmins();
+
+  // Re-enable and trigger final save after all bootstrap operations are done
+  (db as any).setSkipSave(false);
+  await (db as any).save();
 
   if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
     app.listen(PORT, () => {
