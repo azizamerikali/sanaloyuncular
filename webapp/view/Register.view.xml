@@ -85,7 +85,7 @@
 									<Input id="lastNameInput" value="{newMember>/lastName}" liveChange=".onNameChange" />
 
 									<Label text="{i18n>email}" required="true" />
-									<Input id="emailInput" value="{newMember>/email}" type="Email" />
+									<Input id="emailInput" value="{newMember>/email}" type="Email" editable="false" />
 
 									<Label text="{i18n>phone}" required="true" />
 									<Input id="phoneInput" value="{newMember>/phone}" type="Tel" />
