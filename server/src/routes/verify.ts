@@ -13,7 +13,7 @@ const verifyLimiter = rateLimit({
 });
 
 // POST /api/verify/send
-router.post("/send", verifyLimiter, (req: Request, res: Response) => {
+router.post("/send", verifyLimiter, async (req: Request, res: Response) => {
     const { email } = req.body;
     if (!email) {
         return res.status(400).json({ error: "E-posta adresi gereklidir." });
@@ -28,7 +28,7 @@ router.post("/send", verifyLimiter, (req: Request, res: Response) => {
 
     try {
         // Clean up old codes for this email
-        db.prepare("DELETE FROM verification_codes WHERE email = ?").run(email);
+        await db.prepare("DELETE FROM verification_codes WHERE email = ?").run(email);
 
         // Save new code
         db.prepare(
@@ -46,7 +46,7 @@ router.post("/send", verifyLimiter, (req: Request, res: Response) => {
 });
 
 // POST /api/verify/check
-router.post("/check", verifyLimiter, (req: Request, res: Response) => {
+router.post("/check", verifyLimiter, async (req: Request, res: Response) => {
     const { email, code } = req.body;
     if (!email || !code) {
         return res.status(400).json({ error: "E-posta ve kod gereklidir." });
@@ -67,10 +67,10 @@ router.post("/check", verifyLimiter, (req: Request, res: Response) => {
         }
 
         // 1. Mark code as used
-        db.prepare("UPDATE verification_codes SET status = 'verified' WHERE id = ?").run(row.id);
+        await db.prepare("UPDATE verification_codes SET status = 'verified' WHERE id = ?").run(row.id);
 
         // 2. Activate User
-        const result = db.prepare("UPDATE users SET status = 'active' WHERE email = ?").run(email);
+        const result = await db.prepare("UPDATE users SET status = 'active' WHERE email = ?").run(email);
 
         if (result.changes === 0) {
             return res.status(404).json({ error: "Kullanıcı bulunamadı." });
@@ -86,7 +86,7 @@ router.post("/check", verifyLimiter, (req: Request, res: Response) => {
 // POST /api/verify/legal-approve
 // Only activates accounts created within the last 2 hours to prevent
 // unauthorized activation of existing pending accounts.
-router.post("/legal-approve", verifyLimiter, (req: Request, res: Response) => {
+router.post("/legal-approve", verifyLimiter, async (req: Request, res: Response) => {
     const { email, version } = req.body;
     if (!email) {
         return res.status(400).json({ error: "E-posta gereklidir." });
@@ -105,7 +105,7 @@ router.post("/legal-approve", verifyLimiter, (req: Request, res: Response) => {
         }
 
         // 1. Activate User
-        db.prepare("UPDATE users SET status = 'active' WHERE email = ? AND status = 'pending'").run(email);
+        await db.prepare("UPDATE users SET status = 'active' WHERE email = ? AND status = 'pending'").run(email);
 
         // 2. Record Consent (Legacy table)
         const consentId = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);

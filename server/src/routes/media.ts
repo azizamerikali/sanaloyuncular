@@ -27,7 +27,7 @@ function toApi(row: any) {
 }
 
 // GET /api/media - LIST ONLY (No content)
-router.get("/", (req: AuthenticatedRequest, res: Response) => {
+router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   // We explicitly EXCLUDE file_data from global listing to prevent OOM
   let sql = "SELECT id, user_id, file_name, file_path, created_at FROM media WHERE 1=1";
   const params: string[] = [];
@@ -39,7 +39,7 @@ router.get("/", (req: AuthenticatedRequest, res: Response) => {
 
   sql += " ORDER BY created_at DESC";
   try {
-    const rows = db.prepare(sql).all(...params);
+    const rows = await db.prepare(sql).all(...params);
     res.json(rows.map((row: any) => ({
       id: row.id,
       userId: row.user_id,
@@ -54,8 +54,8 @@ router.get("/", (req: AuthenticatedRequest, res: Response) => {
 });
 
 // GET /api/media/:id/content - View specific media content
-router.get("/:id/content", (req: AuthenticatedRequest, res: Response) => {
-  const row = db.prepare("SELECT file_data FROM media WHERE id = ?").get(req.params.id) as any;
+router.get("/:id/content", async (req: AuthenticatedRequest, res: Response) => {
+  const row = await db.prepare("SELECT file_data FROM media WHERE id = ?").get(req.params.id) as any;
   if (!row) return res.status(404).json({ error: "Medya bulunamadı" });
   
   res.json({
@@ -64,17 +64,17 @@ router.get("/:id/content", (req: AuthenticatedRequest, res: Response) => {
 });
 
 // GET /api/media/count
-router.get("/count", (req: AuthenticatedRequest, res: Response) => {
+router.get("/count", async (req: AuthenticatedRequest, res: Response) => {
   if (req.query.userId) {
-    const result = db.prepare("SELECT COUNT(*) as cnt FROM media WHERE user_id = ?").get(req.query.userId as string) as { cnt: number };
+    const result = await db.prepare("SELECT COUNT(*) as cnt FROM media WHERE user_id = ?").get(req.query.userId as string) as { cnt: number };
     return res.json({ count: result.cnt });
   }
-  const result = db.prepare("SELECT COUNT(*) as cnt FROM media").get() as { cnt: number };
+  const result = await db.prepare("SELECT COUNT(*) as cnt FROM media").get() as { cnt: number };
   res.json({ count: result.cnt });
 });
 
 // POST /api/media
-router.post("/", (req: AuthenticatedRequest, res: Response) => {
+router.post("/", async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "member" && req.user?.role !== "admin") {
     return res.status(403).json({ error: "Erişim engellendi." });
   }
@@ -120,7 +120,7 @@ router.post("/", (req: AuthenticatedRequest, res: Response) => {
 
 // DELETE /api/media/:id
 router.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
-  const media = db.prepare("SELECT * FROM media WHERE id = ?").get(req.params.id) as MediaRow | undefined;
+  const media = await db.prepare("SELECT * FROM media WHERE id = ?").get(req.params.id) as MediaRow | undefined;
   if (!media) return res.status(404).json({ error: "Medya bulunamadı" });
 
   if (req.user?.role !== "admin" && media.user_id !== req.user?.id) {

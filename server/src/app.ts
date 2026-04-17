@@ -96,9 +96,9 @@ app.use(cors({
 // Health Check & Diagnostic Endpoint
 app.get("/api/health-db", (req, res) => {
   try {
-    const userCount = db.prepare("SELECT COUNT(*) as cnt FROM users").get() as { cnt: number };
-    const legalCount = db.prepare("SELECT COUNT(*) as cnt FROM member_legal_records").get() as { cnt: number };
-    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
+    const userCount = await db.prepare("SELECT COUNT(*) as cnt FROM users").get() as { cnt: number };
+    const legalCount = await db.prepare("SELECT COUNT(*) as cnt FROM member_legal_records").get() as { cnt: number };
+    const tables = await db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
     
     res.json({
       success: true,
@@ -151,7 +151,7 @@ app.use("/api/verify", verifyRouter);
 app.get("/api/health", (_req, res) => {
   const keyInfo = getEncryptionKeyInfo();
   try {
-    const userCount = db.prepare("SELECT COUNT(*) as cnt FROM users").get() as { cnt: number } | undefined;
+    const userCount = await db.prepare("SELECT COUNT(*) as cnt FROM users").get() as { cnt: number } | undefined;
     res.status(initializationError ? 503 : 200).json({ 
       status: initializationError ? "error" : "ok",
       initError: initializationError,
@@ -346,9 +346,9 @@ async function bootstrapAdmins() {
 
   for (const admin of admins) {
     try {
-      const existing = db.prepare("SELECT id FROM users WHERE email = ?").get(admin.email);
+      const existing = await db.prepare("SELECT id FROM users WHERE email = ?").get(admin.email);
       if (!existing) {
-        db.prepare(
+        await db.prepare(
           "INSERT INTO users (id, first_name, last_name, email, password, role, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
         ).run(
           admin.id,

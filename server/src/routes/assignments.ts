@@ -16,7 +16,7 @@ function toApi(row: AssignmentRow) {
 
 // GET /api/assignments
 // Admin/Client: tüm atamalar (filtreli); Member: sadece kendi atamaları
-router.get("/", (req: AuthenticatedRequest, res: Response) => {
+router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   const role = req.user?.role;
   const userId = req.user?.id;
 
@@ -38,12 +38,12 @@ router.get("/", (req: AuthenticatedRequest, res: Response) => {
     }
   }
 
-  const rows = db.prepare(sql).all(...params) as AssignmentRow[];
+  const rows = await db.prepare(sql).all(...params) as AssignmentRow[];
   res.json(rows.map(toApi));
 });
 
 // POST /api/assignments — sadece admin ve client
-router.post("/", (req: AuthenticatedRequest, res: Response) => {
+router.post("/", async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "admin" && req.user?.role !== "client") {
     return res.status(403).json({ error: "Erişim engellendi. Sadece admin veya müşteriler atama yapabilir." });
   }
@@ -53,21 +53,21 @@ router.post("/", (req: AuthenticatedRequest, res: Response) => {
     return res.status(400).json({ error: "projectId ve userId gereklidir." });
   }
 
-  const existing = db.prepare("SELECT * FROM assignments WHERE project_id = ? AND user_id = ?").get(projectId, userId) as AssignmentRow | undefined;
+  const existing = await db.prepare("SELECT * FROM assignments WHERE project_id = ? AND user_id = ?").get(projectId, userId) as AssignmentRow | undefined;
   if (existing) return res.json(toApi(existing));
 
   const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
-  db.prepare("INSERT INTO assignments (id, project_id, user_id) VALUES (?, ?, ?)").run(id, projectId, userId);
+  await db.prepare("INSERT INTO assignments (id, project_id, user_id) VALUES (?, ?, ?)").run(id, projectId, userId);
   res.status(201).json({ id, projectId, userId });
 });
 
 // DELETE /api/assignments/:projectId/:userId — sadece admin ve client
-router.delete("/:projectId/:userId", (req: AuthenticatedRequest, res: Response) => {
+router.delete("/:projectId/:userId", async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "admin" && req.user?.role !== "client") {
     return res.status(403).json({ error: "Erişim engellendi. Sadece admin veya müşteriler atama kaldırabilir." });
   }
 
-  const result = db.prepare("DELETE FROM assignments WHERE project_id = ? AND user_id = ?").run(req.params.projectId, req.params.userId);
+  const result = await db.prepare("DELETE FROM assignments WHERE project_id = ? AND user_id = ?").run(req.params.projectId, req.params.userId);
   res.json({ success: true, deleted: result.changes > 0 });
 });
 

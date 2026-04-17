@@ -16,7 +16,7 @@ function toApi(row: FavoriteRow) {
 
 // GET /api/favorites
 // Admin: tüm favoriler; Client: sadece kendi favorileri; Member: erişim yok
-router.get("/", (req: AuthenticatedRequest, res: Response) => {
+router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   const role = req.user?.role;
   const userId = req.user?.id;
 
@@ -43,12 +43,12 @@ router.get("/", (req: AuthenticatedRequest, res: Response) => {
     }
   }
 
-  const rows = db.prepare(sql).all(...params) as FavoriteRow[];
+  const rows = await db.prepare(sql).all(...params) as FavoriteRow[];
   res.json(rows.map(toApi));
 });
 
 // POST /api/favorites — sadece admin ve client (client kendi favori listesine ekler)
-router.post("/", (req: AuthenticatedRequest, res: Response) => {
+router.post("/", async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "admin" && req.user?.role !== "client") {
     return res.status(403).json({ error: "Erişim engellendi. Sadece müşteriler favori ekleyebilir." });
   }
@@ -64,20 +64,20 @@ router.post("/", (req: AuthenticatedRequest, res: Response) => {
   }
 
   const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
-  db.prepare("INSERT INTO favorites (id, client_id, member_id) VALUES (?, ?, ?)").run(id, clientId, memberId);
+  await db.prepare("INSERT INTO favorites (id, client_id, member_id) VALUES (?, ?, ?)").run(id, clientId, memberId);
   res.status(201).json({ id, clientId, memberId });
 });
 
 // DELETE /api/favorites/:id — admin veya favori sahibi client
-router.delete("/:id", (req: AuthenticatedRequest, res: Response) => {
-  const favorite = db.prepare("SELECT * FROM favorites WHERE id = ?").get(req.params.id) as FavoriteRow | undefined;
+router.delete("/:id", async (req: AuthenticatedRequest, res: Response) => {
+  const favorite = await db.prepare("SELECT * FROM favorites WHERE id = ?").get(req.params.id) as FavoriteRow | undefined;
   if (!favorite) return res.status(404).json({ error: "Favori bulunamadı" });
 
   if (req.user?.role !== "admin" && favorite.client_id !== req.user?.id) {
     return res.status(403).json({ error: "Erişim engellendi. Sadece kendi favorinizi silebilirsiniz." });
   }
 
-  const result = db.prepare("DELETE FROM favorites WHERE id = ?").run(req.params.id);
+  const result = await db.prepare("DELETE FROM favorites WHERE id = ?").run(req.params.id);
   if (result.changes === 0) return res.status(404).json({ error: "Favori bulunamadı" });
   res.json({ success: true });
 });

@@ -64,7 +64,7 @@ function toApiMasked(row: UserRow) {
 }
 
 // GET /api/users — all users (optional query: role, status)
-router.get("/", protect, (req: AuthenticatedRequest, res: Response) => {
+router.get("/", protect, async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "admin" && req.user?.role !== "client") {
     return res.status(403).json({ error: "Erişim engellendi. Sadece admin veya müşteriler üyeleri listeleyebilir." });
   }
@@ -82,26 +82,26 @@ router.get("/", protect, (req: AuthenticatedRequest, res: Response) => {
   }
 
   sql += " ORDER BY created_at DESC";
-  const rows = db.prepare(sql).all(...params) as UserRow[];
+  const rows = await db.prepare(sql).all(...params) as UserRow[];
   res.json(rows.map(toApiMasked));
 });
 
 // GET /api/users/count
-router.get("/count", protect, (_req: Request, res: Response) => {
-  const total = db.prepare("SELECT COUNT(*) as cnt FROM users").get() as { cnt: number };
-  const members = db.prepare("SELECT COUNT(*) as cnt FROM users WHERE role = 'member'").get() as { cnt: number };
-  const pending = db.prepare("SELECT COUNT(*) as cnt FROM users WHERE status = 'pending'").get() as { cnt: number };
+router.get("/count", protect, async (_req: Request, res: Response) => {
+  const total = await db.prepare("SELECT COUNT(*) as cnt FROM users").get() as { cnt: number };
+  const members = await db.prepare("SELECT COUNT(*) as cnt FROM users WHERE role = 'member'").get() as { cnt: number };
+  const pending = await db.prepare("SELECT COUNT(*) as cnt FROM users WHERE status = 'pending'").get() as { cnt: number };
   res.json({ total: total.cnt, members: members.cnt, pending: pending.cnt });
 });
 
 // GET /api/users/:id
-router.get("/:id", protect, (req: AuthenticatedRequest, res: Response) => {
+router.get("/:id", protect, async (req: AuthenticatedRequest, res: Response) => {
   // Admin: any user; Client: only their own profile; Member: only their own profile
   if (req.user?.role !== "admin" && req.user?.id !== req.params.id) {
     return res.status(403).json({ error: "Erişim engellendi." });
   }
 
-  const row = db.prepare("SELECT * FROM users WHERE id = ?").get(req.params.id) as UserRow | undefined;
+  const row = await db.prepare("SELECT * FROM users WHERE id = ?").get(req.params.id) as UserRow | undefined;
   if (!row) return res.status(404).json({ error: "Kullanıcı bulunamadı" });
   res.json(toApi(row));
 });
@@ -121,7 +121,7 @@ router.post("/", async (req: Request, res: Response) => {
     }
 
     // Check if user already exists
-    const existing = db.prepare("SELECT id FROM users WHERE email = ?").get(email);
+    const existing = await db.prepare("SELECT id FROM users WHERE email = ?").get(email);
     if (existing) {
       return res.status(400).json({ error: "Bu e-posta adresi ile zaten bir kayıt bulunuyor." });
     }
@@ -189,7 +189,7 @@ router.put("/:id", protect, async (req: AuthenticatedRequest, res: Response) => 
     return res.status(403).json({ error: "Erişim engellendi." });
   }
 
-  const existing = db.prepare("SELECT * FROM users WHERE id = ?").get(req.params.id) as UserRow | undefined;
+  const existing = await db.prepare("SELECT * FROM users WHERE id = ?").get(req.params.id) as UserRow | undefined;
   if (!existing) return res.status(404).json({ error: "Kullanıcı bulunamadı" });
 
   const { firstName, lastName, email, phone, address, role, status, birthDate, parentName, consentDocument, iban, ibanHolder, city, actingTraining, actingExperience, profilePicture } = req.body;
@@ -220,7 +220,7 @@ router.put("/:id", protect, async (req: AuthenticatedRequest, res: Response) => 
   if (status === "active" && existing.status !== "active" && existing.role === "member") {
     try {
       const targetEmail = email ?? existing.email;
-      const recordExists = db.prepare("SELECT id FROM member_legal_records WHERE email = ?").get(targetEmail);
+      const recordExists = await db.prepare("SELECT id FROM member_legal_records WHERE email = ?").get(targetEmail);
       
       if (!recordExists) {
         const recordId = "LR_ADM_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
@@ -243,7 +243,7 @@ router.put("/:id", protect, async (req: AuthenticatedRequest, res: Response) => 
     }
   }
 
-  const updated = db.prepare("SELECT * FROM users WHERE id = ?").get(req.params.id) as UserRow;
+  const updated = await db.prepare("SELECT * FROM users WHERE id = ?").get(req.params.id) as UserRow;
   res.json(toApi(updated));
 });
 

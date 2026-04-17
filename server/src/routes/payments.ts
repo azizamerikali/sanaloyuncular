@@ -30,7 +30,7 @@ function toApi(row: PaymentRow) {
 
 // GET /api/payments
 // Admin/Client: tüm ödemeler (filtreli); Member: sadece kendi ödemeleri
-router.get("/", (req: AuthenticatedRequest, res: Response) => {
+router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   const role = req.user?.role;
   const userId = req.user?.id;
 
@@ -54,24 +54,24 @@ router.get("/", (req: AuthenticatedRequest, res: Response) => {
   }
 
   sql += " ORDER BY date DESC";
-  const rows = db.prepare(sql).all(...params) as PaymentRow[];
+  const rows = await db.prepare(sql).all(...params) as PaymentRow[];
   res.json(rows.map(toApi));
 });
 
 // GET /api/payments/stats — sadece admin ve client
-router.get("/stats", (req: AuthenticatedRequest, res: Response) => {
+router.get("/stats", async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "admin" && req.user?.role !== "client") {
     return res.status(403).json({ error: "Erişim engellendi." });
   }
-  const totalPaid = db.prepare("SELECT COALESCE(SUM(net_amount), 0) as total FROM payments WHERE status = 'paid'").get() as { total: number };
-  const totalUnpaid = db.prepare("SELECT COALESCE(SUM(net_amount), 0) as total FROM payments WHERE status = 'unpaid'").get() as { total: number };
-  const count = db.prepare("SELECT COUNT(*) as cnt FROM payments").get() as { cnt: number };
+  const totalPaid = await db.prepare("SELECT COALESCE(SUM(net_amount), 0) as total FROM payments WHERE status = 'paid'").get() as { total: number };
+  const totalUnpaid = await db.prepare("SELECT COALESCE(SUM(net_amount), 0) as total FROM payments WHERE status = 'unpaid'").get() as { total: number };
+  const count = await db.prepare("SELECT COUNT(*) as cnt FROM payments").get() as { cnt: number };
   res.json({ totalPaid: totalPaid.total, totalUnpaid: totalUnpaid.total, count: count.cnt });
 });
 
 // GET /api/payments/:id — admin/client veya kaydın sahibi
-router.get("/:id", (req: AuthenticatedRequest, res: Response) => {
-  const row = db.prepare("SELECT * FROM payments WHERE id = ?").get(req.params.id) as PaymentRow | undefined;
+router.get("/:id", async (req: AuthenticatedRequest, res: Response) => {
+  const row = await db.prepare("SELECT * FROM payments WHERE id = ?").get(req.params.id) as PaymentRow | undefined;
   if (!row) return res.status(404).json({ error: "Ödeme bulunamadı" });
 
   if (req.user?.role !== "admin" && req.user?.role !== "client" && row.user_id !== req.user?.id) {
@@ -105,7 +105,7 @@ router.put("/:id", async (req: AuthenticatedRequest, res: Response) => {
     return res.status(403).json({ error: "Erişim engellendi. Sadece adminler ödeme güncelleyebilir." });
   }
 
-  const existing = db.prepare("SELECT * FROM payments WHERE id = ?").get(req.params.id) as PaymentRow | undefined;
+  const existing = await db.prepare("SELECT * FROM payments WHERE id = ?").get(req.params.id) as PaymentRow | undefined;
   if (!existing) return res.status(404).json({ error: "Ödeme bulunamadı" });
 
   const { userId, projectId, date, grossAmount, deduction, status } = req.body;
@@ -124,7 +124,7 @@ router.put("/:id", async (req: AuthenticatedRequest, res: Response) => {
     req.params.id
   );
 
-  const updated = db.prepare("SELECT * FROM payments WHERE id = ?").get(req.params.id) as PaymentRow;
+  const updated = await db.prepare("SELECT * FROM payments WHERE id = ?").get(req.params.id) as PaymentRow;
   res.json(toApi(updated));
 });
 

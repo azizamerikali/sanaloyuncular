@@ -53,7 +53,7 @@ router.post("/login", loginLimiter, async (req: Request, res: Response) => {
   if (!userId || !password) return res.status(400).json({ error: "Kullanıcı adı ve şifre gereklidir" });
 
   // Fetch user by ID only (no plaintext password in SQL query)
-  const row = db.prepare("SELECT * FROM users WHERE id = ? AND status = 'active'").get(userId) as (UserRow & { password?: string }) | undefined;
+  const row = await db.prepare("SELECT * FROM users WHERE id = ? AND status = 'active'").get(userId) as (UserRow & { password?: string }) | undefined;
   if (!row) return res.status(401).json({ error: "Hatalı kimlik bilgileri veya hesap aktif değil." });
 
   // ONLY clients and admins can use standard login
@@ -117,7 +117,7 @@ router.post("/google", async (req: Request, res: Response) => {
 	// Step 2: Look up user in database
 	try {
 		// Optimize query: only fetch what we need to avoid OOM from large profile pictures
-		const row = db.prepare("SELECT id, role, status, email, first_name, last_name, profile_picture FROM users WHERE LOWER(email) = LOWER(?)").get(email) as UserRow | undefined;
+		const row = await db.prepare("SELECT id, role, status, email, first_name, last_name, profile_picture FROM users WHERE LOWER(email) = LOWER(?)").get(email) as UserRow | undefined;
 		
 		if (row) {
 			console.log(`[Google Auth] Match found in DB for user: ${row.id} (${row.role})`);

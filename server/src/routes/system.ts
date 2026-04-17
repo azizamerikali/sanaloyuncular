@@ -18,7 +18,7 @@ const backupLimiter = rateLimit({
 });
 
 // GET /api/system/backup
-router.get("/backup", protect, backupLimiter, (req: Request, res: Response) => {
+router.get("/backup", protect, backupLimiter, async (req: Request, res: Response) => {
     const authReq = req as AuthenticatedRequest;
     if (authReq.user?.role !== "admin") {
         return res.status(403).json({ error: "Sadece yöneticiler yedek alabilir" });

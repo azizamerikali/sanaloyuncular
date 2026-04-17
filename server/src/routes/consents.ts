@@ -24,23 +24,23 @@ function toApi(row: ConsentRow) {
 
 // GET /api/consents
 // Admin: all records; others: only own records
-router.get("/", protect, (req: AuthenticatedRequest, res: Response) => {
+router.get("/", protect, async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role === "admin") {
     if (req.query.userId) {
-      const rows = db.prepare("SELECT * FROM consents WHERE user_id = ?").all(req.query.userId as string) as ConsentRow[];
+      const rows = await db.prepare("SELECT * FROM consents WHERE user_id = ?").all(req.query.userId as string) as ConsentRow[];
       return res.json(rows.map(toApi));
     }
-    const rows = db.prepare("SELECT * FROM consents").all() as ConsentRow[];
+    const rows = await db.prepare("SELECT * FROM consents").all() as ConsentRow[];
     return res.json(rows.map(toApi));
   }
 
   // Non-admin: only own consents, ignore userId query param
-  const rows = db.prepare("SELECT * FROM consents WHERE user_id = ?").all(req.user!.id) as ConsentRow[];
+  const rows = await db.prepare("SELECT * FROM consents WHERE user_id = ?").all(req.user!.id) as ConsentRow[];
   res.json(rows.map(toApi));
 });
 
 // POST /api/consents — requires authentication; user can only create consent for themselves
-router.post("/", protect, (req: AuthenticatedRequest, res: Response) => {
+router.post("/", protect, async (req: AuthenticatedRequest, res: Response) => {
   const { version } = req.body;
   let { userId } = req.body;
 
@@ -64,17 +64,17 @@ router.post("/", protect, (req: AuthenticatedRequest, res: Response) => {
 
 // GET /api/consents/text — public
 router.get("/text", (_req: Request, res: Response) => {
-  const row = db.prepare("SELECT content FROM consent_text WHERE id = 1").get() as { content: string } | undefined;
+  const row = await db.prepare("SELECT content FROM consent_text WHERE id = 1").get() as { content: string } | undefined;
   res.json({ text: row?.content || "" });
 });
 
 // PUT /api/consents/text — admin only
-router.put("/text", protect, (req: AuthenticatedRequest, res: Response) => {
+router.put("/text", protect, async (req: AuthenticatedRequest, res: Response) => {
   if (req.user?.role !== "admin") {
     return res.status(403).json({ error: "Erişim engellendi. Sadece adminler sözleşme metnini güncelleyebilir." });
   }
   const { text } = req.body;
-  db.prepare("INSERT OR REPLACE INTO consent_text (id, content) VALUES (1, ?)").run(text || "");
+  await db.prepare("INSERT OR REPLACE INTO consent_text (id, content) VALUES (1, ?)").run(text || "");
   res.json({ success: true });
 });
 

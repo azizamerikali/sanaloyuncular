@@ -25,7 +25,7 @@ function toApi(row: ProjectRow) {
 }
 
 // GET /api/projects
-router.get("/", (req: AuthenticatedRequest, res: Response) => {
+router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   let sql = "SELECT * FROM projects WHERE 1=1";
   const params: string[] = [];
 
@@ -39,19 +39,19 @@ router.get("/", (req: AuthenticatedRequest, res: Response) => {
   }
 
   sql += " ORDER BY created_at DESC";
-  const rows = db.prepare(sql).all(...params) as ProjectRow[];
+  const rows = await db.prepare(sql).all(...params) as ProjectRow[];
   res.json(rows.map(toApi));
 });
 
 // GET /api/projects/count
-router.get("/count", (_req: AuthenticatedRequest, res: Response) => {
-  const result = db.prepare("SELECT COUNT(*) as cnt FROM projects").get() as { cnt: number };
+router.get("/count", async (_req: AuthenticatedRequest, res: Response) => {
+  const result = await db.prepare("SELECT COUNT(*) as cnt FROM projects").get() as { cnt: number };
   res.json({ count: result.cnt });
 });
 
 // GET /api/projects/:id
-router.get("/:id", (req: AuthenticatedRequest, res: Response) => {
-  const row = db.prepare("SELECT * FROM projects WHERE id = ?").get(req.params.id) as ProjectRow | undefined;
+router.get("/:id", async (req: AuthenticatedRequest, res: Response) => {
+  const row = await db.prepare("SELECT * FROM projects WHERE id = ?").get(req.params.id) as ProjectRow | undefined;
   if (!row) return res.status(404).json({ error: "Proje bulunamadı" });
   res.json(toApi(row));
 });
@@ -79,7 +79,7 @@ router.put("/:id", async (req: AuthenticatedRequest, res: Response) => {
     return res.status(403).json({ error: "Erişim engellendi. Sadece admin veya müşteriler proje güncelleyebilir." });
   }
 
-  const existing = db.prepare("SELECT * FROM projects WHERE id = ?").get(req.params.id) as ProjectRow | undefined;
+  const existing = await db.prepare("SELECT * FROM projects WHERE id = ?").get(req.params.id) as ProjectRow | undefined;
   if (!existing) return res.status(404).json({ error: "Proje bulunamadı" });
 
   const { name, description, createdBy, status } = req.body;
@@ -87,7 +87,7 @@ router.put("/:id", async (req: AuthenticatedRequest, res: Response) => {
     "UPDATE projects SET name = ?, description = ?, created_by = ?, status = ? WHERE id = ?"
   ).run(name ?? existing.name, description ?? existing.description, createdBy ?? existing.created_by, status ?? existing.status, req.params.id);
 
-  const updated = db.prepare("SELECT * FROM projects WHERE id = ?").get(req.params.id) as ProjectRow;
+  const updated = await db.prepare("SELECT * FROM projects WHERE id = ?").get(req.params.id) as ProjectRow;
   res.json(toApi(updated));
 });
 
