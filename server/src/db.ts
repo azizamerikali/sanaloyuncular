@@ -89,6 +89,11 @@ class DatabaseWrapper {
     return DB_PATH;
   }
 
+  /** Exports the current in-memory database as a Buffer. Safe to call at any time. */
+  exportDb(): Buffer {
+    return Buffer.from(this.getDb().export());
+  }
+
   private getDb(): SqlJsDatabase {
     if (!this.db) throw new Error("Database not initialized / Offline.");
     return this.db;

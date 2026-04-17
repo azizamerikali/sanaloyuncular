@@ -4,6 +4,7 @@ import MessageBox from "sap/m/MessageBox";
 import FileUploader from "sap/ui/unified/FileUploader";
 import CheckBox from "sap/m/CheckBox";
 import Button from "sap/m/Button";
+import { API_BASE } from "../../service/ApiClient";
 
 /**
  * @namespace com.openui5.webdb.controller.admin
@@ -52,29 +53,34 @@ export default class AdminSystem extends BaseController {
 	}
 
 	public onDownloadBackup(): void {
-		this.downloadFileWithAuth("http://localhost:3001/api/system/backup", "backup.sqlite");
+		this.downloadFileWithAuth(`${API_BASE}/system/backup`);
 	}
 
-	private async downloadFileWithAuth(url: string, fileName: string): Promise<void> {
+	private async downloadFileWithAuth(url: string): Promise<void> {
 		try {
 			const response = await fetch(url, {
 				headers: {
 					"Authorization": `Bearer ${sessionStorage.getItem("token")}`
 				}
 			});
-			
+
 			if (!response.ok) throw new Error("Yedek indirilemedi.");
+
+			// Use filename from Content-Disposition header if present, otherwise fallback
+			const disposition = response.headers.get("Content-Disposition") || "";
+			const match = disposition.match(/filename="?([^"]+)"?/);
+			const fileName = match?.[1] || `SanalOyuncular_Backup_${new Date().toISOString().split("T")[0]}.sqlite`;
 
 			const blob = await response.blob();
 			const blobUrl = window.URL.createObjectURL(blob);
 			const link = document.createElement("a");
 			link.href = blobUrl;
-			link.download = `SanalOyuncular_Backup_${new Date().toISOString().split('T')[0]}.sqlite`;
+			link.download = fileName;
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link);
 			window.URL.revokeObjectURL(blobUrl);
-			
+
 			MessageToast.show("Veritabanı yedeği indirildi.");
 		} catch (error: any) {
 			MessageBox.error(error.message);
@@ -121,7 +127,7 @@ export default class AdminSystem extends BaseController {
 			const formData = new FormData();
 			formData.append("backup", file);
 
-			const response = await fetch("http://localhost:3001/api/system/restore", {
+			const response = await fetch(`${API_BASE}/system/restore`, {
 				method: "POST",
 				headers: {
 					"Authorization": `Bearer ${sessionStorage.getItem("token")}`
@@ -155,7 +161,7 @@ export default class AdminSystem extends BaseController {
 	// Used after a restore-triggered process restart so we don't reload before the server is up.
 	private pollUntilServerReady(attempt: number = 0): void {
 		const MAX_ATTEMPTS = 25; // 50 seconds max
-		fetch("http://localhost:3001/api/health")
+		fetch(`${API_BASE}/health`)
 			.then(r => {
 				if (r.ok) {
 					window.location.reload();
