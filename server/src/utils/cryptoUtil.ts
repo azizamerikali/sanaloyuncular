@@ -18,10 +18,16 @@ const getEncryptionKey = (): Buffer => {
 export const getEncryptionKeyInfo = () => {
   const rawKey = process.env.ENCRYPTION_KEY || "";
   const buf = Buffer.from(rawKey, "utf8");
+  // Short fingerprint (first 8 hex chars of SHA-256 of the key) — safe to expose, not reversible
+  let fingerprint = "none";
+  if (buf.length === 32) {
+    fingerprint = crypto.createHash("sha256").update(buf).digest("hex").slice(0, 8);
+  }
   return {
     exists: !!rawKey,
     length: buf.length,
-    isValid: buf.length === 32
+    isValid: buf.length === 32,
+    fingerprint,
   };
 };
 
@@ -68,7 +74,8 @@ export function decryptField(text: string): string {
 
     return decrypted;
   } catch (err) {
-    console.error("Decryption failed:", err);
+    const keyInfo = getEncryptionKeyInfo();
+    console.error(`Decryption failed (key fingerprint: ${keyInfo.fingerprint}):`, err);
     return text; // Fallback to raw text if decryption fails
   }
 }
