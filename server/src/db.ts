@@ -23,18 +23,30 @@ async function uploadToBlob(buffer: Buffer): Promise<void> {
   try {
     console.log(`[DB-SYNC] Attempting to upload to Vercel Blob (${buffer.byteLength} bytes)...`);
     const { put } = await import("@vercel/blob");
-    // The store is configured with private access, so we must use "private".
-    const result = await put(BLOB_PATHNAME, buffer, {
-      access: "private", 
-      addRandomSuffix: false,
-      contentType: "application/octet-stream",
-    });
+    
+    // Auto-detect strategy: Try private first, fallback to public if forbidden
+    let result;
+    try {
+      result = await put(BLOB_PATHNAME, buffer, {
+        access: "private",
+        addRandomSuffix: false,
+        contentType: "application/octet-stream",
+      });
+    } catch (e: any) {
+      if (e.message.includes("public")) {
+        console.log("ℹ️ [DB-SYNC] Private access rejected, falling back to Public...");
+        result = await put(BLOB_PATHNAME, buffer, {
+          access: "public",
+          addRandomSuffix: false,
+          contentType: "application/octet-stream",
+        });
+      } else {
+        throw e;
+      }
+    }
     console.log(`✅ [DB-SYNC] SUCCESS! DB uploaded to Vercel Blob. URL: ${result.url}`);
   } catch (e: any) {
     console.error("❌ [DB-SYNC] FATAL: Blob upload failed with error:", e.message);
-    if (e.message.includes("Token")) {
-      console.error("💡 Hint: Your BLOB_READ_WRITE_TOKEN might be invalid or expired.");
-    }
     if (e.stack) console.error(e.stack);
   }
 }
@@ -60,8 +72,15 @@ async function downloadFromBlob(): Promise<Buffer | null> {
     }
     
     console.log(`[DB-LOAD] Found blob at ${target.url}. Downloading...`);
-    const result = await get(target.url, { access: "private" });
-    const ab = await result.blob.arrayBuffer();
+    // Try private download, fallback to fetch for public
+    let ab;
+    try {
+      const result = await get(target.url, { access: "private" });
+      ab = await result.blob.arrayBuffer();
+    } catch {
+      const resp = await fetch(target.url);
+      ab = await resp.arrayBuffer();
+    }
     
     console.log(`✅ [DB-LOAD] SUCCESS! Loaded from Vercel Blob (${ab.byteLength} bytes)`);
     return Buffer.from(ab);

@@ -188,11 +188,20 @@ app.get("/api/health-blob", async (_req, res) => {
     // Attempt a tiny test upload to verify write permission
     let uploadTest = null;
     try {
-      const testResult = await put("health-test.txt", "OK", { 
-        access: "private",
-        addRandomSuffix: true 
-      });
-      uploadTest = { success: true, url: testResult.url };
+      try {
+        const testResult = await put("health-test.txt", "OK", { 
+          access: "private",
+          addRandomSuffix: true 
+        });
+        uploadTest = { success: true, mode: "private", url: testResult.url };
+      } catch (privateErr: any) {
+        // Fallback to public
+        const testResult = await put("health-test.txt", "OK", { 
+          access: "public",
+          addRandomSuffix: true 
+        });
+        uploadTest = { success: true, mode: "public", url: testResult.url };
+      }
     } catch (putErr: any) {
       uploadTest = { success: false, error: putErr.message };
     }
