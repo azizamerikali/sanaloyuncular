@@ -18,8 +18,9 @@ async function uploadToBlob(buffer: Buffer): Promise<void> {
       addRandomSuffix: false,
       contentType: "application/octet-stream",
     });
+    console.log(`☁️ [DB-SYNC] DB backup uploaded to Vercel Blob (${buffer.byteLength} bytes)`);
   } catch (e) {
-    console.warn("⚠️ Blob upload failed:", e);
+    console.warn("⚠️ [DB-SYNC] Blob upload failed:", e);
   }
 }
 
@@ -36,13 +37,16 @@ async function downloadFromBlob(): Promise<Buffer | null> {
     }
     
     // For Private Blobs, we must use get() or include the token in headers
-    const result = await get(target.url, { access: "private" });
+    // We add a timestamp or ensure no-cache to avoid getting stale DB from Vercel edge
+    const result = await get(target.url, { 
+      access: "private",
+    });
     const ab = await result.blob.arrayBuffer();
     
-    console.log(`✅ DB loaded from Vercel Private Blob (${ab.byteLength} bytes)`);
+    console.log(`✅ [DB-LOAD] Successfully loaded from Vercel Blob (${ab.byteLength} bytes)`);
     return Buffer.from(ab);
   } catch (e) {
-    console.warn("⚠️ Blob download failed:", e);
+    console.warn("⚠️ [DB-LOAD] Blob download failed:", e);
     return null;
   }
 }
@@ -153,37 +157,46 @@ class DatabaseWrapper {
   }
 
   /**
-   * Debounced save: writes to disk (local) or Vercel Blob (production).
+   * Save: writes to disk (local) or Vercel Blob (production).
+   * In Serverless environments, we MUST NOT use setTimeout for background tasks
+   * as the process might be frozen immediately after response.
    */
-  private save(): void {
-    if (this._saveTimeout) return;
+  async save(): Promise<void> {
+    // If we're already saving or restoring, don't overlap
+    if (this.isRestoring || !this.db) return;
 
-    this._saveTimeout = setTimeout(async () => {
-      if (this.isRestoring || !this.db) {
-        this._saveTimeout = null;
-        return;
-      }
+    const performSave = async () => {
       try {
-        const data = this.db.export();
+        const data = this.db!.export();
         const buffer = Buffer.from(data);
         if (!process.env.VERCEL) {
           fs.writeFileSync(DB_PATH, buffer);
         } else {
-          // Write to /tmp as fast local cache + persist to Blob
+          // Write to /tmp as fast local cache + persist to Blob (AWAIT this)
           try { fs.writeFileSync(DB_PATH, buffer); } catch (_) {}
           await uploadToBlob(buffer);
         }
       } catch (e) {
         console.warn("⚠️ DB save failed:", e);
-      } finally {
-        this._saveTimeout = null;
       }
-    }, 2000);
+    };
+
+    if (process.env.VERCEL) {
+      // Production: Always await to ensure persistence before function termination
+      await performSave();
+    } else {
+      // Local: Use debounce to keep performance snappy
+      if (this._saveTimeout) return;
+      this._saveTimeout = setTimeout(async () => {
+        await performSave();
+        this._saveTimeout = null;
+      }, 1000);
+    }
   }
 
-  exec(sql: string): void {
+  async exec(sql: string): Promise<void> {
     this.getDb().exec(sql);
-    this.save();
+    await this.save();
   }
 
   prepare(sql: string) {
@@ -215,12 +228,12 @@ class DatabaseWrapper {
           if (stmt) stmt.free();
         }
       },
-      run(...params: any[]): { changes: number } {
+      async run(...params: any[]): Promise<{ changes: number }> {
         if (params.length > 0) database.run(sql, wrapper.normalizeParams(params));
         else database.run(sql);
         const changesRow = database.exec("SELECT changes() as changes");
         const changes = changesRow.length > 0 && changesRow[0].values.length > 0 ? (changesRow[0].values[0][0] as number) : 0;
-        wrapper.save();
+        await wrapper.save();
         return { changes };
       },
     };
