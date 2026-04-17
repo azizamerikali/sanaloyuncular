@@ -21,6 +21,7 @@ import ApiClient from "../service/ApiClient";
  */
 export default class Register extends BaseController {
 	private _legalTextTemplate: string = "";
+	private _approvedLegalText: string = "";
 
 	public onInit(): void {
 		this.getView().setModel(new JSONModel(cities), "cities");
@@ -47,7 +48,12 @@ export default class Register extends BaseController {
 	}
 	private async loadConsentText(): Promise<void> {
 		try {
-			const consentText = await ConsentService.getConsentText();
+			let consentText = await ConsentService.getConsentText();
+			const today = new Date().toLocaleDateString("tr-TR");
+			
+			// Replace static date pattern (e.g., 2025-01-01) with current date
+			consentText = consentText.replace(/\d{4}-\d{2}-\d{2}/g, today);
+			
 			const appDataModel = new JSONModel({ consentText: consentText });
 			this.getView().setModel(appDataModel, "appData");
 		} catch (e) {
@@ -445,7 +451,13 @@ export default class Register extends BaseController {
 			const newUser = await UserService.create(payload);
 			
 			// Automatically record legal approval (since they approved after Google login)
-			await ApiClient.post("/verify/legal-approve", { email: newUser.email });
+			const userData = oModel.getData();
+			await ApiClient.post("/verify/legal-approve", { 
+				email: newUser.email,
+				firstName: userData.firstName,
+				lastName: userData.lastName,
+				legalText: this._approvedLegalText
+			});
 
 			MessageBox.success("Kaydınız başarıyla tamamlandı!", {
 				onClose: () => {
@@ -472,6 +484,8 @@ export default class Register extends BaseController {
 			.replace(/\[Ad Soyad\]/g, fullName)
 			.replace(/\[Tarih\]/g, sDate)
 			.replace(/\[ŞİRKET MERKEZİ İLİ\]/g, "İstanbul");
+		
+		this._approvedLegalText = sFinalText;
 
 		return new Promise((resolve) => {
 			const oDialog = new Dialog({

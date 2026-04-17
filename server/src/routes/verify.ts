@@ -106,12 +106,28 @@ router.post("/legal-approve", verifyLimiter, (req: Request, res: Response) => {
         // 1. Activate User
         db.prepare("UPDATE users SET status = 'active' WHERE email = ? AND status = 'pending'").run(email);
 
-        // 2. Record Consent
+        // 2. Record Consent (Legacy table)
         const consentId = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
         const acceptedAt = new Date().toISOString();
         db.prepare(
             "INSERT INTO consents (id, user_id, version, accepted_at, ip_address) VALUES (?, ?, ?, ?, ?)"
         ).run(consentId, user.id, version || "Registration_Legal_v1", acceptedAt, req.ip || req.socket?.remoteAddress || "unknown");
+
+        // 3. Record Detailed Legal Archive (New table)
+        const { firstName, lastName, legalText } = req.body;
+        const recordId = "LR_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+        db.prepare(
+            "INSERT INTO member_legal_records (id, email, first_name, last_name, approved_at, contract_content, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+        ).run(
+            recordId, 
+            email, 
+            firstName || "", 
+            lastName || "", 
+            acceptedAt, 
+            legalText || "", 
+            req.ip || "unknown", 
+            req.headers["user-agent"] || "unknown"
+        );
 
         res.json({ success: true, message: "Sözleşme onaylandı ve hesabınız aktifleştirildi." });
     } catch (error: any) {

@@ -105,6 +105,11 @@ app.use("/api/media", protect, mediaRouter);
 app.use("/api/consents", consentsRouter);
 app.use("/api/favorites", protect, favoritesRouter);
 app.use("/api/system", protect, systemRouter);
+import adminLegalRouter from "./routes/admin_legal";
+
+const router = Router();
+// ... inside app initialization or route registration section
+app.use("/api/admin-legal", adminLegalRouter);
 app.use("/api/verify", verifyRouter);
 
 // Health check
@@ -235,6 +240,16 @@ async function start() {
         expires_at TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'pending',
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS member_legal_records (
+        id TEXT PRIMARY KEY,
+        email TEXT NOT NULL,
+        first_name TEXT DEFAULT '',
+        last_name TEXT DEFAULT '',
+        approved_at TEXT NOT NULL DEFAULT (datetime('now')),
+        contract_content TEXT NOT NULL DEFAULT '',
+        ip_address TEXT DEFAULT '',
+        user_agent TEXT DEFAULT ''
       );
     `);
     console.log("✅ Schema ready");

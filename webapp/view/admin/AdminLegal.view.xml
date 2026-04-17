@@ -1,0 +1,64 @@
+<mvc:View
+	controllerName="com.openui5.webdb.controller.admin.AdminLegal"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:f="sap.f"
+	xmlns:layout="sap.ui.layout">
+
+	<f:DynamicPage id="adminLegalPage" toggleHeaderOnTitleClick="false">
+		<f:title>
+			<f:DynamicPageTitle>
+				<f:heading>
+					<Title text="{i18n>adminLegal}" />
+				</f:heading>
+			</f:DynamicPageTitle>
+		</f:title>
+
+		<f:content>
+			<VBox>
+				<headerToolbar>
+					<OverflowToolbar>
+						<Title text="Onaylanmış Sözleşme Kayıtları" />
+						<ToolbarSpacer />
+						<SearchField width="300px" search=".onSearch" placeholder="E-posta veya isim ara..." />
+						<Button icon="sap-icon://refresh" press=".onRefresh" tooltip="{i18n>refresh}" />
+					</OverflowToolbar>
+				</headerToolbar>
+
+				<Table id="legalRecordsTable" items="{path: 'legalRecords>/', sorter: {path: 'approvedAt', descending: true}}" sticky="HeaderToolbar,InfoToolbar,ColumnHeaders">
+					<columns>
+						<Column width="150px">
+							<Text text="Tarih" />
+						</Column>
+						<Column minScreenWidth="Tablet" demandPopin="true">
+							<Text text="Ad Soyad" />
+						</Column>
+						<Column minScreenWidth="Tablet" demandPopin="true">
+							<Text text="E-posta" />
+						</Column>
+						<Column minScreenWidth="Desktop" demandPopin="true">
+							<Text text="IP Adresi" />
+						</Column>
+						<Column width="150px" hAlign="End">
+							<Text text="İşlemler" />
+						</Column>
+					</columns>
+					<items>
+						<ColumnListItem>
+							<cells>
+								<Text text="{path: 'legalRecords>approvedAt', formatter: '.formatter.formatDateTime'}" />
+								<Text text="{legalRecords>firstName} {legalRecords>lastName}" />
+								<Text text="{legalRecords>email}" />
+								<Text text="{legalRecords>ipAddress}" />
+								<HBox justifyContent="End">
+									<Button icon="sap-icon://attachment-html" type="Transparent" press=".onViewText" tooltip="Sözleşmeyi Görüntüle" />
+									<Button icon="sap-icon://pdf-attachment" type="Transparent" press=".onDownloadPDF" tooltip="PDF İndir" />
+								</HBox>
+							</cells>
+						</ColumnListItem>
+					</items>
+				</Table>
+			</VBox>
+		</f:content>
+	</f:DynamicPage>
+</mvc:View>

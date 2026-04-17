@@ -20,6 +20,7 @@ const NAV_ITEMS: Record<string, NavItem[]> = {
 		{ key: "adminPayments", title: "adminPayments", icon: "sap-icon://money-bills", route: "adminPayments" },
 		{ key: "adminClients", title: "adminClients", icon: "sap-icon://customer", route: "adminClients" },
 		{ key: "adminMedia", title: "adminMedia", icon: "sap-icon://photo-voltaic", route: "adminMedia" },
+		{ key: "adminLegal", title: "adminLegal", icon: "sap-icon://official-service", route: "adminLegal" },
 		{ key: "adminSystem", title: "settings", icon: "sap-icon://settings", route: "adminSystem" }
 	],
 	member: [
