@@ -57,7 +57,7 @@ class DatabaseWrapper {
 
       if (fs.existsSync(DB_PATH)) {
         const buffer = fs.readFileSync(DB_PATH);
-        this.db = new this.sqlHandle.Database(buffer);
+        this.db = new this.sqlHandle.Database(new Uint8Array(buffer));
       } else {
         this.db = new this.sqlHandle.Database();
       }
@@ -170,19 +170,29 @@ class DatabaseWrapper {
         throw new Error("SQL handle not available for restore");
       }
 
-      fs.writeFileSync(DB_PATH, buffer);
-      
+      // Convert Node Buffer to Uint8Array explicitly for sql.js
+      const uint8Array = new Uint8Array(buffer);
+
+      // 1. Safely close current DB FIRST to free Emscripten memory
       if (this.db) {
-        try { this.db.close(); } catch (e) {}
+        try { 
+          this.db.close(); 
+        } catch (e) {
+          console.warn("DB close warning:", e);
+        }
         this.db = null;
       }
+
+      // 2. Write to disk
+      fs.writeFileSync(DB_PATH, buffer);
       
-      this.db = new this.sqlHandle.Database(buffer);
+      // 3. Reload from fresh Uint8Array
+      this.db = new this.sqlHandle.Database(uint8Array);
       this.db.run("PRAGMA foreign_keys = ON;");
       
       console.log("♻️ Database hot-reloaded from restore success");
     } catch (err: any) {
-      console.error(`❌ Restore operation failed: ${err.message}`);
+      console.error(`❌ Restore operation failed: ${err.message || 'Unknown error'}`);
       throw err;
     }
   }
