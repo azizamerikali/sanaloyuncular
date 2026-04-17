@@ -11,6 +11,7 @@ class DatabaseWrapper {
   private initPromise: Promise<void>;
   private sqlHandle: any = null;
   private isRestoring: boolean = false;
+  private _saveTimeout: NodeJS.Timeout | null = null;
 
   constructor() {
     this.initPromise = this.initialize().catch(err => {
@@ -36,11 +37,7 @@ class DatabaseWrapper {
 
       let wasmBinary: Buffer | undefined;
       for (const p of wasmCandidates) {
-        if (fs.existsSync(p)) {
-          wasmBinary = fs.readFileSync(p);
-          console.log(`✅ sql.js WASM loaded from: ${p}`);
-          break;
-        }
+        if (fs.existsSync(p)) { wasmBinary = fs.readFileSync(p); break; }
       }
 
       if (!wasmBinary) throw new Error(`sql-wasm.wasm not found.`);
@@ -83,19 +80,31 @@ class DatabaseWrapper {
   }
 
   private getDb(): SqlJsDatabase {
-    if (!this.db) throw new Error("Database not initialized. Please retry in a moment.");
+    if (!this.db) throw new Error("Database not initialized / Offline.");
     return this.db;
   }
 
+  /**
+   * Debounced Save to prevent OOM.
+   * sql.js.export() is very memory intensive.
+   */
   private save(): void {
-    if (this.isRestoring || !this.db) return;
-    try {
-      const data = this.db.export();
-      const buffer = Buffer.from(data);
-      fs.writeFileSync(DB_PATH, buffer);
-    } catch (e) {
-      console.warn("DB save warn (auto-save skipped):", e);
-    }
+    if (this._saveTimeout) return;
+    
+    this._saveTimeout = setTimeout(() => {
+      if (this.isRestoring || !this.db) {
+        this._saveTimeout = null;
+        return;
+      }
+      try {
+        const data = this.db.export();
+        fs.writeFileSync(DB_PATH, Buffer.from(data));
+      } catch (e) {
+        console.warn("⚠️ DB Backup skip (possible OOM or Lock):", e);
+      } finally {
+        this._saveTimeout = null;
+      }
+    }, 2000); // Wait 2s before writing to disk
   }
 
   exec(sql: string): void {
@@ -109,20 +118,28 @@ class DatabaseWrapper {
 
     return {
       all(...params: any[]): any[] {
-        const stmt = database.prepare(sql);
-        if (params.length > 0) stmt.bind(wrapper.normalizeParams(params));
-        const results: any[] = [];
-        while (stmt.step()) results.push(stmt.getAsObject());
-        stmt.free();
-        return results;
+        let stmt;
+        try {
+          stmt = database.prepare(sql);
+          if (params.length > 0) stmt.bind(wrapper.normalizeParams(params));
+          const results: any[] = [];
+          while (stmt.step()) results.push(stmt.getAsObject());
+          return results;
+        } finally {
+          if (stmt) stmt.free();
+        }
       },
       get(...params: any[]): any {
-        const stmt = database.prepare(sql);
-        if (params.length > 0) stmt.bind(wrapper.normalizeParams(params));
-        let result: any = undefined;
-        if (stmt.step()) result = stmt.getAsObject();
-        stmt.free();
-        return result;
+        let stmt;
+        try {
+          stmt = database.prepare(sql);
+          if (params.length > 0) stmt.bind(wrapper.normalizeParams(params));
+          let result: any = undefined;
+          if (stmt.step()) result = stmt.getAsObject();
+          return result;
+        } finally {
+          if (stmt) stmt.free();
+        }
       },
       run(...params: any[]): { changes: number } {
         if (params.length > 0) database.run(sql, wrapper.normalizeParams(params));
@@ -150,41 +167,25 @@ class DatabaseWrapper {
     };
   }
 
-  /**
-   * Final Stability Restore.
-   * Closes the old DB FIRST to free WASM heap memory, then loads the new one.
-   * The 'isRestoring' flag protects other requests from accessing a null DB.
-   */
   async restore(buffer: Buffer): Promise<void> {
     await this.ready();
     this.isRestoring = true;
     
     try {
       if (!this.sqlHandle) throw new Error("SQL handle not available");
-
-      const uint8Array = new Uint8Array(buffer);
       
-      // 1. Physically close the old database to free WASM memory
       if (this.db) {
-        try {
-          this.db.close();
-          console.log("🛠️ Old database closed for restore");
-        } catch (e) {
-          console.warn("Error while closing old DB:", e);
-        }
+        try { this.db.close(); } catch (e) {}
         this.db = null;
       }
 
-      // 2. Write new content to disk
       fs.writeFileSync(DB_PATH, buffer);
-      
-      // 3. Open the NEW database instance
-      this.db = new this.sqlHandle.Database(uint8Array);
+      this.db = new this.sqlHandle.Database(new Uint8Array(buffer));
       this.db.run("PRAGMA foreign_keys = ON;");
       
-      console.log("✅ Database successfully restored and re-opened");
+      console.log("✅ Database hot-reloaded success");
     } catch (err: any) {
-      console.error(`❌ Restore failed: ${err.message || 'Unknown error'}`);
+      console.error(`❌ Restore failed: ${err.message}`);
       throw err;
     } finally {
       this.isRestoring = false;
