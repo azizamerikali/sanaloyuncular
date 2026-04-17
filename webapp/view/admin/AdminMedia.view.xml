@@ -8,13 +8,36 @@
 					<Title text="{i18n>adminMedia}" level="H2" />
 					<ToolbarSpacer />
 					<Label text="Ad:" class="sapUiTinyMarginBegin" />
-					<Input id="filterFirstName" width="8rem" placeholder="Üye Adı" liveChange=".onFilter" />
+					<Input id="filterFirstName" width="8rem" placeholder="Üye Adı" liveChange=".onFilter" 
+						showSuggestion="true" suggestionItems="{mediaPoolData>/suggestions/firstNames}">
+						<suggestionItems>
+							<core:Item text="{mediaPoolData>text}" />
+						</suggestionItems>
+					</Input>
+
 					<Label text="Soyad:" class="sapUiTinyMarginBegin" />
-					<Input id="filterLastName" width="8rem" placeholder="Soyadı" liveChange=".onFilter" />
+					<Input id="filterLastName" width="8rem" placeholder="Soyadı" liveChange=".onFilter" 
+						showSuggestion="true" suggestionItems="{mediaPoolData>/suggestions/lastNames}">
+						<suggestionItems>
+							<core:Item text="{mediaPoolData>text}" />
+						</suggestionItems>
+					</Input>
+
 					<Label text="E-posta:" class="sapUiTinyMarginBegin" />
-					<Input id="filterEmail" width="10rem" placeholder="E-posta" liveChange=".onFilter" />
+					<Input id="filterEmail" width="10rem" placeholder="E-posta" liveChange=".onFilter" 
+						showSuggestion="true" suggestionItems="{mediaPoolData>/suggestions/emails}">
+						<suggestionItems>
+							<core:Item text="{mediaPoolData>text}" />
+						</suggestionItems>
+					</Input>
+
 					<Label text="Dosya:" class="sapUiTinyMarginBegin" />
-					<Input id="filterFileName" width="8rem" placeholder="Dosya Adı" liveChange=".onFilter" />
+					<Input id="filterFileName" width="8rem" placeholder="Dosya Adı" liveChange=".onFilter" 
+						showSuggestion="true" suggestionItems="{mediaPoolData>/suggestions/fileNames}">
+						<suggestionItems>
+							<core:Item text="{mediaPoolData>text}" />
+						</suggestionItems>
+					</Input>
 				</OverflowToolbar>
 				<ScrollContainer vertical="true" horizontal="false" height="100%">
 					<FlexBox id="adminMediaGallery" wrap="Wrap" items="{mediaPoolData>/media}" justifyContent="Start" alignItems="Start" class="sapUiSmallMargin">

@@ -26,18 +26,38 @@ export default class AdminMedia extends BaseController {
 	private async loadData(): Promise<void> {
 		const mediaList = await MediaService.getAll();
 		const media = [];
+		const firstNames = new Set<string>();
+		const lastNames = new Set<string>();
+		const emails = new Set<string>();
+		const fileNames = new Set<string>();
+
 		for (const m of mediaList) {
 			const user = await UserService.getById(m.userId);
-			media.push({ 
+			const item = { 
 				...m, 
 				memberName: user ? `${user.firstName} ${user.lastName}` : "-",
 				firstName: user ? user.firstName : "",
 				lastName: user ? user.lastName : "",
 				email: user ? user.email : "",
 				createdAtFormatted: formatter.formatDate(m.createdAt) 
-			});
+			};
+			media.push(item);
+			
+			if (item.firstName) firstNames.add(item.firstName);
+			if (item.lastName) lastNames.add(item.lastName);
+			if (item.email) emails.add(item.email);
+			if (item.fileName) fileNames.add(item.fileName);
 		}
-		this.getView().setModel(new JSONModel({ media }), "mediaPoolData");
+
+		this.getView().setModel(new JSONModel({ 
+			media,
+			suggestions: {
+				firstNames: Array.from(firstNames).map(s => ({ text: s })),
+				lastNames: Array.from(lastNames).map(s => ({ text: s })),
+				emails: Array.from(emails).map(s => ({ text: s })),
+				fileNames: Array.from(fileNames).map(s => ({ text: s }))
+			}
+		}), "mediaPoolData");
 	}
 
 	public onFilter(): void {
