@@ -176,6 +176,31 @@ app.get("/api/health", async (_req, res) => {
   }
 });
 
+// Extra Diagnostic for Blob
+app.get("/api/health-blob", async (_req, res) => {
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  const isVercel = !!process.env.VERCEL;
+  
+  try {
+    const { list } = await import("@vercel/blob");
+    const blobList = await list();
+    res.json({
+      isVercel,
+      tokenPresent: !!token,
+      tokenLength: token?.length || 0,
+      blobCount: blobList.blobs.length,
+      blobs: blobList.blobs.map(b => ({ pathname: b.pathname, size: b.size }))
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      isVercel,
+      tokenPresent: !!token,
+      error: err.message,
+      hint: "Check environment variables in Vercel Dashboard."
+    });
+  }
+});
+
 // Error handler
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error("Server error:", err.message);

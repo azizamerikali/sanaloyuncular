@@ -10,43 +10,61 @@ const BLOB_PATHNAME = "webdb/production.sqlite";
 
 /** Upload DB buffer to Vercel Blob (overwrites). No-op if not on Vercel or token missing. */
 async function uploadToBlob(buffer: Buffer): Promise<void> {
-  if (!process.env.VERCEL || !process.env.BLOB_READ_WRITE_TOKEN) return;
+  const hasToken = !!process.env.BLOB_READ_WRITE_TOKEN;
+  if (!process.env.VERCEL) {
+    console.log("ℹ️ [DB-SYNC] Skipping Blob upload (not on Vercel environment)");
+    return;
+  }
+  if (!hasToken) {
+    console.error("❌ [DB-SYNC] CRITICAL: BLOB_READ_WRITE_TOKEN is missing in environment variables!");
+    return;
+  }
+
   try {
+    console.log(`[DB-SYNC] Attempting to upload to Vercel Blob (${buffer.byteLength} bytes)...`);
     const { put } = await import("@vercel/blob");
-    await put(BLOB_PATHNAME, buffer, {
+    const result = await put(BLOB_PATHNAME, buffer, {
       access: "private",
       addRandomSuffix: false,
       contentType: "application/octet-stream",
     });
-    console.log(`☁️ [DB-SYNC] DB backup uploaded to Vercel Blob (${buffer.byteLength} bytes)`);
-  } catch (e) {
-    console.warn("⚠️ [DB-SYNC] Blob upload failed:", e);
+    console.log(`✅ [DB-SYNC] SUCCESS! DB uploaded to Vercel Blob. URL: ${result.url}`);
+  } catch (e: any) {
+    console.error("❌ [DB-SYNC] FATAL: Blob upload failed with error:", e.message);
+    if (e.stack) console.error(e.stack);
   }
 }
 
 /** Download DB from Vercel Blob. Returns null if not found or token missing. */
 async function downloadFromBlob(): Promise<Buffer | null> {
-  if (!process.env.VERCEL || !process.env.BLOB_READ_WRITE_TOKEN) return null;
+  const hasToken = !!process.env.BLOB_READ_WRITE_TOKEN;
+  if (!process.env.VERCEL) return null;
+  if (!hasToken) {
+    console.warn("⚠️ [DB-LOAD] Skipping download: BLOB_READ_WRITE_TOKEN missing.");
+    return null;
+  }
+
   try {
+    console.log("[DB-LOAD] Checking Vercel Blob for existing database...");
     const { list, get } = await import("@vercel/blob");
     const { blobs } = await list({ prefix: "webdb/" });
     const target = blobs.find(b => b.pathname === BLOB_PATHNAME);
+    
     if (!target) {
-      console.log("ℹ️ No existing DB blob found — starting fresh.");
+      console.log("ℹ️ [DB-LOAD] No existing DB blob found in storage — starting with fresh database.");
       return null;
     }
     
-    // For Private Blobs, we must use get() or include the token in headers
-    // We add a timestamp or ensure no-cache to avoid getting stale DB from Vercel edge
+    console.log(`[DB-LOAD] Found blob at ${target.url}. Downloading...`);
     const result = await get(target.url, { 
       access: "private",
     });
     const ab = await result.blob.arrayBuffer();
     
-    console.log(`✅ [DB-LOAD] Successfully loaded from Vercel Blob (${ab.byteLength} bytes)`);
+    console.log(`✅ [DB-LOAD] SUCCESS! Loaded from Vercel Blob (${ab.byteLength} bytes)`);
     return Buffer.from(ab);
-  } catch (e) {
-    console.warn("⚠️ [DB-LOAD] Blob download failed:", e);
+  } catch (e: any) {
+    console.error("❌ [DB-LOAD] FATAL: Blob download failed:", e.message);
     return null;
   }
 }
