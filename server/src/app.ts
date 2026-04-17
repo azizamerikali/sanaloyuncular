@@ -275,9 +275,28 @@ async function start() {
         user_agent TEXT DEFAULT ''
       );
     `);
-    console.log("✅ Schema ready");
+    console.log("✅ Main Schema ready");
   } catch (e) {
-    console.error("❌ Schema creation failed:", e);
+    console.error("❌ Main Schema creation failed:", e);
+  }
+
+  // Ensure member_legal_records exists (Independent check)
+  try {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS member_legal_records (
+        id TEXT PRIMARY KEY,
+        email TEXT NOT NULL,
+        first_name TEXT DEFAULT '',
+        last_name TEXT DEFAULT '',
+        approved_at TEXT NOT NULL DEFAULT (datetime('now')),
+        contract_content TEXT NOT NULL DEFAULT '',
+        ip_address TEXT DEFAULT '',
+        user_agent TEXT DEFAULT ''
+      );
+    `);
+    console.log("✅ Legal records table verified");
+  } catch (e) {
+    console.error("❌ Legal records table creation failed:", e);
   }
 
   // Column migrations (safe to fail if already applied)
