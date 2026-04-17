@@ -16,98 +16,11 @@ import Text from "sap/m/Text";
 import VBox from "sap/m/VBox";
 import Input from "sap/m/Input";
 import ApiClient from "../service/ApiClient";
-
-const LEGAL_TEXT_TEMPLATE = `KULLANICI S\u00d6ZLE\u015eMES\u0130 VE A\u00c7\u0130K R\u0130ZA METN\u0130
-1. TARAFLAR
-
-\u0130\u015fbu s\u00f6zle\u015fme,
-[\u015e\u0130RKET ADI] (bundan sonra \u201c\u015eirket\u201d olarak an\u0131lacakt\u0131r)
-ile
-Platforma \u00fcye olan kullan\u0131c\u0131 (bundan sonra \u201cKullan\u0131c\u0131\u201d olarak an\u0131lacakt\u0131r)
-aras\u0131nda elektronik ortamda akdedilmi\u015ftir.
-
-2. S\u00d6ZLE\u015eMEN\u0130N KONUSU
-
-\u0130\u015fbu s\u00f6zle\u015fme, Kullan\u0131c\u0131 taraf\u0131ndan sa\u011flanan foto\u011fraf, video ve ki\u015fisel verilerin, \u015eirket taraf\u0131ndan yapay zek\u00e2 destekli video projelerinde kullan\u0131lmas\u0131na ili\u015fkin \u015fartlar\u0131 ve taraflar\u0131n hak ve y\u00fck\u00fcml\u00fcl\u00fcklerini d\u00fczenler.
-
-3. KULLANICI BEYANI VE TAAHH\u00dcT\u00dc
-
-Kullan\u0131c\u0131, platforma y\u00fckledi\u011fi t\u00fcm foto\u011fraf ve g\u00f6rsellerin:
-
-Kendisine ait oldu\u011funu,
-\u00dc\u00e7\u00fcnc\u00fc ki\u015filerin haklar\u0131n\u0131 ihlal etmedi\u011fini,
-Telif, ki\u015filik ve gizlilik haklar\u0131na ayk\u0131r\u0131l\u0131k te\u015fkil etmedi\u011fini
-
-kabul, beyan ve taahh\u00fct eder.
-
-Aksi durumda do\u011fabilecek t\u00fcm hukuki ve cezai sorumluluk Kullan\u0131c\u0131\u2019ya aittir.
-
-4. TEL\u0130F VE KULLANIM HAKLARI (5846 SAYILI KANUN KAPSAMINDA)
-
-Kullan\u0131c\u0131, y\u00fckledi\u011fi i\u00e7eriklere ili\u015fkin olarak:
-
-\u015eirket\u2019e, i\u00e7eriklerin i\u015flenmesi, \u00e7o\u011falt\u0131lmas\u0131, de\u011f\u0131\u015ftirilmesi, yapay zek\u00e2 ile i\u015flenmesi, dijital ortamlarda kullan\u0131lmas\u0131 ve yay\u0131nlanmas\u0131 i\u00e7in s\u00fcresiz, geri al\u0131namaz ve m\u00fcnhas\u0131r olmayan lisans verdi\u011fini kabul eder.
-Bu kullan\u0131m\u0131n reklam, tan\u0131t\u011fm, sosyal medya, dijital i\u00e7erik \u00fcretimi ve yapay zek\u00e2 video projelerini kapsad\u0131\u011f\u0131n\u0131 kabul eder.
-Olu\u015fturulan yapay zek\u00e2 i\u00e7eriklerinin yeni eser niteli\u011finde olabilece\u011fini ve bu i\u00e7erikler \u00fczerinde herhangi bir hak talep etmeyece\u011fini kabul eder.
-5. \u00dcCRET VE \u00d6DEME
-Kullan\u0131c\u0131ya yap\u0131lacak \u00f6demeler, \u015eirket taraf\u0131ndan belirlenen tarife \u00fczerinden yap\u0131l\u0131r.
-\u00d6deme, Kullan\u0131c\u0131 taraf\u0131ndan beyan edilen IBAN numaras\u0131na yap\u0131l\u0131r.
-Kullan\u0131c\u0131, verdi\u011fi IBAN bilgilerinin do\u011fru oldu\u011funu kabul eder.
-Yanl\u0131\u015f IBAN nedeniyle olu\u015fabilecek sorunlardan \u015eirket sorumlu de\u011fildir.
-6. K\u0130\u015e\u0130SEL VER\u0130LER\u0130N KORUNMASI (KVKK 6698)
-
-Kullan\u0131c\u0131, a\u015fa\u011f\u0131daki ki\u015fisel verilerinin i\u015flenmesine a\u00e7\u0131k r\u0131za verir:
-
-Ad, soyad
-E-posta adresi
-Telefon numaras\u0131
-\u015eehir bilgisi
-Do\u011fum tarihi
-IBAN ve finansal bilgiler
-Foto\u011fraf ve g\u00f6rsel veriler (biyometrik veri kapsam\u0131nda de\u011ferlendirilebilir)
-Veri \u0130\u015fleme Ama\u00e7lar\u0131:
-\u00dcyelik i\u015flemlerinin y\u00fcr\u00fct\u00fclmesi
-\u00d6deme s\u00fcre\u00e7lerinin ger\u00e7ekle\u015ftirilmesi
-Yapay zek\u00e2 video i\u00e7eriklerinin olu\u015fturulmas\u0131
-Reklam ve pazarlama faaliyetleri
-Hizmet geli\u015ftirme
-Veri Aktar\u0131m\u0131:
-
-Kullan\u0131c\u0131, verilerinin:
-
-Yurt i\u00e7i ve yurt d\u0131\u015f\u0131ndaki i\u015f ortaklar\u0131yla,
-Bulut servis sa\u011flay\u0131c\u0131lar\u0131yla,
-Yapay zek\u00e2 teknolojisi sa\u011flay\u0131c\u0131lar\u0131yla
-
-payla\u015f\u0131labilece\u011fini kabul eder.
-
-7. A\u00c7\u0130K R\u0130ZA
-
-Kullan\u0131c\u0131, yukar\u0131da belirtilen ki\u015fisel verilerinin i\u015flenmesine ve foto\u011fraflar\u0131n\u0131n yapay zek\u00e2 sistemleri taraf\u0131ndan kullan\u0131lmas\u0131na a\u00e7\u0131k r\u0131za verdi\u011fini kabul eder.
-
-8. S\u00d6ZLE\u015eMEN\u0130N S\u00dcRES\u0130 VE FES\u0130H
-\u0130\u015fbu s\u00f6zle\u015fme, Kullan\u0131c\u0131 \u00fcyeli\u011fi devam etti\u011fi s\u00fcrece y\u00fcr\u00fcrl\u00fcktedir.
-Kullan\u0131c\u0131 \u00fcyeli\u011fini sonland\u0131rabilir; ancak daha \u00f6nce \u00fcretilmi\u015f i\u00e7eriklerin kullan\u0131m\u0131 devam edebilir.
-\u015eirket, gerekli g\u00f6rd\u00fc\u011f\u00fc durumlarda s\u00f6zle\u015fmeyi tek tarafl\u0131 feshedebilir.
-9. SORUMLULUK SINIRLARI
-\u015eirket, yapay zek\u00e2 ile olu\u015fturulan i\u00e7eriklerin \u00fc\u00e7\u00fcnc\u00fc ki\u015filer taraf\u0131ndan kullan\u0131m\u0131ndan sorumlu de\u011fildir.
-Kullan\u0131c\u0131, i\u00e7eriklerin dijital ortamda yay\u0131labilece\u011fini kabul eder.
-10. UYU\u015eMAZLIKLARIN \u00c7\u00d6Z\u00dcM\u00dc
-
-\u0130\u015fbu s\u00f6zle\u015fmeden do\u011fabilecek uyu\u015fmazl\u0131klarda T\u00fcrkiye Cumhuriyeti kanunlar\u0131 uygulan\u0131r ve [\u015e\u0130RKET MERKEZ\u0130 \u0130L\u0130] Mahkemeleri ve \u0130cra Daireleri yetkilidir.
-
-11. Y\u00dcR\u00dcRL\u00dcK
-
-Kullan\u0131c\u0131, platforma \u00fcye olarak ve \u201cOnayl\u0131yorum\u201d se\u00e7ene\u011fini i\u015faretleyerek i\u015fbu s\u00f6zle\u015fmenin t\u00fcm h\u00fck\u00fcmlerini okudu\u011funu, anlad\u0131\u011f\u0131n\u0131 ve kabul etti\u011fini beyan eder.
-
-\u015e\u0130RKET: [\u015e\u0130RKET ADI]
-KULLANICI: [Ad Soyad]
-TAR\u0130H: [Tarih]`;
-
 /**
  * @namespace com.openui5.webdb.controller
  */
 export default class Register extends BaseController {
+	private _legalTextTemplate: string = "";
 
 	public onInit(): void {
 		this.getView().setModel(new JSONModel(cities), "cities");
@@ -120,8 +33,18 @@ export default class Register extends BaseController {
 		
 		// 3. Fire and forget async initializations
 		this.loadConsentText();
+		this.loadLegalTemplate();
 	}
 
+	private async loadLegalTemplate(): Promise<void> {
+		try {
+			const url = sap.ui.require.toUrl("com/openui5/webdb/controller/legal_text.txt");
+			const response = await fetch(url);
+			this._legalTextTemplate = await response.text();
+		} catch (e) {
+			console.error("Legal text template failed to load", e);
+		}
+	}
 	private async loadConsentText(): Promise<void> {
 		try {
 			const consentText = await ConsentService.getConsentText();
@@ -539,11 +462,11 @@ export default class Register extends BaseController {
 		const sDate = new Date().toLocaleDateString('tr-TR');
 		const sCompany = "Ludens Casting";
 		
-		const sFinalText = LEGAL_TEXT_TEMPLATE
-			.replace(/\[\u015e\u0130RKET ADI\]/g, sCompany)
+		const sFinalText = this._legalTextTemplate
+			.replace(/\[ŞİRKET ADI\]/g, sCompany)
 			.replace(/\[Ad Soyad\]/g, fullName)
 			.replace(/\[Tarih\]/g, sDate)
-			.replace(/\[\u015e\u0130RKET MERKEZ\u0130 \u0130L\u0130\]/g, "\u0130stanbul");
+			.replace(/\[ŞİRKET MERKEZİ İLİ\]/g, "İstanbul");
 
 		return new Promise((resolve) => {
 			const oDialog = new Dialog({

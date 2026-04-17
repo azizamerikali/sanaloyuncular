@@ -1,0 +1,86 @@
+KULLANICI SÖZLEŞMESİ VE AÇIK RIZA METNİ
+1. TARAFLAR
+
+İşbu sözleşme,
+[ŞİRKET ADI] (bundan sonra “Şirket” olarak anılacaktır)
+ile
+Platforma üye olan kullanıcı (bundan sonra “Kullanıcı” olarak anılacaktır)
+arasında elektronik ortamda akdedilmiştir.
+
+2. SÖZLEŞMENİN KONUSU
+
+İşbu sözleşme, Kullanıcı tarafından sağlanan fotoğraf, video ve kişisel verilerin, Şirket tarafından yapay zekâ destekli video projelerinde kullanılmasına ilişkin şartları ve tarafların hak ve yükümlülüklerini düzenler.
+
+3. KULLANICI BEYANI VE TAAHHÜDÜ
+
+Kullanıcı, platforma yüklediği tüm fotoğraf ve görsellerin:
+
+Kendisine ait olduğunu,
+Üçüncü kişilerin haklarını ihlal etmediğini,
+Telif, kişilik ve gizlilik haklarına aykırılık teşkil etmediğini
+
+kabul, beyan ve taahhüt eder.
+
+Aksi durumda doğabilecek tüm hukuki ve cezai sorumluluk Kullanıcı’ya aittir.
+
+4. TELİF VE KULLANIM HAKLARI (5846 SAYILI KANUN KAPSAMINDA)
+
+Kullanıcı, yüklediği içeriklere ilişkin olarak:
+
+Şirket’e, içeriklerin işlenmesi, çoğaltılması, değiştirilmesi, yapay zekâ ile işlenmesi, dijital ortamlarda kullanılması ve yayınlanması için süresiz, geri alınamaz ve münhasır olmayan lisans verdiğini kabul eder.
+Bu kullanımın reklam, tanıtım, sosyal medya, dijital içerik üretimi ve yapay zekâ video projelerini kapsadığını kabul eder.
+Oluşturulan yapay zekâ içeriklerinin yeni eser niteliğinde olabileceğini ve bu içerikler üzerinde herhangi bir hak talep etmeyeceğini kabul eder.
+5. ÜCRET VE ÖDEME
+Kullanıcıya yapılacak ödemeler, Şirket tarafından belirlenen tarife üzerinden yapılır.
+Ödeme, Kullanıcı tarafından beyan edilen IBAN numarasına yapılır.
+Kullanıcı, verdiği IBAN bilgilerinin doğru olduğunu kabul eder.
+Yanlış IBAN nedeniyle oluşabilecek sorunlardan Şirket sorumlu değildir.
+6. KİŞİSEL VERİLERİN KORUNMASI (KVKK 6698)
+
+Kullanıcı, aşağıdaki kişisel verilerinin işlenmesine açık rıza verir:
+
+Ad, soyad
+E-posta adresi
+Telefon numarası
+Şehir bilgisi
+Doğum tarihi
+IBAN ve finansal bilgiler
+Fotoğraf ve görsel veriler (biyometrik veri kapsamında değerlendirilebilir)
+Veri İşleme Amaçları:
+Üyelik işlemlerinin yürütülmesi
+Ödeme süreçlerinin gerçekleştirilmesi
+Yapay zekâ video içeriklerinin oluşturulması
+Reklam ve pazarlama faaliyetleri
+Hizmet geliştirme
+Veri Aktarımı:
+
+Kullanıcı, verilerinin:
+
+Yurt içi ve yurt dışındaki iş ortaklarıyla,
+Bulut servis sağlayıcılarıyla,
+Yapay zekâ teknolojisi sağlayıcılarıyla
+
+paylaşılabileceğini kabul eder.
+
+7. AÇIK RIZA
+
+Kullanıcı, yukarıda belirtilen kişisel verilerinin işlenmesine ve fotoğraflarının yapay zekâ sistemleri tarafından kullanılmasına açık rıza verdiğini kabul eder.
+
+8. SÖZLEŞMENİN SÜRESİ VE FESİH
+İşbu sözleşme, Kullanıcı üyeliği devam ettiği sürece yürürlüktedir.
+Kullanıcı üyeliğini sonlandırabilir; ancak daha önce üretilmiş içeriklerin kullanımı devam edebilir.
+Şirket, gerekli gördüğü durumlarda sözleşmeyi tek taraflı feshedebilir.
+9. SORUMLULUK SINIRLARI
+Şirket, yapay zekâ ile oluşturulan içeriklerin üçüncü kişiler tarafından kullanımından sorumlu değildir.
+Kullanıcı, içeriklerin dijital ortamda yayılabileceğini kabul eder.
+10. UYUŞMAZLIKLARIN ÇÖZÜMÜ
+
+İşbu sözleşmeden doğabilecek uyuşmazlıklarda Türkiye Cumhuriyeti kanunları uygulanır ve [ŞİRKET MERKEZİ İLİ] Mahkemeleri ve İcra Daireleri yetkilidir.
+
+11. YÜRÜRLÜK
+
+Kullanıcı, platforma üye olarak ve “Onaylıyorum” seçeneğini işaretleyerek işbu sözleşmenin tüm hükümlerini okuduğunu, anladığını ve kabul ettiğini beyan eder.
+
+ŞİRKET: [ŞİRKET ADI]
+KULLANICI: [Ad Soyad]
+TARİH: [Tarih]
