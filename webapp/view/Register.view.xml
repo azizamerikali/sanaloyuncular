@@ -105,9 +105,9 @@
 									<u:FileUploader id="fuConsent" width="100%" placeholder="Belge yüklemek için seçin" change=".onConsentFileChange" visible="{newMember>/isUnder18}" />
 
 									<Label text="IBAN Sahibi" required="true" />
-									<ComboBox id="cbIbanHolder" selectedKey="{newMember>/ibanHolder}" items="{newMember>/ibanHolderList}" width="100%">
+									<Select id="cbIbanHolder" selectedKey="{newMember>/ibanHolder}" items="{newMember>/ibanHolderList}" width="100%">
 										<core:Item key="{newMember>name}" text="{newMember>name}" />
-									</ComboBox>
+									</Select>
 
 									<Label text="IBAN" required="true" />
 									<Input id="inIban" value="{newMember>/iban}" placeholder="..." liveChange=".onIbanChange" valueState="{newMember>/ibanState}" valueStateText="{newMember>/ibanStateText}" />
