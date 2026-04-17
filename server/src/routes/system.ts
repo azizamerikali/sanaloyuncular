@@ -45,10 +45,17 @@ router.post("/restore", protect, upload.single("backup"), async (req: Request, r
     }
 
     try {
-        await (db as any).restore(req.file.buffer);
+        const result = await (db as any).restore(req.file.buffer);
+        if (result?.restarting) {
+            return res.json({
+                success: true,
+                restarting: true,
+                message: "Veritabanı geri yüklendi. Sistem yeniden başlatılıyor, lütfen 5 saniye bekleyin."
+            });
+        }
         res.json({ success: true, message: "Veritabanı başarıyla geri yüklendi" });
     } catch (error: any) {
-        console.error("Restore failed:", error);
+        console.error("Restore failed:", error instanceof Error ? error.message : String(error));
         res.status(500).json({ error: "Geri yükleme başarısız." });
     }
 });

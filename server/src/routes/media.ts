@@ -40,7 +40,13 @@ router.get("/", (req: AuthenticatedRequest, res: Response) => {
   sql += " ORDER BY created_at DESC";
   try {
     const rows = db.prepare(sql).all(...params);
-    res.json(rows);
+    res.json(rows.map((row: any) => ({
+      id: row.id,
+      userId: row.user_id,
+      fileName: row.file_name,
+      filePath: row.file_path,
+      createdAt: row.created_at,
+    })));
   } catch (error) {
     console.error("Media list fetch error:", error);
     res.status(500).json({ error: "Medya listesi alinamadi." });

@@ -133,15 +133,42 @@ export default class AdminSystem extends BaseController {
 
 			if (!response.ok) throw new Error(result.error || "Geri yükleme başarısız.");
 
-			MessageBox.success("Veritabanı başarıyla geri yüklendi! Uygulama ana sayfaya yönlendirilecek.", {
-				onClose: () => {
-					window.location.reload();
-				}
-			});
+			if (result.restarting) {
+				MessageBox.success(
+					"Veritabanı geri yüklendi. Sistem yeniden başlatılıyor, lütfen bekleyin...",
+					{ onClose: () => { this.pollUntilServerReady(); } }
+				);
+				this.pollUntilServerReady();
+			} else {
+				MessageBox.success("Veritabanı başarıyla geri yüklendi! Uygulama yeniden yüklenecek.", {
+					onClose: () => { window.location.reload(); }
+				});
+			}
 		} catch (error: any) {
 			MessageBox.error(error.message);
 		} finally {
 			this.getView().setBusy(false);
 		}
+	}
+
+	// Polls /api/health every 2s until the server responds, then reloads the page.
+	// Used after a restore-triggered process restart so we don't reload before the server is up.
+	private pollUntilServerReady(attempt: number = 0): void {
+		const MAX_ATTEMPTS = 25; // 50 seconds max
+		fetch("http://localhost:3001/api/health")
+			.then(r => {
+				if (r.ok) {
+					window.location.reload();
+				} else {
+					throw new Error("not ready");
+				}
+			})
+			.catch(() => {
+				if (attempt < MAX_ATTEMPTS) {
+					setTimeout(() => this.pollUntilServerReady(attempt + 1), 2000);
+				} else {
+					MessageToast.show("Sunucu başlatılamadı. Lütfen sayfayı manuel olarak yenileyin.");
+				}
+			});
 	}
 }

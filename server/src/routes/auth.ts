@@ -93,6 +93,10 @@ router.post("/google", async (req: Request, res: Response) => {
 	const { idToken } = req.body;
 	if (!idToken) return res.status(400).json({ error: "Google idToken gereklidir" });
 
+	// Step 1: Verify Google token
+	let email: string;
+	let firstName: string;
+	let lastName: string;
 	try {
 		const ticket = await client.verifyIdToken({
 			idToken,
@@ -100,12 +104,16 @@ router.post("/google", async (req: Request, res: Response) => {
 		});
 		const payload = ticket.getPayload();
 		if (!payload || !payload.email) return res.status(400).json({ error: "Geçersiz Google token verisi" });
+		email = payload.email;
+		firstName = payload.given_name || "";
+		lastName = payload.family_name || "";
+	} catch (error: any) {
+		console.error("[Google Auth] Token verification failed:", error?.message || error);
+		return res.status(401).json({ error: "Google kimliği doğrulanamadı. Lütfen tekrar deneyin." });
+	}
 
-		const email = payload.email;
-		const firstName = payload.given_name || "";
-		const lastName = payload.family_name || "";
-
-		// Check if user exists by email
+	// Step 2: Look up user in database
+	try {
 		const row = db.prepare("SELECT * FROM users WHERE email = ?").get(email) as UserRow | undefined;
 		if (row) {
 			if (row.status !== "active") return res.status(401).json({ error: "Hesabınız aktif değil." });
@@ -122,15 +130,15 @@ router.post("/google", async (req: Request, res: Response) => {
 			);
 			return res.json({ token, user: toApi(row) });
 		} else {
-			// User doesn't exist. Let frontend redirect to register page with these details
+			// User doesn't exist — redirect to register with prefilled details
 			return res.status(404).json({
 				error: "Kullanıcı bulunamadı, kayıt sayfasına yönlendiriliyor",
 				googlePayload: { email, firstName, lastName }
 			});
 		}
-	} catch (error) {
-		console.error("Google ID Token verification failed:", error);
-		return res.status(401).json({ error: "Google kimliği doğrulanamadı. Lütfen tekrar deneyin." });
+	} catch (error: any) {
+		console.error("[Google Auth] Database lookup failed for", email, ":", error?.message || error);
+		return res.status(500).json({ error: "Sunucu hatası. Lütfen tekrar deneyin." });
 	}
 });
 

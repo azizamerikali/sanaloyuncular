@@ -2,7 +2,7 @@ import initSqlJs, { Database as SqlJsDatabase } from "sql.js";
 import path from "path";
 import fs from "fs";
 
-const DB_PATH = process.env.VERCEL 
+const DB_PATH = process.env.VERCEL
   ? path.join("/tmp", "webdb.sqlite")
   : path.join(__dirname, "..", "data", "webdb.sqlite");
 
@@ -20,6 +20,36 @@ class DatabaseWrapper {
     this.initPromise.catch(() => {});
   }
 
+  /**
+   * Finds and loads the sql-wasm.wasm binary from known candidate paths.
+   * Returns a safe, standalone ArrayBuffer (not a view into a shared Buffer pool).
+   */
+  private loadWasmBinary(): ArrayBuffer {
+    const wasmCandidates = [
+      path.join(process.cwd(), "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
+      "/var/task/node_modules/sql.js/dist/sql-wasm.wasm",
+      path.join(__dirname, "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
+      path.join(__dirname, "..", "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
+      path.join(__dirname, "..", "..", "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
+    ];
+
+    for (const p of wasmCandidates) {
+      if (fs.existsSync(p)) {
+        const buf = fs.readFileSync(p);
+        return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
+      }
+    }
+    throw new Error("sql-wasm.wasm not found.");
+  }
+
+  /**
+   * Creates a brand-new sql.js WASM engine instance.
+   * Calling this on restore gives a completely fresh WASM heap — no corruption risk.
+   */
+  private async initSqlEngine(): Promise<void> {
+    this.sqlHandle = await initSqlJs({ wasmBinary: this.loadWasmBinary() });
+  }
+
   private async initialize(): Promise<void> {
     try {
       const dataDir = path.dirname(DB_PATH);
@@ -27,27 +57,7 @@ class DatabaseWrapper {
         fs.mkdirSync(dataDir, { recursive: true });
       }
 
-      const wasmCandidates = [
-        path.join(process.cwd(), "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
-        "/var/task/node_modules/sql.js/dist/sql-wasm.wasm",
-        path.join(__dirname, "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
-        path.join(__dirname, "..", "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
-        path.join(__dirname, "..", "..", "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
-      ];
-
-      let wasmBinary: Buffer | undefined;
-      for (const p of wasmCandidates) {
-        if (fs.existsSync(p)) { wasmBinary = fs.readFileSync(p); break; }
-      }
-
-      if (!wasmBinary) throw new Error(`sql-wasm.wasm not found.`);
-
-      const wasmArrayBuffer = wasmBinary.buffer.slice(
-        wasmBinary.byteOffset,
-        wasmBinary.byteOffset + wasmBinary.byteLength
-      ) as ArrayBuffer;
-      
-      this.sqlHandle = await initSqlJs({ wasmBinary: wasmArrayBuffer });
+      await this.initSqlEngine();
 
       if (fs.existsSync(DB_PATH)) {
         const buffer = fs.readFileSync(DB_PATH);
@@ -167,25 +177,68 @@ class DatabaseWrapper {
     };
   }
 
-  async restore(buffer: Buffer): Promise<void> {
+  /**
+   * Restores the database from a backup buffer.
+   *
+   * Strategy:
+   * 1. Always write the file to disk first (safe, reversible).
+   * 2. Attempt an in-process hot-reload (close → drop old WASM refs → yield for GC → reinit).
+   * 3. If the in-process reload fails (e.g. WASM heap OOM from stale allocations),
+   *    trigger process.exit(0) so the supervisor (nodemon) restarts cleanly from the new file.
+   *
+   * Returns { restarting: true } when the process is about to exit so the caller can
+   * send an appropriate response before the exit fires.
+   */
+  async restore(buffer: Buffer): Promise<{ restarting: boolean }> {
     await this.ready();
     this.isRestoring = true;
-    
+
+    // Cancel any pending debounced save before tearing down the DB
+    if (this._saveTimeout) {
+      clearTimeout(this._saveTimeout);
+      this._saveTimeout = null;
+    }
+
+    // Step 1: Write to disk unconditionally — this is always safe.
     try {
-      if (!this.sqlHandle) throw new Error("SQL handle not available");
-      
+      fs.writeFileSync(DB_PATH, buffer);
+    } catch (err: any) {
+      this.isRestoring = false;
+      throw new Error(`Veritabanı dosyası diske yazılamadı: ${err.message}`);
+    }
+
+    // Step 2: Try in-process hot-reload.
+    try {
+      // Close and fully dereference old DB + WASM engine so V8 GC can reclaim the heap.
       if (this.db) {
         try { this.db.close(); } catch (e) {}
         this.db = null;
       }
+      this.sqlHandle = null;  // Drop old WASM Module reference → eligible for GC
 
-      fs.writeFileSync(DB_PATH, buffer);
+      // Yield the event loop once to let V8 run a GC cycle before allocating a new Module.
+      await new Promise<void>(resolve => setImmediate(resolve));
+
+      // Re-initialize the WASM engine with a completely fresh heap.
+      await this.initSqlEngine();
+
+      // Load the restored database into the clean WASM heap.
       this.db = new this.sqlHandle.Database(new Uint8Array(buffer));
       this.db.run("PRAGMA foreign_keys = ON;");
-      
-      console.log("✅ Database hot-reloaded success");
+
+      console.log("✅ Database restored with fresh WASM engine");
+      return { restarting: false };
     } catch (err: any) {
-      console.error(`❌ Restore failed: ${err.message}`);
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`⚠️ In-process reload failed (${msg}). File is on disk — triggering restart.`);
+
+      // On local dev (not Vercel): exit with code 1 so nodemon treats it as a crash
+      // and auto-restarts immediately (exit 0 = "clean exit", nodemon waits for file changes).
+      if (!process.env.VERCEL) {
+        setTimeout(() => process.exit(1), 800);
+        return { restarting: true };
+      }
+      // On Vercel: each Lambda starts fresh anyway; just throw so the caller knows.
       throw err;
     } finally {
       this.isRestoring = false;
