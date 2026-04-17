@@ -140,6 +140,26 @@ router.post("/", async (req: Request, res: Response) => {
       "INSERT INTO users (id, first_name, last_name, email, phone, address, password, role, status, birth_date, parent_name, consent_document, iban, iban_holder, city, acting_training, acting_experience, profile_picture, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     ).run(id, firstName || "", lastName || "", email || "", encryptField(phone || ""), encryptField(address || ""), passwordHash, userRole, userStatus, birthDate || "", parentName || "", consentDocument || "", encryptField(iban || ""), ibanHolder || "", city || "", actingTraining || "", actingExperience || "", profilePicture || "", createdAt);
 
+    // AUTO-APPROVE LEGAL TERMS during registration (prevents race condition)
+    if (userRole === "member" && (req.body.legalApprove || userStatus === "active")) {
+        const recordId = "LR_AUTO_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+        await db.prepare(
+          "INSERT INTO member_legal_records (id, email, first_name, last_name, approved_at, contract_content, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+        ).run(
+          recordId,
+          email,
+          firstName || "",
+          lastName || "",
+          createdAt,
+          req.body.legalText || "Registration wizard auto-approval",
+          req.ip || "unknown",
+          req.headers["user-agent"] || "registration-wizard"
+        );
+        // Also ensure user is active if they approved legal terms
+        await db.prepare("UPDATE users SET status = 'active' WHERE id = ?").run(id);
+        console.log(`📜 Auto-approved legal terms for new user: ${email}`);
+    }
+
     // Auto-create legal record if created as active member
     if (userStatus === "active" && userRole === "member") {
       const recordId = "LR_ADM_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);

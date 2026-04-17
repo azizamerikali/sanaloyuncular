@@ -446,18 +446,14 @@ export default class Register extends BaseController {
 		payload.id = payload.email; // Use Email as Username
 		payload.role = "member";
 		payload.status = "pending";
+		
+		// Optimization: Include legal approval in the same request to avoid race conditions on Vercel
+		payload.legalApprove = true;
+		payload.legalText = this._approvedLegalText;
 
 		try {
-			const newUser = await UserService.create(payload);
-			
-			// Automatically record legal approval (since they approved after Google login)
-			const userData = oModel.getData();
-			await ApiClient.post("/verify/legal-approve", { 
-				email: newUser.email,
-				firstName: userData.firstName,
-				lastName: userData.lastName,
-				legalText: this._approvedLegalText
-			});
+			await UserService.create(payload);
+			// No second call needed anymore, handled atomically on backend
 
 			MessageBox.success("Kaydınız başarıyla tamamlandı!", {
 				onClose: () => {
