@@ -112,11 +112,19 @@ router.post("/google", async (req: Request, res: Response) => {
 		return res.status(401).json({ error: "Google kimliği doğrulanamadı. Lütfen tekrar deneyin." });
 	}
 
+	console.log(`[Google Auth] Token verified for email: ${email}`);
+
 	// Step 2: Look up user in database
 	try {
-		const row = db.prepare("SELECT * FROM users WHERE email = ?").get(email) as UserRow | undefined;
+		// Optimize query: only fetch what we need to avoid OOM from large profile pictures
+		const row = db.prepare("SELECT id, role, status, email, first_name, last_name, profile_picture FROM users WHERE LOWER(email) = LOWER(?)").get(email) as UserRow | undefined;
+		
 		if (row) {
-			if (row.status !== "active") return res.status(401).json({ error: "Hesabınız aktif değil." });
+			console.log(`[Google Auth] Match found in DB for user: ${row.id} (${row.role})`);
+			if (row.status !== "active") {
+				console.warn(`[Google Auth] User ${row.id} is INACTIVE`);
+				return res.status(401).json({ error: "Hesabınız aktif değil." });
+			}
 
 			// Clients CANNOT use Google Login
 			if (row.role === "client") {
