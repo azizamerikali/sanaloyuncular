@@ -16,6 +16,7 @@ import consentsRouter from "./routes/consents";
 import favoritesRouter from "./routes/favorites";
 import systemRouter from "./routes/system";
 import verifyRouter from "./routes/verify";
+import adminLegalRouter from "./routes/admin_legal";
 import { protect, AuthenticatedRequest } from "./middleware/authMiddleware";
 import { getEncryptionKeyInfo } from "./utils/cryptoUtil";
 
@@ -52,7 +53,20 @@ const PORT = parseInt(process.env.SERVER_PORT || "3000");
 app.set("trust proxy", 1);
 
 // Middleware
-app.use(helmet());
+// Middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+      "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com", "https://openui5.hana.ondemand.com", "https://accounts.google.com"],
+      "style-src": ["'self'", "'unsafe-inline'", "https://openui5.hana.ondemand.com", "https://fonts.googleapis.com"],
+      "img-src": ["'self'", "data:", "https://openui5.hana.ondemand.com", "https://*.googleusercontent.com"],
+      "font-src": ["'self'", "https://fonts.gstatic.com"],
+      "connect-src": ["'self'", "https://openui5.hana.ondemand.com", "https://accounts.google.com", "https://www.googleapis.com"],
+      "frame-src": ["'self'", "https://accounts.google.com"]
+    },
+  },
+}));
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",").map(o => o.trim())
@@ -128,10 +142,6 @@ app.use("/api/media", protect, mediaRouter);
 app.use("/api/consents", consentsRouter);
 app.use("/api/favorites", protect, favoritesRouter);
 app.use("/api/system", protect, systemRouter);
-import adminLegalRouter from "./routes/admin_legal";
-
-const router = Router();
-// ... inside app initialization or route registration section
 app.use("/api/admin-legal", adminLegalRouter);
 app.use("/api/verify", verifyRouter);
 

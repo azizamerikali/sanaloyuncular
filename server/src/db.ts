@@ -17,9 +17,12 @@ class DatabaseWrapper {
   constructor() {
     this.initPromise = this.initialize().catch(err => {
       console.error(`❌ Global Database Initialization Error: ${err.message}`);
-      // We don't re-throw here to prevent process crash.
-      // The ready() method will still fail when called by routes.
+      // Swallow here so Node.js doesn't crash on unhandled rejection.
+      // The ready() method re-throws so callers get the error.
     });
+    // Prevent Node.js 15+ from crashing on unhandled promise rejection
+    // if no one calls ready() before the micro-task queue drains.
+    this.initPromise.catch(() => {});
   }
 
   private async initialize(): Promise<void> {
@@ -55,7 +58,13 @@ class DatabaseWrapper {
         throw new Error(`sql-wasm.wasm not found. Searched: ${wasmCandidates.join(", ")}`);
       }
 
-      const SQL = await initSqlJs({ wasmBinary: wasmBinary.buffer as ArrayBuffer });
+      // Copy into a fresh ArrayBuffer — Buffer.buffer is a shared pool slice and
+      // passing it directly to sql.js/Emscripten corrupts the WASM heap.
+      const wasmArrayBuffer = wasmBinary.buffer.slice(
+        wasmBinary.byteOffset,
+        wasmBinary.byteOffset + wasmBinary.byteLength
+      ) as ArrayBuffer;
+      const SQL = await initSqlJs({ wasmBinary: wasmArrayBuffer });
 
       if (fs.existsSync(DB_PATH)) {
         const buffer = fs.readFileSync(DB_PATH);
@@ -188,7 +197,23 @@ class DatabaseWrapper {
    */
   async restore(buffer: Buffer): Promise<void> {
     await this.ready();
-    const SQL = await initSqlJs();
+    // Re-use the same WASM loading logic as initialize()
+    const wasmCandidates = [
+      path.join(process.cwd(), "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
+      "/var/task/node_modules/sql.js/dist/sql-wasm.wasm",
+      path.join(__dirname, "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
+      path.join(__dirname, "..", "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
+      path.join(__dirname, "..", "..", "node_modules", "sql.js", "dist", "sql-wasm.wasm"),
+    ];
+    let wasmBinary: Buffer | undefined;
+    for (const p of wasmCandidates) {
+      if (fs.existsSync(p)) { wasmBinary = fs.readFileSync(p); break; }
+    }
+    if (!wasmBinary) throw new Error("sql-wasm.wasm not found during restore");
+    const wasmArrayBuffer = wasmBinary.buffer.slice(
+      wasmBinary.byteOffset, wasmBinary.byteOffset + wasmBinary.byteLength
+    ) as ArrayBuffer;
+    const SQL = await initSqlJs({ wasmBinary: wasmArrayBuffer });
     
     // 1. Write to file
     fs.writeFileSync(DB_PATH, buffer);

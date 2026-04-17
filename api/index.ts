@@ -9,10 +9,11 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    // 1. Import the Express application
-    // We use a clean extension-less import. 
-    // The compiler handles the bridge to the server directory.
-    const app = (await import("../server/src/app")).default;
+    // 1. Import the Express application and wait for DB + schema to be ready.
+    // This prevents FUNCTION_INVOCATION_FAILED on cold starts where the first
+    // request arrives before the async DB initialization completes.
+    const { default: app, startupPromise } = await import("../server/src/app");
+    await startupPromise;
 
     // 2. Handle routing fix for Vercel
     const matchedPath = req.headers["x-matched-path"] as string | undefined;

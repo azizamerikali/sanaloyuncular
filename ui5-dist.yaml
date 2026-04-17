@@ -5,7 +5,7 @@ type: application
 resources:
   configuration:
     paths:
-      webapp: dist
+      webapp: public
 framework:
   name: OpenUI5
   version: "1.146.0"
@@ -13,3 +13,10 @@ framework:
     - name: sap.m
     - name: sap.ui.core
     - name: themelib_sap_horizon
+server:
+  customMiddleware:
+    - name: ui5-middleware-simpleproxy
+      afterMiddleware: compression
+      configuration:
+        baseUri: "http://localhost:3000"
+        context: "/api"

@@ -17,11 +17,6 @@ export default class AdminLegal extends BaseController {
 
 	public async onInit(): Promise<void> {
 		this.loadRecords();
-		
-		// Load jsPDF library dynamically for PDF export
-		if (typeof jspdf === "undefined") {
-			sap.ui.dom.includeScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js", "jspdf-lib");
-		}
 	}
 
 	private async loadRecords(): Promise<void> {
@@ -90,31 +85,51 @@ export default class AdminLegal extends BaseController {
 		const oContext = oEvent.getSource().getBindingContext("legalRecords");
 		const oData = oContext.getObject();
 
-		if (typeof jspdf === "undefined") {
+		// Safe check for jsPDF
+		const jspdfLib = (window as any).jspdf || (window as any).jsPDF;
+
+		if (!jspdfLib) {
 			sap.m.MessageToast.show("PDF kütüphanesi yükleniyor, lütfen birazdan tekrar deneyin.");
 			return;
 		}
 
 		try {
-			const { jsPDF } = jspdf;
-			const doc = new jsPDF();
+			// Extract constructor reliably
+			const jsPDFConstructor = jspdfLib.jsPDF || jspdfLib;
+			const doc = new jsPDFConstructor();
 			
-			// PDF Generation with basic formatting
-			doc.setFontSize(16);
-			doc.text("Kullanıcı Sözleşmesi Onay Belgesi", 10, 20);
-			
-			doc.setFontSize(10);
-			doc.text(`Onaylayan: ${oData.firstName} ${oData.lastName}`, 10, 30);
-			doc.text(`E-posta: ${oData.email}`, 10, 35);
-			doc.text(`Onay Tarihi: ${new Date(oData.approvedAt).toLocaleString("tr-TR")}`, 10, 40);
-			doc.text(`IP Adresi: ${oData.ipAddress}`, 10, 45);
-			doc.text(`---------------------------------------------------------------------------------------------------`, 10, 50);
+			// Helper to normalize Turkish characters for default PDF fonts
+			const normalizeText = (text: string) => {
+				return (text || "")
+					.replace(/ğ/g, "g").replace(/Ğ/g, "G")
+					.replace(/ü/g, "u").replace(/Ü/g, "U")
+					.replace(/ş/g, "s").replace(/Ş/g, "S")
+					.replace(/ı/g, "i").replace(/İ/g, "I")
+					.replace(/ö/g, "o").replace(/Ö/g, "O")
+					.replace(/ç/g, "c").replace(/Ç/g, "C");
+			};
 
+			// PDF Generation - Refined for single page fit
+			doc.setFont("helvetica", "bold");
+			doc.setFontSize(12);
+			doc.text("Kullanici Sozlesmesi Onay Belgesi", 10, 12);
+			
+			doc.setFont("helvetica", "normal");
 			doc.setFontSize(8);
-			const splitText = doc.splitTextToSize(oData.contractContent, 180);
-			doc.text(splitText, 10, 60);
+			doc.text(`Onaylayan: ${normalizeText(oData.firstName)} ${normalizeText(oData.lastName)}`, 10, 18);
+			doc.text(`E-posta: ${oData.email}`, 10, 22);
+			doc.text(`Onay Tarihi: ${new Date(oData.approvedAt).toLocaleString("tr-TR")}`, 10, 26);
+			doc.text(`IP Adresi: ${oData.ipAddress}`, 10, 30);
+			doc.text("---------------------------------------------------------------------------------------------------", 10, 34);
 
-			doc.save(`Sozlesme_${oData.firstName}_${oData.lastName}_${oData.id}.pdf`);
+			doc.setFontSize(6.8);
+			const safeContent = normalizeText(oData.contractContent || "Icerik bulunamadi.");
+			const splitText = doc.splitTextToSize(safeContent, 188);
+			
+			// Start point moved up to allow more lines
+			doc.text(splitText, 10, 40);
+
+			doc.save(`Sozlesme_${normalizeText(oData.firstName)}_${oData.id}.pdf`);
 			sap.m.MessageToast.show("PDF başarıyla oluşturuldu.");
 		} catch (error) {
 			console.error("PDF generation failed", error);
