@@ -7,7 +7,17 @@
 				noDataText="{i18n>noPhotos}"
 				autoPopinMode="true" fixedLayout="false"
 				growing="true" growingThreshold="20">
+				<headerToolbar>
+					<OverflowToolbar>
+						<Title text="{i18n>adminMedia}" level="H2" />
+						<ToolbarSpacer />
+						<SearchField width="15rem" placeholder="Arama (Üye veya Dosya)" search=".onSearch" liveChange=".onSearch" />
+					</OverflowToolbar>
+				</headerToolbar>
 				<columns>
+					<Column width="5rem">
+						<Text text="Önizleme" />
+					</Column>
 					<Column>
 						<Text text="{i18n>fileName}" />
 					</Column>
@@ -23,10 +33,10 @@
 				</columns>
 				<items>
 					<ColumnListItem>
-						<HBox alignItems="Center">
-							<core:Icon src="sap-icon://attachment-photo" class="sapUiSmallMarginEnd" />
-							<Text text="{mediaPoolData>fileName}" />
-						</HBox>
+						<Avatar src="{mediaPoolData>fileData}" displaySize="S" displayShape="Square" 
+							press=".onImagePress" displayActive="true" 
+							imageFitType="Cover" class="sapUiTinyMarginTop sapUiTinyMarginBottom" />
+						<Text text="{mediaPoolData>fileName}" />
 						<Text text="{mediaPoolData>memberName}" />
 						<Text text="{mediaPoolData>createdAtFormatted}" />
 						<Button icon="sap-icon://delete" type="Reject" press=".onDeleteMedia" />
