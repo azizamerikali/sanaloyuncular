@@ -32,12 +32,15 @@
 					</Input>
 
 					<Label text="Dosya:" class="sapUiTinyMarginBegin" />
-					<Input id="filterFileName" width="8rem" placeholder="Dosya Adı" liveChange=".onFilter" 
-						showSuggestion="true" suggestionItems="{mediaPoolData>/suggestions/fileNames}">
-						<suggestionItems>
-							<core:Item text="{mediaPoolData>text}" />
-						</suggestionItems>
-					</Input>
+					<Label text="Durum:" class="sapUiTinyMarginBegin" />
+					<Select id="filterStatus" change=".onFilter" width="10rem">
+						<items>
+							<core:Item key="all" text="Tümü" />
+							<core:Item key="active" text="Aktif" />
+							<core:Item key="inactive" text="Pasif" />
+							<core:Item key="pending" text="Onay Bekliyor" />
+						</items>
+					</Select>
 				</OverflowToolbar>
 				<ScrollContainer vertical="true" horizontal="false" height="100%">
 					<FlexBox id="adminMediaGallery" wrap="Wrap" items="{mediaPoolData>/media}" justifyContent="Start" alignItems="Start" class="sapUiSmallMargin">
@@ -52,6 +55,7 @@
 										<Text text="Üye: " />
 										<Link text="{mediaPoolData>memberName}" press=".onMemberPress" class="sapUiTinyMarginBegin" />
 									</HBox>
+									<ObjectStatus text="{mediaPoolData>memberStatusText}" state="{mediaPoolData>statusState}" />
 									<Text text="Tarih: {mediaPoolData>createdAtFormatted}" />
 									<Button icon="sap-icon://delete" type="Reject" press=".onDeleteMedia" class="sapUiTinyMarginTop" text="Sil" />
 								</VBox>

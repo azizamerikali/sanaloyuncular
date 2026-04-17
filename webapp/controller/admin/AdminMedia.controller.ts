@@ -33,12 +33,21 @@ export default class AdminMedia extends BaseController {
 
 		for (const m of mediaList) {
 			const user = await UserService.getById(m.userId);
+			const status = user ? user.status : "inactive";
+			let statusState = "None";
+			if (status === "active") statusState = "Success";
+			else if (status === "inactive") statusState = "Warning"; // User requested yellow for Passive
+			else if (status === "pending") statusState = "Information";
+
 			const item = { 
 				...m, 
 				memberName: user ? `${user.firstName} ${user.lastName}` : "-",
 				firstName: user ? user.firstName : "",
 				lastName: user ? user.lastName : "",
 				email: user ? user.email : "",
+				memberStatus: status,
+				memberStatusText: formatter.formatStatus(status),
+				statusState: statusState,
 				createdAtFormatted: formatter.formatDate(m.createdAt) 
 			};
 			media.push(item);
@@ -66,12 +75,17 @@ export default class AdminMedia extends BaseController {
 		const sSurname = (oView.byId("filterLastName") as any).getValue();
 		const sEmail = (oView.byId("filterEmail") as any).getValue();
 		const sFile = (oView.byId("filterFileName") as any).getValue();
+		const sStatus = (oView.byId("filterStatus") as any).getSelectedKey();
 
 		const aFilters = [];
 		if (sName) aFilters.push(new Filter("firstName", FilterOperator.Contains, sName));
 		if (sSurname) aFilters.push(new Filter("lastName", FilterOperator.Contains, sSurname));
 		if (sEmail) aFilters.push(new Filter("email", FilterOperator.Contains, sEmail));
 		if (sFile) aFilters.push(new Filter("fileName", FilterOperator.Contains, sFile));
+		
+		if (sStatus && sStatus !== "all") {
+			aFilters.push(new Filter("memberStatus", FilterOperator.EQ, sStatus));
+		}
 
 		const oGallery = this.getView().byId("adminMediaGallery") as any;
 		const oBinding = oGallery.getBinding("items") as ListBinding;
