@@ -16,16 +16,15 @@
 
 		<f:content>
 			<VBox>
-				<headerToolbar>
-					<OverflowToolbar>
-						<Title text="Onaylanmış Sözleşme Kayıtları" />
-						<ToolbarSpacer />
-						<SearchField width="300px" search=".onSearch" placeholder="E-posta veya isim ara..." />
-						<Button icon="sap-icon://refresh" press=".onRefresh" tooltip="{i18n>refresh}" />
-					</OverflowToolbar>
-				</headerToolbar>
-
 				<Table id="legalRecordsTable" items="{path: 'legalRecords>/', sorter: {path: 'approvedAt', descending: true}}" sticky="HeaderToolbar,InfoToolbar,ColumnHeaders">
+					<headerToolbar>
+						<OverflowToolbar>
+							<Title text="Onaylanmış Sözleşme Kayıtları" />
+							<ToolbarSpacer />
+							<SearchField width="300px" search=".onSearch" placeholder="E-posta veya isim ara..." />
+							<Button icon="sap-icon://refresh" press=".onRefresh" tooltip="{i18n>refresh}" />
+						</OverflowToolbar>
+					</headerToolbar>
 					<columns>
 						<Column width="150px">
 							<Text text="Tarih" />
