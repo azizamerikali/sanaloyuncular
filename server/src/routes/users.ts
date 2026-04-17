@@ -219,8 +219,8 @@ router.put("/:id", protect, (req: AuthenticatedRequest, res: Response) => {
   // Check if status is transitioning to active to auto-create legal record if missing
   if (status === "active" && existing.status !== "active" && existing.role === "member") {
     try {
-      const email = email ?? existing.email;
-      const recordExists = db.prepare("SELECT id FROM member_legal_records WHERE email = ?").get(email);
+      const targetEmail = email ?? existing.email;
+      const recordExists = db.prepare("SELECT id FROM member_legal_records WHERE email = ?").get(targetEmail);
       
       if (!recordExists) {
         const recordId = "LR_ADM_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
@@ -228,7 +228,7 @@ router.put("/:id", protect, (req: AuthenticatedRequest, res: Response) => {
           "INSERT INTO member_legal_records (id, email, first_name, last_name, approved_at, contract_content, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
         ).run(
           recordId,
-          email,
+          targetEmail,
           firstName ?? existing.first_name,
           lastName ?? existing.last_name,
           new Date().toISOString(),
@@ -236,7 +236,7 @@ router.put("/:id", protect, (req: AuthenticatedRequest, res: Response) => {
           "Admin Panel",
           "Server Internal"
         );
-        console.log(`📜 Auto-created legal record for ${email} (Admin activation)`);
+        console.log(`📜 Auto-created legal record for ${targetEmail} (Admin activation)`);
       }
     } catch (err) {
       console.error("Failed to auto-create legal record during admin activation:", err);

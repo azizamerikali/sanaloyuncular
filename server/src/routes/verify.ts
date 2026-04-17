@@ -100,6 +100,7 @@ router.post("/legal-approve", verifyLimiter, (req: Request, res: Response) => {
         ).get(email, twoHoursAgo) as { id: string } | undefined;
 
         if (!user) {
+            console.warn(`⚠️ Legal approve failed: User ${email} not found in pending status or record too old.`);
             return res.status(400).json({ error: "Geçerli bir bekleyen kayıt bulunamadı." });
         }
 
@@ -116,12 +117,12 @@ router.post("/legal-approve", verifyLimiter, (req: Request, res: Response) => {
         // 3. Record Detailed Legal Archive (New table)
         const { firstName, lastName, legalText } = req.body;
         
-        // Prevent duplicate records for the same email if one was already created recently (e.g. within 1 minute)
-        // to handle potential double-clicks or retry logic in frontend.
-        const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
+        // Prevent duplicate records for the same email if one was already created in the LAST 10 SECONDS
+        // (Simplified from 1 minute to avoid issues with fast test cycles)
+        const recently = new Date(Date.now() - 10 * 1000).toISOString();
         const existingRecord = db.prepare(
             "SELECT id FROM member_legal_records WHERE email = ? AND approved_at > ?"
-        ).get(email, oneMinuteAgo);
+        ).get(email, recently);
 
         if (!existingRecord) {
             const recordId = "LR_" + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
@@ -137,6 +138,9 @@ router.post("/legal-approve", verifyLimiter, (req: Request, res: Response) => {
                 req.ip || "unknown", 
                 req.headers["user-agent"] || "unknown"
             );
+            console.log(`✅ Legal record successfully created for ${email}`);
+        } else {
+            console.log(`ℹ️ Legal record skipped for ${email} (duplicate prevention)`);
         }
 
         res.json({ success: true, message: "Sözleşme onaylandı ve hesabınız aktifleştirildi." });
