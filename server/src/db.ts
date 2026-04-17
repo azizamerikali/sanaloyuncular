@@ -6,7 +6,7 @@ const DB_PATH = process.env.VERCEL
   ? path.join("/tmp", "webdb.sqlite")
   : path.join(__dirname, "..", "data", "webdb.sqlite");
 
-const BLOB_PATHNAME = "webdb/production.sqlite";
+const BLOB_PATHNAME = "webdb_production.sqlite";
 
 /** Upload DB buffer to Vercel Blob (overwrites). No-op if not on Vercel or token missing. */
 async function uploadToBlob(buffer: Buffer): Promise<void> {
@@ -21,19 +21,26 @@ async function uploadToBlob(buffer: Buffer): Promise<void> {
   }
 
   try {
-    console.log(`[DB-SYNC] Attempting to upload to Vercel Blob (${buffer.byteLength} bytes)...`);
     const { put } = await import("@vercel/blob");
-    
-    // Omit 'access' entirely to let the store configuration decide
-    const result = await put(BLOB_PATHNAME, buffer, {
-      addRandomSuffix: false,
-      contentType: "application/octet-stream",
-    });
-    
+    // Use fallback strategy for access mode
+    let result;
+    try {
+      result = await put(BLOB_PATHNAME, buffer, {
+        access: "public",
+        addRandomSuffix: false,
+        contentType: "application/octet-stream",
+      });
+    } catch (e: any) {
+      // If public fails, try private (though we know public works now)
+      result = await put(BLOB_PATHNAME, buffer, {
+        access: "private",
+        addRandomSuffix: false,
+        contentType: "application/octet-stream",
+      });
+    }
     console.log(`✅ [DB-SYNC] SUCCESS! DB uploaded to Vercel Blob. URL: ${result.url}`);
   } catch (e: any) {
-    console.error("❌ [DB-SYNC] FATAL: Blob upload failed with error:", e.message);
-    if (e.stack) console.error(e.stack);
+    console.error("❌ [DB-SYNC] FATAL: Blob upload failed:", e.message);
   }
 }
 

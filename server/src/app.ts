@@ -185,37 +185,18 @@ app.get("/api/health-blob", async (_req, res) => {
   try {
     const { list, put } = await import("@vercel/blob");
     
-    // Attempt a default test upload with explicit public as a last resort
-    let uploadTest: any = { attempted: true };
-    try {
-      const result = await put(`health-${Date.now()}.txt`, "OK", { 
-        access: "public",
-        addRandomSuffix: false 
-      });
-      uploadTest.result = { success: true, mode: "public", url: result.url };
-    } catch (e: any) {
-      uploadTest.error_public = e.message;
-      try {
-        const resultPrivate = await put(`health-${Date.now()}.txt`, "OK", { 
-          access: "private",
-          addRandomSuffix: false 
-        });
-        uploadTest.result = { success: true, mode: "private", url: resultPrivate.url };
-      } catch (e2: any) {
-        uploadTest.error_private = e2.message;
-        uploadTest.success = false;
-      }
-    }
-
+    // Clean health check for production
     const blobList = await list();
     res.json({
       serverTime: new Date().toISOString(),
-      isVercel,
-      tokenPresent: !!token,
-      tokenLength: token?.length || 0,
-      uploadTest,
-      blobCount: blobList.blobs.length,
-      blobs: blobList.blobs.map(b => ({ pathname: b.pathname, size: b.size }))
+      status: "ready",
+      database: "sqlite-wasm",
+      storage: {
+        provider: "vercel-blob",
+        connected: !!token,
+        blobCount: blobList.blobs.length,
+        files: blobList.blobs.map(b => ({ pathname: b.pathname, size: b.size }))
+      }
     });
   } catch (err: any) {
     res.status(500).json({
