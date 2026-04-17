@@ -10,11 +10,15 @@ import { cities } from "../../model/Cities";
 import FileUploader from "sap/ui/unified/FileUploader";
 import MessageToast from "sap/m/MessageToast";
 import { isValidIBANNumber } from "../../utils/iban";
+import Dialog from "sap/m/Dialog";
+import Button from "sap/m/Button";
+import Image from "sap/m/Image";
 
 /**
  * @namespace com.openui5.webdb.controller.admin
  */
 export default class AdminMemberDetail extends BaseController {
+	private _previewDialog: Dialog | null = null;
 	public onInit(): void {
 		this.getView().setModel(new JSONModel(cities), "cities");
 		this.getRouter().getRoute("adminMemberDetail").attachPatternMatched(this.onRouteMatched, this);
@@ -202,5 +206,35 @@ export default class AdminMemberDetail extends BaseController {
 			MessageToast.show("Profil güncellenirken bir hata oluştu.");
 			console.error(error);
 		}
+	}
+
+	public onImagePress(oEvent: Event): void {
+		const oImage = oEvent.getSource() as any;
+		const sSrc = oImage.getSrc();
+		const sTitle = oImage.getBindingContext("detailData").getProperty("fileName");
+
+		if (!this._previewDialog) {
+			this._previewDialog = new Dialog({
+				title: sTitle,
+				contentWidth: "auto",
+				contentHeight: "auto",
+				stretch: false,
+				content: new Image({
+					src: sSrc,
+					width: "100%",
+					densityAware: false
+				}),
+				beginButton: new Button({
+					text: "Kapat",
+					press: () => this._previewDialog?.close()
+				})
+			});
+			this.getView().addDependent(this._previewDialog);
+		} else {
+			this._previewDialog.setTitle(sTitle);
+			(this._previewDialog.getContent()[0] as Image).setSrc(sSrc);
+		}
+
+		this._previewDialog.open();
 	}
 }
