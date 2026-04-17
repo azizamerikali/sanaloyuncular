@@ -77,7 +77,30 @@ app.use(cors({
   },
   credentials: true,
 }));
-app.use(express.json({ limit: '10mb' })); // Reduced base size to standard. Base64 images are handled safely now.
+
+// Health Check & Diagnostic Endpoint
+app.get("/api/health-db", (req, res) => {
+  try {
+    const userCount = db.prepare("SELECT COUNT(*) as cnt FROM users").get() as { cnt: number };
+    const legalCount = db.prepare("SELECT COUNT(*) as cnt FROM member_legal_records").get() as { cnt: number };
+    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
+    
+    res.json({
+      success: true,
+      time: new Date().toISOString(),
+      counts: {
+        users: userCount.cnt,
+        legalRecords: legalCount.cnt
+      },
+      tables: tables.map((t: any) => t.name)
+    });
+  } catch (e: any) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// Middleware (Moved below health check for simplicity)
+app.use(express.json({ limit: "50mb" })); // Reduced base size to standard. Base64 images are handled safely now.
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 const limiter = rateLimit({
