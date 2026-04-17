@@ -94,7 +94,7 @@ app.use(cors({
 }));
 
 // Health Check & Diagnostic Endpoint
-app.get("/api/health-db", (req, res) => {
+app.get("/api/health-db", async (req, res) => {
   try {
     const userCount = await db.prepare("SELECT COUNT(*) as cnt FROM users").get() as { cnt: number };
     const legalCount = await db.prepare("SELECT COUNT(*) as cnt FROM member_legal_records").get() as { cnt: number };
