@@ -185,19 +185,31 @@ app.get("/api/health-blob", async (_req, res) => {
   try {
     const { list, put } = await import("@vercel/blob");
     
-    // Attempt a default test upload
+    // Attempt a default test upload with explicit public as a last resort
     let uploadTest: any = { attempted: true };
     try {
-      const result = await put("health-test-default.txt", "OK", { 
-        addRandomSuffix: true 
+      const result = await put(`health-${Date.now()}.txt`, "OK", { 
+        access: "public",
+        addRandomSuffix: false 
       });
-      uploadTest.result = { success: true, url: result.url };
+      uploadTest.result = { success: true, mode: "public", url: result.url };
     } catch (e: any) {
-      uploadTest.result = { success: false, error: e.message };
+      uploadTest.error_public = e.message;
+      try {
+        const resultPrivate = await put(`health-${Date.now()}.txt`, "OK", { 
+          access: "private",
+          addRandomSuffix: false 
+        });
+        uploadTest.result = { success: true, mode: "private", url: resultPrivate.url };
+      } catch (e2: any) {
+        uploadTest.error_private = e2.message;
+        uploadTest.success = false;
+      }
     }
 
     const blobList = await list();
     res.json({
+      serverTime: new Date().toISOString(),
       isVercel,
       tokenPresent: !!token,
       tokenLength: token?.length || 0,
