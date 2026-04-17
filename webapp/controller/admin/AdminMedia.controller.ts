@@ -132,4 +132,10 @@ export default class AdminMedia extends BaseController {
 			}
 		});
 	}
+
+	public onMemberPress(oEvent: Event): void {
+		const oCtx = (oEvent.getSource() as any).getBindingContext("mediaPoolData");
+		const userId = oCtx.getProperty("userId");
+		this.getRouter().navTo("adminMemberDetail", { memberId: userId });
+	}
 }

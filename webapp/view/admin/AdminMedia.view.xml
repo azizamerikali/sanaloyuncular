@@ -48,7 +48,10 @@
 									class="sapUiSystemPointer" />
 								<VBox class="sapUiTinyMarginTop">
 									<Label text="{mediaPoolData>fileName}" design="Bold" />
-									<Text text="Üye: {mediaPoolData>memberName}" />
+									<HBox>
+										<Text text="Üye: " />
+										<Link text="{mediaPoolData>memberName}" press=".onMemberPress" class="sapUiTinyMarginBegin" />
+									</HBox>
 									<Text text="Tarih: {mediaPoolData>createdAtFormatted}" />
 									<Button icon="sap-icon://delete" type="Reject" press=".onDeleteMedia" class="sapUiTinyMarginTop" text="Sil" />
 								</VBox>
