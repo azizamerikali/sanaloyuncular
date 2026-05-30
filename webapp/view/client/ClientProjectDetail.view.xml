@@ -27,6 +27,9 @@
 					<Table items="{cProjDetailData>/assignedMembers}" noDataText="{i18n>noMembers}"
 						autoPopinMode="true" fixedLayout="false">
 						<columns>
+							<Column width="60px">
+								<Text text="" />
+							</Column>
 							<Column>
 								<Text text="{i18n>firstName}" />
 							</Column>
@@ -42,6 +45,11 @@
 						</columns>
 						<items>
 							<ColumnListItem>
+								<Image src="{path: 'cProjDetailData>profilePicture', formatter: '.formatProfilePicture'}" 
+									width="40px" 
+									height="40px" 
+									densityAware="false" 
+									style="border-radius: 50%; object-fit: cover;" />
 								<Text text="{cProjDetailData>firstName}" />
 								<Text text="{cProjDetailData>lastName}" />
 								<Text text="{cProjDetailData>email}" />

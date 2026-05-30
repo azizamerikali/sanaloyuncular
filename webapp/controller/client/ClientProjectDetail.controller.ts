@@ -10,6 +10,7 @@ import UserService from "../../service/UserService";
 import StorageService from "../../service/StorageService";
 import formatter from "../../model/formatter";
 import type { IFavorite } from "../../model/MockData";
+import { API_BASE } from "../../service/ApiClient";
 
 /**
  * @namespace com.openui5.webdb.controller.client
@@ -78,5 +79,15 @@ export default class ClientProjectDetail extends BaseController {
 		const oCtx = (oEvent.getSource() as any).getBindingContext("cProjDetailData");
 		await ProjectService.removeMember(this.projectId, oCtx.getProperty("id"));
 		MessageToast.show("Üye çıkarıldı."); await this.loadData();
+	}
+
+	public formatProfilePicture(profilePicture: string): string {
+		if (!profilePicture) {
+			return "https://www.sap.com/dam/application/shared/icons/people-icons/sap-icon-customer.png";
+		}
+		if (profilePicture.startsWith("http") || profilePicture.startsWith("data:")) {
+			return profilePicture;
+		}
+		return `${API_BASE}${profilePicture}`;
 	}
 }
