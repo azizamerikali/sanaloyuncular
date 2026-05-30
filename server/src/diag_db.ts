@@ -5,13 +5,19 @@ async function diag() {
     console.log("Database Ready.");
     
     try {
-        const columns = db.prepare("PRAGMA table_info(users)").all();
-        console.log("Users Columns:", columns.map((c: any) => c.name).join(", "));
+        const userCols = await db.prepare(
+            "SELECT column_name as name FROM information_schema.columns WHERE table_name = 'users' ORDER BY ordinal_position"
+        ).all();
+        console.log("Users Columns:", userCols.map((c: any) => c.name).join(", "));
         
-        const mediaCols = db.prepare("PRAGMA table_info(media)").all();
+        const mediaCols = await db.prepare(
+            "SELECT column_name as name FROM information_schema.columns WHERE table_name = 'media' ORDER BY ordinal_position"
+        ).all();
         console.log("Media Columns:", mediaCols.map((c: any) => c.name).join(", "));
 
-        const verifyCols = db.prepare("PRAGMA table_info(verification_codes)").all();
+        const verifyCols = await db.prepare(
+            "SELECT column_name as name FROM information_schema.columns WHERE table_name = 'verification_codes' ORDER BY ordinal_position"
+        ).all();
         console.log("Verify Columns:", verifyCols.map((c: any) => c.name).join(", "));
     } catch (e: any) {
         console.error("Diag Error:", e.message);

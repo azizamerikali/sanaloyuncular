@@ -25,14 +25,14 @@ router.get("/backup", protect, backupLimiter, async (req: Request, res: Response
     }
 
     try {
-        // Export directly from in-memory sql.js — always current, works on Vercel (/tmp) too
-        const data = (db as any).exportDb() as Buffer;
+        // Export all data as JSON from Supabase
+        const data = await (db as any).exportDb() as Buffer;
         const now = new Date();
         const pad = (n: number) => String(n).padStart(2, "0");
         const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}`;
-        const filename = `SanalOyuncular_Backup_${timestamp}.sqlite`;
+        const filename = `SanalOyuncular_Backup_${timestamp}.json`;
 
-        res.setHeader("Content-Type", "application/octet-stream");
+        res.setHeader("Content-Type", "application/json");
         res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
         res.setHeader("Content-Length", data.length);
         res.send(data);

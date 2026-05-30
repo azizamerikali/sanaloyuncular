@@ -1,5 +1,5 @@
 import express from "express";
-// Deployment trigger: Vercel Blob synchronization fixes applied.
+// Database: Supabase (PostgreSQL)
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -99,7 +99,7 @@ app.get("/api/health-db", async (req, res) => {
   try {
     const userCount = await db.prepare("SELECT COUNT(*) as cnt FROM users").get() as { cnt: number };
     const legalCount = await db.prepare("SELECT COUNT(*) as cnt FROM member_legal_records").get() as { cnt: number };
-    const tables = await db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
+    const tables = await db.prepare("SELECT table_name as name FROM information_schema.tables WHERE table_schema = 'public'").all();
     
     res.json({
       success: true,
@@ -160,7 +160,7 @@ app.get("/api/health", async (_req, res) => {
         jwtSecret: !!process.env.JWT_SECRET,
         encryptionKey: keyInfo
       },
-      database: "sqlite", 
+      database: "supabase", 
       users: userCount?.cnt || 0 
     });
   } catch (err: any) {
@@ -171,42 +171,30 @@ app.get("/api/health", async (_req, res) => {
         jwtSecret: !!process.env.JWT_SECRET,
         encryptionKey: keyInfo
       },
-      database: "sqlite", 
+      database: "supabase", 
       users: 0 
     });
   }
 });
 
-// Extra Diagnostic for Blob
-app.get("/api/health-blob", async (_req, res) => {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  const isVercel = !!process.env.VERCEL;
-  
-  try {
-    const { list, put } = await import("@vercel/blob");
-    
-    // Clean health check for production
-    const blobList = await list();
-    res.json({
-      serverTime: new Date().toISOString(),
-      status: "ready",
-      database: "sqlite-wasm",
-      storage: {
-        provider: "vercel-blob",
-        connected: !!token,
-        blobCount: blobList.blobs.length,
-        files: blobList.blobs.map(b => ({ pathname: b.pathname, size: b.size }))
-      }
-    });
-  } catch (err: any) {
-    res.status(500).json({
-      isVercel,
-      tokenPresent: !!token,
-      error: err.message,
-      hint: "Check environment variables in Vercel Dashboard."
-    });
-  }
-});
+// Supabase health check
+  app.get("/api/health-supabase", async (_req, res) => {
+    try {
+      const userCount = await db.prepare("SELECT COUNT(*) as cnt FROM users").get() as { cnt: number };
+      res.json({
+        serverTime: new Date().toISOString(),
+        status: "ready",
+        database: "supabase-postgresql",
+        supabaseUrl: process.env.SUPABASE_URL ? "configured" : "missing",
+        users: userCount?.cnt || 0
+      });
+    } catch (err: any) {
+      res.status(500).json({
+        error: err.message,
+        hint: "Check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables."
+      });
+    }
+  });
 
 // Error handler
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
@@ -222,133 +210,24 @@ async function start() {
   // Disable auto-save during bootstrap to prevent massive upload overhead on Vercel
   (db as any).setSkipSave(true);
 
-  // Ensure full schema exists — safe to run on every startup (CREATE TABLE IF NOT EXISTS).
+  // Supabase: Schema should be created via Supabase SQL Editor (see migration plan).
+  // The following is a safety check — tables should already exist.
   try {
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS users (
-        id TEXT PRIMARY KEY,
-        first_name TEXT NOT NULL DEFAULT '',
-        last_name TEXT NOT NULL DEFAULT '',
-        email TEXT NOT NULL DEFAULT '',
-        phone TEXT NOT NULL DEFAULT '',
-        address TEXT NOT NULL DEFAULT '',
-        password TEXT NOT NULL DEFAULT '',
-        birth_date TEXT DEFAULT '',
-        parent_name TEXT DEFAULT '',
-        consent_document TEXT DEFAULT '',
-        iban TEXT DEFAULT '',
-        iban_holder TEXT DEFAULT '',
-        city TEXT DEFAULT '',
-        acting_training TEXT DEFAULT '',
-        acting_experience TEXT DEFAULT '',
-        profile_picture TEXT DEFAULT '',
-        role TEXT NOT NULL DEFAULT 'member',
-        status TEXT NOT NULL DEFAULT 'pending',
-        created_at TEXT NOT NULL DEFAULT (datetime('now'))
-      );
-      CREATE TABLE IF NOT EXISTS media (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        file_name TEXT NOT NULL DEFAULT '',
-        file_path TEXT NOT NULL DEFAULT '',
-        file_data TEXT NOT NULL DEFAULT '',
-        created_at TEXT NOT NULL DEFAULT (datetime('now')),
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      );
-      CREATE TABLE IF NOT EXISTS consents (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        version TEXT NOT NULL DEFAULT '1.0',
-        accepted_at TEXT NOT NULL DEFAULT (datetime('now')),
-        ip_address TEXT NOT NULL DEFAULT '',
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      );
-      CREATE TABLE IF NOT EXISTS projects (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL DEFAULT '',
-        description TEXT NOT NULL DEFAULT '',
-        created_by TEXT NOT NULL DEFAULT '',
-        status TEXT NOT NULL DEFAULT 'active',
-        created_at TEXT NOT NULL DEFAULT (datetime('now'))
-      );
-      CREATE TABLE IF NOT EXISTS assignments (
-        id TEXT PRIMARY KEY,
-        project_id TEXT NOT NULL,
-        user_id TEXT NOT NULL,
-        UNIQUE(project_id, user_id),
-        FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      );
-      CREATE TABLE IF NOT EXISTS payments (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        project_id TEXT NOT NULL,
-        date TEXT NOT NULL DEFAULT (date('now')),
-        gross_amount REAL NOT NULL DEFAULT 0,
-        deduction REAL NOT NULL DEFAULT 0,
-        net_amount REAL NOT NULL DEFAULT 0,
-        status TEXT NOT NULL DEFAULT 'unpaid',
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-      );
-      CREATE TABLE IF NOT EXISTS favorites (
-        id TEXT PRIMARY KEY,
-        client_id TEXT NOT NULL,
-        member_id TEXT NOT NULL,
-        FOREIGN KEY (client_id) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE
-      );
-      CREATE TABLE IF NOT EXISTS consent_text (
-        id INTEGER PRIMARY KEY DEFAULT 1,
-        content TEXT NOT NULL DEFAULT ''
-      );
-      CREATE TABLE IF NOT EXISTS verification_codes (
-        id TEXT PRIMARY KEY,
-        email TEXT NOT NULL,
-        code TEXT NOT NULL,
-        expires_at TEXT NOT NULL,
-        status TEXT NOT NULL DEFAULT 'pending',
-        created_at TEXT NOT NULL DEFAULT (datetime('now'))
-      );
-      CREATE TABLE IF NOT EXISTS member_legal_records (
-        id TEXT PRIMARY KEY,
-        email TEXT NOT NULL,
-        first_name TEXT DEFAULT '',
-        last_name TEXT DEFAULT '',
-        approved_at TEXT NOT NULL DEFAULT (datetime('now')),
-        contract_content TEXT NOT NULL DEFAULT '',
-        ip_address TEXT DEFAULT '',
-        user_agent TEXT DEFAULT ''
-      );
-    `);
-    console.log("✅ Main Schema ready");
+    const userCount = await db.prepare("SELECT COUNT(*) as cnt FROM users").get();
+    console.log(`✅ Main Schema ready (users: ${userCount?.cnt || 0})`);
   } catch (e) {
-    console.error("❌ Main Schema creation failed:", e);
+    console.error("❌ Schema check failed — have you created the tables in Supabase?", e);
   }
 
-  // Ensure member_legal_records exists (Independent check)
+  // Verify legal records table exists
   try {
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS member_legal_records (
-        id TEXT PRIMARY KEY,
-        email TEXT NOT NULL,
-        first_name TEXT DEFAULT '',
-        last_name TEXT DEFAULT '',
-        approved_at TEXT NOT NULL DEFAULT (datetime('now')),
-        contract_content TEXT NOT NULL DEFAULT '',
-        ip_address TEXT DEFAULT '',
-        user_agent TEXT DEFAULT ''
-      );
-    `);
+    await db.prepare("SELECT COUNT(*) as cnt FROM member_legal_records").get();
     console.log("✅ Legal records table verified");
   } catch (e) {
-    console.error("❌ Legal records table creation failed:", e);
+    console.error("❌ Legal records table not found — create it in Supabase SQL Editor", e);
   }
 
-  // Column migrations (safe to fail if already applied)
-  try {
-    db.exec("ALTER TABLE users ADD COLUMN profile_picture TEXT DEFAULT '';");
-  } catch (e) {}
+  // Column migrations handled in Supabase SQL Editor
 
   // Bootstrap default admins if they don't exist
   await bootstrapAdmins();
@@ -360,7 +239,7 @@ async function start() {
   if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
     app.listen(PORT, () => {
       console.log(`🚀 SanalOyuncular API Server running at http://localhost:${PORT}`);
-      console.log(`📦 Database: SQLite`);
+      console.log(`📦 Database: Supabase (PostgreSQL)`);
       console.log(`🔗 API: http://localhost:${PORT}/api/health`);
     });
   }

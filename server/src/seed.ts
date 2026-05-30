@@ -5,113 +5,17 @@ import { encryptField } from "./utils/cryptoUtil";
 async function seed() {
   await db.ready();
 
-  // ── Schema ──────────────────────────────────────────────────────────
-  console.log("🔧 Creating schema...");
-
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id TEXT PRIMARY KEY,
-      first_name TEXT NOT NULL DEFAULT '',
-      last_name TEXT NOT NULL DEFAULT '',
-      email TEXT NOT NULL DEFAULT '',
-      phone TEXT NOT NULL DEFAULT '',
-      address TEXT NOT NULL DEFAULT '',
-      password TEXT NOT NULL DEFAULT '',
-      birth_date TEXT DEFAULT '',
-      parent_name TEXT DEFAULT '',
-      consent_document TEXT DEFAULT '',
-      iban TEXT DEFAULT '',
-      iban_holder TEXT DEFAULT '',
-      city TEXT DEFAULT '',
-      acting_training TEXT DEFAULT '',
-      acting_experience TEXT DEFAULT '',
-      role TEXT NOT NULL DEFAULT 'member',
-      status TEXT NOT NULL DEFAULT 'pending',
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE TABLE IF NOT EXISTS media (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
-      file_name TEXT NOT NULL DEFAULT '',
-      file_path TEXT NOT NULL DEFAULT '',
-      file_data TEXT NOT NULL DEFAULT '',
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    );
-
-    CREATE TABLE IF NOT EXISTS consents (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
-      version TEXT NOT NULL DEFAULT '1.0',
-      accepted_at TEXT NOT NULL DEFAULT (datetime('now')),
-      ip_address TEXT NOT NULL DEFAULT '127.0.0.1',
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    );
-
-    CREATE TABLE IF NOT EXISTS projects (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL DEFAULT '',
-      description TEXT NOT NULL DEFAULT '',
-      created_by TEXT NOT NULL DEFAULT '',
-      status TEXT NOT NULL DEFAULT 'active',
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE TABLE IF NOT EXISTS assignments (
-      id TEXT PRIMARY KEY,
-      project_id TEXT NOT NULL,
-      user_id TEXT NOT NULL,
-      UNIQUE(project_id, user_id),
-      FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    );
-
-    CREATE TABLE IF NOT EXISTS payments (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
-      project_id TEXT NOT NULL,
-      date TEXT NOT NULL DEFAULT (date('now')),
-      gross_amount REAL NOT NULL DEFAULT 0,
-      deduction REAL NOT NULL DEFAULT 0,
-      net_amount REAL NOT NULL DEFAULT 0,
-      status TEXT NOT NULL DEFAULT 'unpaid',
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-      FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-    );
-
-    CREATE TABLE IF NOT EXISTS favorites (
-      id TEXT PRIMARY KEY,
-      client_id TEXT NOT NULL,
-      member_id TEXT NOT NULL,
-      FOREIGN KEY (client_id) REFERENCES users(id) ON DELETE CASCADE,
-      FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE
-    );
-
-    CREATE TABLE IF NOT EXISTS consent_text (
-      id INTEGER PRIMARY KEY DEFAULT 1,
-      content TEXT NOT NULL DEFAULT ''
-    );
-
-    CREATE TABLE IF NOT EXISTS verification_codes (
-      id TEXT PRIMARY KEY,
-      email TEXT NOT NULL,
-      code TEXT NOT NULL,
-      expires_at TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'pending',
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-  `);
+  console.log("🌱 Seeding data into Supabase...");
 
   // Check if already seeded
-  const userCount = db.prepare("SELECT COUNT(*) as cnt FROM users").get() as { cnt: number } | undefined;
+  const userCount = await db.prepare("SELECT COUNT(*) as cnt FROM users").get() as { cnt: number } | undefined;
   if (userCount && userCount.cnt > 0) {
     console.log("✅ Database already seeded, skipping.");
     process.exit(0);
     return;
   }
 
-  console.log("🌱 Seeding data...");
+  console.log("🌱 Inserting seed data...");
 
   // Users — passwords are hashed with bcrypt at seed time
   const insertUser = db.prepare(
@@ -132,7 +36,7 @@ async function seed() {
 
   for (const u of usersRaw) {
     const passwordHash = await bcrypt.hash(u[6] as string, 12);
-    insertUser.run(u[0], u[1], u[2], u[3], encryptField(u[4] as string), encryptField(u[5] as string), passwordHash, u[7], u[8], u[9]);
+    await insertUser.run(u[0], u[1], u[2], u[3], encryptField(u[4] as string), encryptField(u[5] as string), passwordHash, u[7], u[8], u[9]);
   }
 
   // Media
@@ -148,49 +52,49 @@ async function seed() {
     ["med6", "member3", "izmir_kordon.jpg", "/photos/izmir_kordon.jpg", "", "2025-03-22T10:00:00Z"],
   ];
   for (const m of mediaData) {
-    insertMedia.run(m[0], m[1], m[2], m[3], encryptField(m[4] as string), m[5]);
+    await insertMedia.run(m[0], m[1], m[2], m[3], encryptField(m[4] as string), m[5]);
   }
 
   // Consents
   const insertConsent = db.prepare(
     "INSERT INTO consents (id, user_id, version, accepted_at, ip_address) VALUES (?, ?, ?, ?, ?)"
   );
-  insertConsent.run("con1", "member1", "1.0", "2025-02-01T09:05:00Z", "192.168.1.10");
-  insertConsent.run("con2", "member2", "1.0", "2025-02-15T11:10:00Z", "192.168.1.20");
+  await insertConsent.run("con1", "member1", "1.0", "2025-02-01T09:05:00Z", "192.168.1.10");
+  await insertConsent.run("con2", "member2", "1.0", "2025-02-15T11:10:00Z", "192.168.1.20");
 
   // Projects
   const insertProject = db.prepare(
     "INSERT INTO projects (id, name, description, created_by, status, created_at) VALUES (?, ?, ?, ?, ?, ?)"
   );
-  insertProject.run("proj1", "İstanbul Tanıtım Kampanyası", "İstanbul'un turistik mekanlarının tanıtımı için fotoğraf projesi", "client1", "active", "2025-03-01T10:00:00Z");
-  insertProject.run("proj2", "E-Ticaret Ürün Çekimi", "Online mağaza için profesyonel ürün fotoğrafları", "admin1", "active", "2025-03-10T09:00:00Z");
-  insertProject.run("proj3", "Kurumsal Portre Serisi", "Şirket çalışanları için kurumsal portre fotoğrafları", "client2", "completed", "2025-02-01T08:00:00Z");
+  await insertProject.run("proj1", "İstanbul Tanıtım Kampanyası", "İstanbul'un turistik mekanlarının tanıtımı için fotoğraf projesi", "client1", "active", "2025-03-01T10:00:00Z");
+  await insertProject.run("proj2", "E-Ticaret Ürün Çekimi", "Online mağaza için profesyonel ürün fotoğrafları", "admin1", "active", "2025-03-10T09:00:00Z");
+  await insertProject.run("proj3", "Kurumsal Portre Serisi", "Şirket çalışanları için kurumsal portre fotoğrafları", "client2", "completed", "2025-02-01T08:00:00Z");
 
   // Assignments
   const insertAssignment = db.prepare("INSERT INTO assignments (id, project_id, user_id) VALUES (?, ?, ?)");
-  insertAssignment.run("asgn1", "proj1", "member1");
-  insertAssignment.run("asgn2", "proj1", "member2");
-  insertAssignment.run("asgn3", "proj2", "member1");
-  insertAssignment.run("asgn4", "proj3", "member2");
+  await insertAssignment.run("asgn1", "proj1", "member1");
+  await insertAssignment.run("asgn2", "proj1", "member2");
+  await insertAssignment.run("asgn3", "proj2", "member1");
+  await insertAssignment.run("asgn4", "proj3", "member2");
 
   // Payments
   const insertPayment = db.prepare(
     "INSERT INTO payments (id, user_id, project_id, date, gross_amount, deduction, net_amount, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
   );
-  insertPayment.run("pay1", "member1", "proj1", "2025-03-15", 5000, 1000, 4000, "paid");
-  insertPayment.run("pay2", "member2", "proj1", "2025-03-15", 4500, 900, 3600, "paid");
-  insertPayment.run("pay3", "member1", "proj2", "2025-03-25", 3000, 600, 2400, "unpaid");
-  insertPayment.run("pay4", "member2", "proj3", "2025-02-28", 6000, 1200, 4800, "paid");
+  await insertPayment.run("pay1", "member1", "proj1", "2025-03-15", 5000, 1000, 4000, "paid");
+  await insertPayment.run("pay2", "member2", "proj1", "2025-03-15", 4500, 900, 3600, "paid");
+  await insertPayment.run("pay3", "member1", "proj2", "2025-03-25", 3000, 600, 2400, "unpaid");
+  await insertPayment.run("pay4", "member2", "proj3", "2025-02-28", 6000, 1200, 4800, "paid");
 
   // Favorites
   const insertFavorite = db.prepare("INSERT INTO favorites (id, client_id, member_id) VALUES (?, ?, ?)");
-  insertFavorite.run("fav1", "client1", "member1");
-  insertFavorite.run("fav2", "client1", "member2");
-  insertFavorite.run("fav3", "client2", "member2");
+  await insertFavorite.run("fav1", "client1", "member1");
+  await insertFavorite.run("fav2", "client1", "member2");
+  await insertFavorite.run("fav3", "client2", "member2");
 
   // Consent text
-  db.prepare(
-    "INSERT OR REPLACE INTO consent_text (id, content) VALUES (1, ?)"
+  await db.prepare(
+    "INSERT INTO consent_text (id, content) VALUES (1, ?) ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content"
   ).run(
     "Bu sözleşme, SanalOyuncular üzerinden yüklenen fotoğrafların proje kapsamında kullanılmasına ilişkin koşulları belirler.\n\n1. Yüklenen tüm fotoğrafların telif hakkı üyeye aittir.\n2. Platform, fotoğrafları yalnızca onaylanan projeler kapsamında kullanma hakkına sahiptir.\n3. Her kullanım için üyeye hakediş ödemesi yapılacaktır.\n4. Üye, istediği zaman fotoğraflarını platformdan kaldırabilir.\n5. Bu sözleşme, dijital onay ile kabul edilmiş sayılır.\n\nSürüm: 1.0 | Son güncelleme: 2025-01-01"
   );

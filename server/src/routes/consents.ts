@@ -74,7 +74,7 @@ router.put("/text", protect, async (req: AuthenticatedRequest, res: Response) =>
     return res.status(403).json({ error: "Erişim engellendi. Sadece adminler sözleşme metnini güncelleyebilir." });
   }
   const { text } = req.body;
-  await db.prepare("INSERT OR REPLACE INTO consent_text (id, content) VALUES (1, ?)").run(text || "");
+  await db.prepare("INSERT INTO consent_text (id, content) VALUES (1, ?) ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content").run(text || "");
   res.json({ success: true });
 });
 

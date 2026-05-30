@@ -4,30 +4,21 @@ async function run() {
     await db.ready();
     console.log("Database Ready. Running migrations...");
     
-    // 1. users.profile_picture
-    try {
-        db.exec("ALTER TABLE users ADD COLUMN profile_picture TEXT DEFAULT '';");
-        console.log("✅ Added profile_picture to users");
-    } catch (e) {}
+    // Note: For Supabase, migrations should be done via SQL Editor.
+    // This script is kept for backward compatibility but all schema changes
+    // should be applied directly in Supabase Dashboard > SQL Editor.
 
-    // 2. verification_codes table
+    // Check tables exist
     try {
-        db.exec(`
-            CREATE TABLE IF NOT EXISTS verification_codes (
-                id TEXT PRIMARY KEY,
-                email TEXT NOT NULL,
-                code TEXT NOT NULL,
-                expires_at TEXT NOT NULL,
-                status TEXT NOT NULL DEFAULT 'pending',
-                created_at TEXT NOT NULL DEFAULT (datetime('now'))
-            );
-        `);
-        console.log("✅ Created verification_codes table");
-    } catch (e) {
-        console.error("❌ Failed to create verification_codes:", e);
+        const tables = await db.prepare(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name"
+        ).all();
+        console.log("✅ Existing tables:", tables.map((t: any) => t.table_name).join(", "));
+    } catch (e: any) {
+        console.error("❌ Failed to list tables:", e.message);
     }
 
-    console.log("Migration complete.");
+    console.log("Migration check complete.");
 }
 
 run();
