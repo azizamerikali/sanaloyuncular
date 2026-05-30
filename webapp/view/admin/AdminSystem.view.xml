@@ -16,7 +16,7 @@
 							<core:Icon src="sap-icon://status-completed" color="Positive" size="2rem" class="sapUiSmallMarginEnd" />
 							<VBox>
 								<Title text="Veritabanı Yedeği Al" level="H3" />
-								<Text text="Mevcut veritabanını .sqlite dosyası olarak bilgisayarınıza indirin." />
+								<Text text="Mevcut veritabanını .json dosyası olarak bilgisayarınıza indirin." />
 							</VBox>
 						</HBox>
 						<Button text="Yedek İndir" icon="sap-icon://download" type="Emphasized" press=".onDownloadBackup" width="200px" />
@@ -27,7 +27,7 @@
 							<core:Icon src="sap-icon://upload-to-cloud" color="Critical" size="2rem" class="sapUiSmallMarginEnd" />
 							<VBox>
 								<Title text="Veritabanı Yedeği Yükle" level="H3" />
-								<Text text="Dikkat: Bu işlem tüm mevcut verilerin üzerine yazacaktır! Sadece geçerli bir .sqlite dosyası yükleyin." />
+								<Text text="Dikkat: Bu işlem tüm mevcut verilerin üzerine yazacaktır! Sadece geçerli bir .json dosyası yükleyin." />
 							</VBox>
 						</HBox>
 						
@@ -35,8 +35,8 @@
 							<unified:FileUploader
 								id="dbFileUploader"
 								name="backup"
-								fileType="sqlite"
-								placeholder="Yedek dosyasını seçin (.sqlite)..."
+								fileType="json"
+								placeholder="Yedek dosyasını seçin (.json)..."
 								style="Emphasized"
 								width="400px"
 								change=".onFileChange" />

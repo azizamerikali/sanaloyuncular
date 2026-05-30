@@ -69,7 +69,7 @@ export default class AdminSystem extends BaseController {
 			const now = new Date();
 			const pad = (n: number) => String(n).padStart(2, "0");
 			const ts = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}`;
-			const fileName = `SanalOyuncular_Backup_${ts}.sqlite`;
+			const fileName = `SanalOyuncular_Backup_${ts}.json`;
 
 			const blob = await response.blob();
 			const blobUrl = window.URL.createObjectURL(blob);
