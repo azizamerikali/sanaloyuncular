@@ -27,7 +27,7 @@
 					<Table items="{cProjDetailData>/assignedMembers}" noDataText="{i18n>noMembers}"
 						autoPopinMode="true" fixedLayout="false">
 						<columns>
-							<Column width="60px">
+							<Column width="120px" hAlign="Center">
 								<Text text="" />
 							</Column>
 							<Column>
@@ -44,12 +44,13 @@
 							</Column>
 						</columns>
 						<items>
-							<ColumnListItem>
+							<ColumnListItem vAlign="Middle">
 								<Image src="{path: 'cProjDetailData>profilePicture', formatter: '.formatProfilePicture'}" 
-									width="40px" 
-									height="40px" 
+									width="90px" 
+									height="90px" 
 									densityAware="false" 
-									style="border-radius: 50%; object-fit: cover;" />
+									style="border-radius: 50%; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" 
+									class="sapUiTinyMarginTopBottom" />
 								<Text text="{cProjDetailData>firstName}" />
 								<Text text="{cProjDetailData>lastName}" />
 								<Text text="{cProjDetailData>email}" />
