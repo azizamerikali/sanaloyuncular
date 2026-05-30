@@ -33,7 +33,8 @@ const NAV_ITEMS: Record<string, NavItem[]> = {
 	client: [
 		{ key: "clientDashboard", title: "dashboardTitle", icon: "sap-icon://home", route: "clientDashboard" },
 		{ key: "clientMembers", title: "clientMembers", icon: "sap-icon://group", route: "clientMembers" },
-		{ key: "clientProjects", title: "clientProjects", icon: "sap-icon://project-definition-triangle-2", route: "clientProjects" }
+		{ key: "clientProjects", title: "clientProjects", icon: "sap-icon://project-definition-triangle-2", route: "clientProjects" },
+		{ key: "clientActorSelection", title: "clientActorSelection", icon: "sap-icon://add-contact", route: "clientActorSelection" }
 	]
 };
 

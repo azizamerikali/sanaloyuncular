@@ -1,0 +1,60 @@
+<mvc:View controllerName="com.openui5.webdb.controller.client.ClientActorSelection"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core" xmlns:f="sap.f">
+
+	<Page id="clientActorSelectionPage" title="{i18n>clientActorSelection}" showNavButton="false" class="sapUiContentPadding">
+		<content>
+			<VBox class="sapUiSmallMargin">
+				<HBox alignItems="Center" class="sapUiBottomMargin">
+					<Label text="Proje Seçimi: " class="sapUiSmallMarginEnd" design="Bold" />
+					<Select id="projectSelect" 
+							items="{cProjects>/projects}" 
+							change=".onProjectChange" 
+							width="300px"
+							forceSelection="false">
+						<core:Item key="{cProjects>id}" text="{cProjects>name}" />
+					</Select>
+				</HBox>
+
+				<!-- Mesaj eğer proje seçilmediyse -->
+				<MessageStrip id="noProjectMessage" 
+					text="Lütfen oyuncu eklemek veya çıkarmak için yukarıdan bir proje seçin." 
+					type="Information" 
+					showIcon="true" 
+					visible="true"
+					class="sapUiBottomMargin" />
+
+				<!-- Grid for Actors -->
+				<FlexBox id="actorsGrid" 
+					items="{cActorsData>/actors}" 
+					wrap="Wrap" 
+					justifyContent="SpaceBetween" 
+					visible="false">
+					<items>
+						<VBox class="sapUiSmallMargin sapUiTinyMarginBottom" 
+							width="200px" 
+							alignItems="Center" 
+							style="border: 1px solid #ddd; border-radius: 8px; padding: 10px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+							
+							<Image src="{path: 'cActorsData>profilePicture', formatter: '.formatProfilePicture'}" 
+								width="150px" 
+								height="150px" 
+								densityAware="false" 
+								class="sapUiTinyMarginBottom"
+								style="object-fit: cover; border-radius: 50%;" />
+							
+							<Title text="{cActorsData>firstName} {cActorsData>lastName}" level="H4" class="sapUiTinyMarginBottom" />
+							<Text text="{cActorsData>email}" class="sapUiTinyMarginBottom" />
+							
+							<!-- Action Button (Add / Remove) -->
+							<Button text="{= ${cActorsData>isAssigned} ? 'Çıkar' : 'Projeye Ekle'}" 
+									icon="{= ${cActorsData>isAssigned} ? 'sap-icon://delete' : 'sap-icon://add'}"
+									type="{= ${cActorsData>isAssigned} ? 'Reject' : 'Emphasized'}" 
+									press=".onToggleAssignment" 
+									width="100%" />
+						</VBox>
+					</items>
+				</FlexBox>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

@@ -87,7 +87,8 @@
 				{ "pattern": "client/projects", "name": "clientProjects", "target": "clientProjects" },
 				{ "pattern": "client/projects/{projectId}", "name": "clientProjectDetail", "target": "clientProjectDetail" },
 				{ "pattern": "admin/system", "name": "adminSystem", "target": "adminSystem" },
-				{ "pattern": "admin/legal", "name": "adminLegal", "target": "adminLegal" }
+				{ "pattern": "admin/legal", "name": "adminLegal", "target": "adminLegal" },
+				{ "pattern": "client/actor-selection", "name": "clientActorSelection", "target": "clientActorSelection" }
 			],
 			"targets": {
 				"login": { "id": "login", "name": "Login" },
@@ -110,7 +111,8 @@
 				"clientProjects": { "id": "clientProjects", "name": "client.ClientProjects" },
 				"clientProjectDetail": { "id": "clientProjectDetail", "name": "client.ClientProjectDetail" },
 				"adminSystem": { "id": "adminSystem", "name": "admin.AdminSystem" },
-				"adminLegal": { "id": "adminLegal", "name": "admin.AdminLegal" }
+				"adminLegal": { "id": "adminLegal", "name": "admin.AdminLegal" },
+				"clientActorSelection": { "id": "clientActorSelection", "name": "client.ClientActorSelection" }
 			}
 		}
 	}
