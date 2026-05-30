@@ -96,14 +96,21 @@ router.get("/count", protect, async (_req: Request, res: Response) => {
 
 // GET /api/users/:id
 router.get("/:id", protect, async (req: AuthenticatedRequest, res: Response) => {
-  // Admin: any user; Client: only their own profile; Member: only their own profile
-  if (req.user?.role !== "admin" && req.user?.id !== req.params.id) {
+  // Members can only view their own profile
+  if (req.user?.role === "member" && req.user?.id !== req.params.id) {
     return res.status(403).json({ error: "Erişim engellendi." });
   }
 
   const row = await db.prepare("SELECT * FROM users WHERE id = ?").get(req.params.id) as UserRow | undefined;
   if (!row) return res.status(404).json({ error: "Kullanıcı bulunamadı" });
-  res.json(toApi(row));
+
+  // Admins or users viewing themselves get full unmasked data
+  if (req.user?.role === "admin" || req.user?.id === req.params.id) {
+    res.json(toApi(row));
+  } else {
+    // Clients viewing members get masked data (IBAN, phone, address hidden/masked)
+    res.json(toApiMasked(row));
+  }
 });
 
 // POST /api/users
