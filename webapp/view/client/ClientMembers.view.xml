@@ -1,39 +1,43 @@
 <mvc:View controllerName="com.openui5.webdb.controller.client.ClientMembers"
-	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core"
+	xmlns:f="sap.f" xmlns:cssgrid="sap.ui.layout.cssgrid">
 
 	<Page id="clientMembersPage" title="{i18n>clientMembers}" showNavButton="false" class="sapUiContentPadding">
 		<content>
-			<Table items="{cMembersData>/members}"
+			<f:GridList items="{cMembersData>/members}"
 				noDataText="{i18n>noMembers}"
-				growing="true" growingThreshold="20">
-				<columns>
-					<Column>
-						<Text text="{i18n>firstName}" />
-					</Column>
-					<Column>
-						<Text text="{i18n>lastName}" />
-					</Column>
-					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
-						<Text text="{i18n>email}" />
-					</Column>
-					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
-						<Text text="Fotoğraf Sayısı" />
-					</Column>
-					<Column hAlign="End">
-						<Text text="Favori" />
-					</Column>
-				</columns>
-				<items>
-					<ColumnListItem>
-						<Text text="{cMembersData>firstName}" />
-						<Text text="{cMembersData>lastName}" />
-						<Text text="{cMembersData>email}" />
-						<Text text="{cMembersData>photoCount}" />
-						<Button icon="{= ${cMembersData>isFavorite} ? 'sap-icon://favorite' : 'sap-icon://unfavorite'}"
-							type="Transparent" press=".onToggleFavorite" />
-					</ColumnListItem>
-				</items>
-			</Table>
+				growing="true" growingThreshold="20"
+				showSeparators="None"
+				class="soMemberGrid sapUiNoContentPadding">
+				<f:customLayout>
+					<cssgrid:GridBoxLayout boxMinWidth="280px" />
+				</f:customLayout>
+				<f:GridListItem>
+					<VBox class="soMemberCard">
+						<HBox alignItems="Center" class="sapUiSmallMarginBottom">
+							<Avatar
+								initials="{cMembersData>initials}"
+								displaySize="M"
+								displayShape="Circle"
+								fallbackIcon="sap-icon://person-placeholder"
+								class="sapUiSmallMarginEnd" />
+							<VBox>
+								<Title text="{cMembersData>firstName} {cMembersData>lastName}"
+									level="H5" class="soMemberCardName" />
+								<Text text="{cMembersData>email}" class="soMemberCardEmail" />
+							</VBox>
+						</HBox>
+						<core:HTML content="&lt;hr class='soCardDivider'/&gt;" />
+						<HBox justifyContent="SpaceBetween" alignItems="Center">
+							<Text text="{= ${cMembersData>photoCount} + ' fotoğraf'}" class="soMemberCardEmail" />
+							<Button
+								icon="{= ${cMembersData>isFavorite} ? 'sap-icon://favorite' : 'sap-icon://unfavorite'}"
+								type="Transparent"
+								press=".onToggleFavorite" />
+						</HBox>
+					</VBox>
+				</f:GridListItem>
+			</f:GridList>
 		</content>
 	</Page>
 </mvc:View>

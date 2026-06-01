@@ -26,6 +26,7 @@ export default class ClientMembers extends BaseController {
 			const photoCount = await MediaService.getCountByUser(m.id);
 			members.push({
 				...m,
+				initials: `${m.firstName?.[0] || ""}${m.lastName?.[0] || ""}`.toUpperCase(),
 				photoCount: photoCount.toString(),
 				isFavorite: false // Favorites API needs standalone service
 			});

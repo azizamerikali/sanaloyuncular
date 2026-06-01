@@ -38,8 +38,8 @@
 }
 
 .photoSlot.activeSlot {
-    border-color: #3f51b1;
-    background-color: rgba(63, 81, 177, 0.1);
+    border-color: #000666;
+    background-color: rgba(0, 6, 102, 0.08);
 }
 
 /* === Responsive Header === */
@@ -68,4 +68,97 @@
     .soHeaderEmail {
         max-width: 90px;
     }
+}
+
+/* =============================================
+   New Design: Deep Corporate Blue Theme
+   Primary: #000666  |  Font: Inter
+   ============================================= */
+
+/* --- Font --- */
+:root {
+    --sapFontFamily: 'Inter', Arial, sans-serif;
+}
+
+body, .sapMText, .sapMTitle, .sapMInput .sapMInputBaseInner,
+.sapMLabel, .sapMBtn .sapMBtnInner, .sapTntNavLI,
+.sapMSF .sapMSFInner, .sapMIBar {
+    font-family: 'Inter', Arial, sans-serif !important;
+}
+
+/* --- Color Palette --- */
+:root {
+    --sapBrandColor:                             #000666;
+    --sapHighlightColor:                         #2b5bb5;
+    --sapActiveColor:                            #000666;
+    --sapContent_FocusColor:                     #2b5bb5;
+    --sapSelectedColor:                          #000666;
+
+    --sapButton_Emphasized_Background:           #000666;
+    --sapButton_Emphasized_BorderColor:          #000666;
+    --sapButton_Emphasized_TextColor:            #ffffff;
+    --sapButton_Emphasized_Hover_Background:     #1a237e;
+    --sapButton_Emphasized_Hover_BorderColor:    #1a237e;
+    --sapButton_Emphasized_Active_Background:    #000444;
+    --sapButton_Emphasized_Active_BorderColor:   #000444;
+
+    --sapBackgroundColor:                        #f7f9fc;
+    --sapShell_Background:                       #f7f9fc;
+    --sapContent_Background:                     #ffffff;
+
+    --sapTile_Background:                        #ffffff;
+    --sapTile_Hover_Background:                  #f2f4f7;
+    --sapTile_BorderColor:                       #e6e8eb;
+
+    --sapList_SelectionBackgroundColor:          rgba(0, 6, 102, 0.08);
+    --sapList_Hover_Background:                  rgba(0, 6, 102, 0.04);
+}
+
+/* --- Member Card Grid --- */
+.soMemberGrid {
+    padding: 16px;
+}
+
+/* Remove GridListItem default border/background */
+.soMemberGrid .sapFCardListItem,
+.soMemberGrid .sapMSLIDiv,
+.soMemberGrid .sapMLIB {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+/* The card itself */
+.soMemberCard {
+    padding: 16px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e6e8eb;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    height: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.soMemberCard:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #c6c5d4;
+}
+
+.soMemberCardName .sapMTitle {
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    color: #191c1e !important;
+}
+
+.soMemberCardEmail .sapMText {
+    font-size: 12px !important;
+    color: #454652 !important;
+}
+
+.soCardDivider {
+    border: none;
+    border-top: 1px solid #e6e8eb;
+    margin: 10px 0;
 }

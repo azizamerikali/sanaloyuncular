@@ -6,7 +6,6 @@ import Event from "sap/ui/base/Event";
 import Filter from "sap/ui/model/Filter";
 import FilterOperator from "sap/ui/model/FilterOperator";
 import ListBinding from "sap/ui/model/ListBinding";
-import Table from "sap/m/Table";
 import Dialog from "sap/m/Dialog";
 import UserService from "../../service/UserService";
 import formatter from "../../model/formatter";
@@ -27,6 +26,7 @@ export default class AdminMembers extends BaseController {
 		const users = await UserService.getByRole("member");
 		const members = users.map(m => ({
 			...m,
+			initials: `${m.firstName?.[0] || ""}${m.lastName?.[0] || ""}`.toUpperCase(),
 			statusText: formatter.formatStatus(m.status),
 			statusState: formatter.formatStatusState(m.status),
 			createdAtFormatted: formatter.formatDate(m.createdAt)
@@ -36,8 +36,8 @@ export default class AdminMembers extends BaseController {
 
 	public onSearchMembers(oEvent: Event): void {
 		const sQuery = oEvent.getParameter("newValue") as string;
-		const oTable = this.byId("adminMembersTable") as Table;
-		const oBinding = oTable.getBinding("items") as ListBinding;
+		const oGrid = this.byId("adminMembersGrid") as any;
+		const oBinding = oGrid.getBinding("items") as ListBinding;
 		const aFilters = sQuery ? [
 			new Filter({
 				filters: [
