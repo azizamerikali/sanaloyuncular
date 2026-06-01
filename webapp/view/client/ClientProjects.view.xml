@@ -1,5 +1,6 @@
 <mvc:View controllerName="com.openui5.webdb.controller.client.ClientProjects"
-	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core"
+	xmlns:f="sap.f" xmlns:cssgrid="sap.ui.layout.cssgrid">
 
 	<Page id="clientProjectsPage" title="{i18n>clientProjects}" showNavButton="false" class="sapUiContentPadding">
 		<headerContent>
@@ -7,36 +8,30 @@
 				press=".onCreateProject" />
 		</headerContent>
 		<content>
-			<Table items="{cProjData>/projects}"
+			<f:GridList items="{cProjData>/projects}"
 				noDataText="{i18n>noProjects}"
-				growing="true" growingThreshold="20">
-				<columns>
-					<Column>
-						<Text text="{i18n>projectName}" />
-					</Column>
-					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
-						<Text text="{i18n>projectDesc}" />
-					</Column>
-					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
-						<Text text="Üye Sayısı" />
-					</Column>
-					<Column minScreenWidth="Phone">
-						<Text text="{i18n>status}" />
-					</Column>
-					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
-						<Text text="{i18n>createdAt}" />
-					</Column>
-				</columns>
-				<items>
-					<ColumnListItem type="Navigation" press=".onProjectPress">
-						<Text text="{cProjData>name}" />
-						<Text text="{cProjData>description}" />
-						<Text text="{cProjData>memberCount}" />
-						<ObjectStatus text="{cProjData>statusText}" state="{cProjData>statusState}" />
-						<Text text="{cProjData>createdAtFormatted}" />
-					</ColumnListItem>
-				</items>
-			</Table>
+				growing="true" growingThreshold="20"
+				showSeparators="None"
+				class="soProjectGrid sapUiNoContentPadding">
+				<f:customLayout>
+					<cssgrid:GridBoxLayout boxMinWidth="300px" />
+				</f:customLayout>
+				<f:GridListItem type="Active" press=".onProjectPress">
+					<VBox class="soProjectCard">
+						<HBox justifyContent="SpaceBetween" alignItems="Start" class="sapUiSmallMarginBottom">
+							<Title text="{cProjData>name}" level="H5" class="soProjectTitle" />
+							<ObjectStatus text="{cProjData>statusText}" state="{cProjData>statusState}" />
+						</HBox>
+						<Text text="{cProjData>description}" class="soProjectDesc" />
+						<core:HTML content="&lt;hr class='soCardDivider'/&gt;" />
+						<HBox alignItems="Center">
+							<core:Icon src="sap-icon://group" class="sapUiTinyMarginEnd soMemberCardEmail" />
+							<Text text="{cProjData>memberCount}" class="soMemberCardEmail sapUiTinyMarginEnd" />
+							<Text text="{cProjData>createdAtFormatted}" class="soMemberCardEmail" />
+						</HBox>
+					</VBox>
+				</f:GridListItem>
+			</f:GridList>
 		</content>
 	</Page>
 </mvc:View>

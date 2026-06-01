@@ -22,7 +22,10 @@ export default class AdminClients extends BaseController {
 	private async loadData(): Promise<void> {
 		const users = await UserService.getByRole("client");
 		const clients = users.map(c => ({
-			...c, statusText: formatter.formatStatus(c.status), statusState: formatter.formatStatusState(c.status)
+			...c,
+			initials: `${c.firstName?.[0] || ""}${c.lastName?.[0] || ""}`.toUpperCase(),
+			statusText: formatter.formatStatus(c.status),
+			statusState: formatter.formatStatusState(c.status)
 		}));
 		this.getView().setModel(new JSONModel({ clients }), "clientData");
 	}

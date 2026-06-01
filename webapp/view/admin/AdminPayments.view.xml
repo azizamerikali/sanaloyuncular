@@ -7,7 +7,7 @@
 				press=".onCreatePayment" />
 		</headerContent>
 		<content>
-			<Table id="adminPaymentsTable" items="{payListData>/payments}"
+			<Table id="adminPaymentsTable" items="{payListData>/payments}" class="soDataTable"
 				noDataText="{i18n>noPayments}"
 				growing="true" growingThreshold="20">
 				<columns>

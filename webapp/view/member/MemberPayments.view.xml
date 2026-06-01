@@ -3,7 +3,7 @@
 
 	<Page id="memberPaymentsPage" title="{i18n>memberPayments}" showNavButton="false" class="sapUiContentPadding">
 		<content>
-			<Table id="memberPaymentsTable" items="{payData>/payments}"
+			<Table id="memberPaymentsTable" items="{payData>/payments}" class="soDataTable"
 				noDataText="{i18n>noPayments}"
 				growing="true" growingThreshold="20">
 				<columns>

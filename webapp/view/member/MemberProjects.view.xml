@@ -1,34 +1,29 @@
 <mvc:View controllerName="com.openui5.webdb.controller.member.MemberProjects"
-	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core"
+	xmlns:f="sap.f" xmlns:cssgrid="sap.ui.layout.cssgrid">
 
 	<Page id="memberProjectsPage" title="{i18n>memberProjects}" showNavButton="false" class="sapUiContentPadding">
 		<content>
-			<Table id="memberProjectsTable" items="{projData>/projects}"
+			<f:GridList items="{projData>/projects}"
 				noDataText="{i18n>noProjects}"
-				growing="true" growingThreshold="20">
-				<columns>
-					<Column>
-						<Text text="{i18n>projectName}" />
-					</Column>
-					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
-						<Text text="{i18n>projectDesc}" />
-					</Column>
-					<Column minScreenWidth="Phone">
-						<Text text="{i18n>status}" />
-					</Column>
-					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
-						<Text text="{i18n>createdAt}" />
-					</Column>
-				</columns>
-				<items>
-					<ColumnListItem>
-						<Text text="{projData>name}" />
-						<Text text="{projData>description}" />
-						<ObjectStatus text="{projData>statusText}" state="{projData>statusState}" />
-						<Text text="{projData>createdAtFormatted}" />
-					</ColumnListItem>
-				</items>
-			</Table>
+				growing="true" growingThreshold="20"
+				showSeparators="None"
+				class="soProjectGrid sapUiNoContentPadding">
+				<f:customLayout>
+					<cssgrid:GridBoxLayout boxMinWidth="300px" />
+				</f:customLayout>
+				<f:GridListItem type="Inactive">
+					<VBox class="soProjectCard">
+						<HBox justifyContent="SpaceBetween" alignItems="Start" class="sapUiSmallMarginBottom">
+							<Title text="{projData>name}" level="H5" class="soProjectTitle" />
+							<ObjectStatus text="{projData>statusText}" state="{projData>statusState}" />
+						</HBox>
+						<Text text="{projData>description}" class="soProjectDesc" />
+						<core:HTML content="&lt;hr class='soCardDivider'/&gt;" />
+						<Text text="{projData>createdAtFormatted}" class="soMemberCardEmail" />
+					</VBox>
+				</f:GridListItem>
+			</f:GridList>
 		</content>
 	</Page>
 </mvc:View>

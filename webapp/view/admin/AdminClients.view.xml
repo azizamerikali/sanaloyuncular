@@ -1,5 +1,6 @@
 <mvc:View controllerName="com.openui5.webdb.controller.admin.AdminClients"
-	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core"
+	xmlns:f="sap.f" xmlns:cssgrid="sap.ui.layout.cssgrid">
 
 	<Page id="adminClientsPage" title="{i18n>adminClients}" showNavButton="false" class="sapUiContentPadding">
 		<headerContent>
@@ -7,45 +8,41 @@
 				press=".onCreateClient" />
 		</headerContent>
 		<content>
-			<Table items="{clientData>/clients}"
+			<f:GridList items="{clientData>/clients}"
 				noDataText="{i18n>noClients}"
-				autoPopinMode="true" fixedLayout="false"
-				growing="true" growingThreshold="20">
-				<columns>
-					<Column>
-						<Text text="{i18n>firstName}" />
-					</Column>
-					<Column>
-						<Text text="{i18n>lastName}" />
-					</Column>
-					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
-						<Text text="{i18n>email}" />
-					</Column>
-					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
-						<Text text="Şifre" />
-					</Column>
-					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
-						<Text text="{i18n>phone}" />
-					</Column>
-					<Column minScreenWidth="Phone">
-						<Text text="{i18n>status}" />
-					</Column>
-					<Column hAlign="End" width="8rem">
-						<Text text="{i18n>actions}" />
-					</Column>
-				</columns>
-				<items>
-					<ColumnListItem>
-						<Text text="{clientData>firstName}" />
-						<Text text="{clientData>lastName}" />
-						<Text text="{clientData>email}" />
-						<Text text="{clientData>password}" />
-						<Text text="{clientData>phone}" />
-						<ObjectStatus text="{clientData>statusText}" state="{clientData>statusState}" />
-						<Button icon="sap-icon://delete" type="Reject" press=".onDeleteClient" />
-					</ColumnListItem>
-				</items>
-			</Table>
+				growing="true" growingThreshold="20"
+				showSeparators="None"
+				class="soMemberGrid sapUiNoContentPadding">
+				<f:customLayout>
+					<cssgrid:GridBoxLayout boxMinWidth="280px" />
+				</f:customLayout>
+				<f:GridListItem type="Inactive">
+					<VBox class="soMemberCard">
+						<HBox justifyContent="SpaceBetween" alignItems="Start">
+							<HBox alignItems="Center" class="sapUiSmallMarginBottom">
+								<Avatar
+									initials="{clientData>initials}"
+									displaySize="M"
+									displayShape="Circle"
+									fallbackIcon="sap-icon://person-placeholder"
+									class="sapUiSmallMarginEnd" />
+								<VBox>
+									<Title text="{clientData>firstName} {clientData>lastName}"
+										level="H5" class="soMemberCardName" />
+									<Text text="{clientData>email}" class="soMemberCardEmail" />
+									<Text text="{clientData>phone}" class="soMemberCardEmail" />
+								</VBox>
+							</HBox>
+							<ObjectStatus text="{clientData>statusText}" state="{clientData>statusState}" />
+						</HBox>
+						<core:HTML content="&lt;hr class='soCardDivider'/&gt;" />
+						<HBox justifyContent="End">
+							<Button icon="sap-icon://delete" type="Reject"
+								press=".onDeleteClient" tooltip="Sil" />
+						</HBox>
+					</VBox>
+				</f:GridListItem>
+			</f:GridList>
 		</content>
 	</Page>
 </mvc:View>

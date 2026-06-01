@@ -1,5 +1,6 @@
 <mvc:View controllerName="com.openui5.webdb.controller.admin.AdminProjects"
-	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core"
+	xmlns:f="sap.f" xmlns:cssgrid="sap.ui.layout.cssgrid">
 
 	<Page id="adminProjectsPage" title="{i18n>adminProjects}" showNavButton="false" class="sapUiContentPadding">
 		<headerContent>
@@ -7,41 +8,34 @@
 				press=".onCreateProject" />
 		</headerContent>
 		<content>
-			<Table id="adminProjectsTable" items="{projListData>/projects}"
-				noDataText="{i18n>noProjects}" mode="None"
-				autoPopinMode="true" fixedLayout="false"
-				growing="true" growingThreshold="20">
-				<columns>
-					<Column>
-						<Text text="{i18n>projectName}" />
-					</Column>
-					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
-						<Text text="{i18n>projectDesc}" />
-					</Column>
-					<Column minScreenWidth="Phone">
-						<Text text="{i18n>status}" />
-					</Column>
-					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
-						<Text text="Üye Sayısı" />
-					</Column>
-					<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
-						<Text text="{i18n>createdAt}" />
-					</Column>
-					<Column hAlign="End" width="8rem">
-						<Text text="{i18n>actions}" />
-					</Column>
-				</columns>
-				<items>
-					<ColumnListItem type="Navigation" press=".onProjectPress">
-						<Text text="{projListData>name}" />
-						<Text text="{projListData>description}" />
-						<ObjectStatus text="{projListData>statusText}" state="{projListData>statusState}" />
-						<Text text="{projListData>memberCount}" />
-						<Text text="{projListData>createdAtFormatted}" />
-						<Button icon="sap-icon://delete" type="Reject" press=".onDeleteProject" />
-					</ColumnListItem>
-				</items>
-			</Table>
+			<f:GridList id="adminProjectsGrid" items="{projListData>/projects}"
+				noDataText="{i18n>noProjects}"
+				growing="true" growingThreshold="20"
+				showSeparators="None"
+				class="soProjectGrid sapUiNoContentPadding">
+				<f:customLayout>
+					<cssgrid:GridBoxLayout boxMinWidth="300px" />
+				</f:customLayout>
+				<f:GridListItem type="Active" press=".onProjectPress">
+					<VBox class="soProjectCard">
+						<HBox justifyContent="SpaceBetween" alignItems="Start" class="sapUiSmallMarginBottom">
+							<Title text="{projListData>name}" level="H5" class="soProjectTitle" />
+							<ObjectStatus text="{projListData>statusText}" state="{projListData>statusState}" />
+						</HBox>
+						<Text text="{projListData>description}" class="soProjectDesc" />
+						<core:HTML content="&lt;hr class='soCardDivider'/&gt;" />
+						<HBox justifyContent="SpaceBetween" alignItems="Center">
+							<HBox alignItems="Center">
+								<core:Icon src="sap-icon://group" class="sapUiTinyMarginEnd soMemberCardEmail" />
+								<Text text="{projListData>memberCount}" class="soMemberCardEmail sapUiTinyMarginEnd" />
+								<Text text="{projListData>createdAtFormatted}" class="soMemberCardEmail" />
+							</HBox>
+							<Button icon="sap-icon://delete" type="Reject"
+								press=".onDeleteProject" tooltip="Sil" />
+						</HBox>
+					</VBox>
+				</f:GridListItem>
+			</f:GridList>
 		</content>
 	</Page>
 </mvc:View>
