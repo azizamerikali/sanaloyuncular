@@ -40,7 +40,6 @@
 							valueHelpRequest=".onProjectValueHelp" 
 							width="300px" />
 				</HBox>
-				<Text text="(Oyuncu eklemek/çıkarmak için proje seçimi zorunludur)" style="color: #999; font-size: 0.75rem; font-style: italic;" class="sapUiTinyMarginTop" />
 			</VBox>
 
 				<!-- Grid for Actors -->
