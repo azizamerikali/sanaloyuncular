@@ -330,49 +330,45 @@ body, .sapMText, .sapMTitle, .sapMInput .sapMInputBaseInner,
     color: #000666 !important;
 }
 
-/* --- Compact Actor Card for Selection --- */
-.soActorTile {
-    position: relative;
+/* --- Clean Actor Tile for Selection --- */
+.soCleanTile {
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    background: #e6e6e6;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background: #ffffff;
+    border: 1px solid #eaeaea;
 }
-.soActorTileImg {
+.soCleanTileImg {
     display: block;
     object-fit: cover;
     cursor: pointer;
 }
-.soActorTileBtn {
-    position: absolute !important;
-    top: 6px;
-    right: 6px;
-    width: 32px !important;
-    height: 32px !important;
-    border-radius: 50% !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important;
-    z-index: 10;
-    padding: 0 !important;
+.soCleanTileFooter {
+    padding: 4px 6px;
+    background: #ffffff;
+    border-top: 1px solid #f0f0f0;
 }
-.soActorTileBtn .sapMBtnInner {
-    padding: 0 !important;
-    border-radius: 50% !important;
-}
-.soActorTileNameBar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0,0,0,0.65);
-    padding: 6px 4px;
-    text-align: center;
-}
-.soActorTileName {
-    color: #fff !important;
-    font-size: 0.85rem !important;
-    font-weight: 500 !important;
+.soCleanTileName {
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    color: #333333 !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 80px; /* Butona yer bırakmak için */
     display: block;
+}
+.soCleanTileBtn {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.soCleanTileBtn .sapMBtnInner {
+    width: 26px !important;
+    height: 26px !important;
+    padding: 0 !important;
+    border-radius: 6px !important;
+}
+.soCleanTileBtn .sapMBtnIcon {
+    line-height: 26px !important;
+    font-size: 0.9rem !important;
 }
