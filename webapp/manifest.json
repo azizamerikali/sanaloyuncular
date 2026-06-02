@@ -51,8 +51,8 @@
 				"type": "sap.ui.model.resource.ResourceModel",
 				"settings": {
 					"bundleName": "com.openui5.webdb.i18n.i18n",
-					"supportedLocales": [""],
-					"fallbackLocale": "",
+					"supportedLocales": ["tr", "en"],
+					"fallbackLocale": "tr",
 					"async": true
 				}
 			}

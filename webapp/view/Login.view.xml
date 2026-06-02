@@ -28,23 +28,23 @@
 					</VBox>
 
 					<!-- Form Section -->
-					<VBox width="100%" class="sapUiSmallMarginTop">
-						<Title text="{i18n>memberLogin}" class="soLoginSectionTitle sapUiSmallMarginBottom" />
+					<VBox width="100%" class="sapUiTinyMarginTop">
+						<Title text="{i18n>memberLogin}" class="soLoginSectionTitle sapUiTinyMarginBottom" />
 						
 						<!-- Google Login -->
-						<core:HTML content='&lt;div id="googleButtonContainer" class="sapUiSmallMarginBottom" style="display:flex; justify-content:center; width:100%;"&gt;&lt;/div&gt;' />
+						<core:HTML content='&lt;div id="googleButtonContainer" class="sapUiTinyMarginBottom" style="display:flex; justify-content:center; width:100%;"&gt;&lt;/div&gt;' />
 
 						<!-- Divider -->
 						<core:HTML content="&lt;div class='soLoginDivider'&gt;{i18n>orText}&lt;/div&gt;" />
 
-						<VBox class="soLoginCard sapUiSmallMarginTop">
-							<Title text="{i18n>clientLogin}" class="soLoginSectionTitle sapUiSmallMarginBottom" />
+						<VBox class="soLoginCard sapUiTinyMarginTop">
+							<Title text="{i18n>clientLogin}" class="soLoginSectionTitle sapUiTinyMarginBottom" />
 							
 							<Label text="{i18n>username}" labelFor="usernameInput" />
-							<Input id="usernameInput" class="sapUiSmallMarginBottom" width="100%" valueLiveUpdate="true" />
+							<Input id="usernameInput" class="sapUiTinyMarginBottom" width="100%" valueLiveUpdate="true" />
 
 							<Label text="{i18n>password}" labelFor="passwordInput" />
-							<Input id="passwordInput" type="Password" class="sapUiMediumMarginBottom" width="100%" valueLiveUpdate="true" />
+							<Input id="passwordInput" type="Password" class="sapUiSmallMarginBottom" width="100%" valueLiveUpdate="true" />
 
 							<Button text="{i18n>loginTitle}" type="Emphasized" width="100%" 
 								press=".onLoginPress" />
