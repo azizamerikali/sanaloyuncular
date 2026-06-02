@@ -5,11 +5,109 @@
 
 /* === Login / Register Page centering === */
 .antigravityLoginBg {
-    background-color: var(--sapBackgroundColor, #f5f6f7);
+    background: linear-gradient(135deg, #f8f9fa 0%, #e0ebf5 100%) !important;
 }
 
 .antigravityLoginBg .sapMPageBgSolid {
-    background-color: var(--sapBackgroundColor, #f5f6f7) !important;
+    background: transparent !important;
+}
+
+/* === New Login Redesign === */
+.soLoginContainer {
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+.soLoginLogo {
+    color: #1a365d !important;
+    font-size: 4rem !important;
+}
+.soLoginTitle {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    color: #1a365d !important;
+}
+.soLoginSubtitle {
+    font-size: 1rem !important;
+    color: #4a5568 !important;
+}
+.soLoginSectionTitle {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: #1a202c !important;
+}
+/* Input wrapper for left icons */
+.soLoginInputWrapper {
+    background: #f7fafc;
+    border: 1px solid #cbd5e0;
+    border-radius: 12px;
+    padding: 0 12px;
+    height: 48px;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+.soLoginInputWrapper:focus-within {
+    border-color: #3182ce;
+    box-shadow: 0 0 0 1px #3182ce;
+    background: #ffffff;
+}
+.soLoginInputIcon {
+    color: #a0aec0 !important;
+    font-size: 1.2rem !important;
+    margin-right: 12px !important;
+}
+.soLoginInput .sapMInputBaseInner {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    height: 46px !important;
+    padding: 0 !important;
+    font-size: 1rem !important;
+    color: #4a5568 !important;
+}
+/* Login Button */
+.soLoginBtn {
+    border-radius: 24px !important;
+}
+.soLoginBtn .sapMBtnInner {
+    background: #0d1b2a !important;
+    border-color: #0d1b2a !important;
+    border-radius: 24px !important;
+    height: 48px !important;
+    text-shadow: none !important;
+    box-shadow: 0 4px 6px rgba(13, 27, 42, 0.2) !important;
+}
+.soLoginBtn .sapMBtnContent {
+    line-height: 48px !important;
+    color: #ffffff !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+}
+.soLoginBtn:hover .sapMBtnInner {
+    background: #1b263b !important;
+    border-color: #1b263b !important;
+}
+/* Divider */
+.soLoginDivider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #a0aec0;
+    margin: 1.5rem 0;
+    width: 100%;
+}
+.soLoginDivider::before,
+.soLoginDivider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e2e8f0;
+}
+.soLoginDivider:not(:empty)::before {
+    margin-right: .5em;
+}
+.soLoginDivider:not(:empty)::after {
+    margin-left: .5em;
 }
 
 .loginCard {
