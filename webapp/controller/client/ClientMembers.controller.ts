@@ -63,6 +63,10 @@ export default class ClientMembers extends BaseController {
 		if (!user) return;
 		const allMembers = await UserService.getByRole("member");
 		const activeMembers = allMembers.filter(m => m.status === "active");
+		
+		const favs = StorageService.get<IFavorite[]>("favorites") || [];
+		const userFavs = favs.filter(f => f.clientId === user.id).map(f => f.memberId);
+
 		const members = [];
 		for (const m of activeMembers) {
 			const photoCount = await MediaService.getCountByUser(m.id);
@@ -70,9 +74,19 @@ export default class ClientMembers extends BaseController {
 				...m,
 				initials: `${m.firstName?.[0] || ""}${m.lastName?.[0] || ""}`.toUpperCase(),
 				photoCount: photoCount.toString(),
-				isFavorite: false // Favorites API needs standalone service
+				isFavorite: userFavs.includes(m.id)
 			});
 		}
+
+		members.sort((a, b) => {
+			if (a.isFavorite && !b.isFavorite) return -1;
+			if (!a.isFavorite && b.isFavorite) return 1;
+			
+			const nameA = `${a.firstName || ""} ${a.lastName || ""}`.toLowerCase();
+			const nameB = `${b.firstName || ""} ${b.lastName || ""}`.toLowerCase();
+			return nameA.localeCompare(nameB);
+		});
+
 		this.getView().setModel(new JSONModel({ members }), "cMembersData");
 	}
 

@@ -317,7 +317,7 @@ body, .sapMText, .sapMTitle, .sapMInput .sapMInputBaseInner,
     color: #767683 !important;
 }
 .soStarButtonActive {
-    color: #2b5bb5 !important; /* Secondary container or warning color depending on fav */
+    color: #ffc107 !important; /* Yellow/Gold for favorite star */
 }
 .soPhotoCountText {
     font-size: 14px !important;
