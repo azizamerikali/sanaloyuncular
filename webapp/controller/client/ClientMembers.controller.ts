@@ -8,6 +8,47 @@ import MediaService from "../../service/MediaService";
 import StorageService from "../../service/StorageService";
 import type { IFavorite } from "../../model/MockData";
 import { API_BASE } from "../../service/ApiClient";
+import Dialog from "sap/m/Dialog";
+
+// ── Member photo slider (module-level state) ────────────────────────────────
+let _mPhotos: string[] = [];
+let _mIndex = 0;
+
+function _mRender(): void {
+	const img = document.getElementById("so-member-img") as HTMLImageElement | null;
+	const counter = document.getElementById("so-member-counter") as HTMLElement | null;
+	if (!img) return;
+	img.style.opacity = "0";
+	setTimeout(() => {
+		img.src = _mPhotos[_mIndex] || "";
+		if (counter) counter.textContent = `${_mIndex + 1} / ${_mPhotos.length}`;
+		img.style.opacity = "1";
+	}, 150);
+}
+
+(window as any).soMemberPrev = () => {
+	if (_mPhotos.length === 0) return;
+	_mIndex = (_mIndex - 1 + _mPhotos.length) % _mPhotos.length;
+	_mRender();
+};
+(window as any).soMemberNext = () => {
+	if (_mPhotos.length === 0) return;
+	_mIndex = (_mIndex + 1) % _mPhotos.length;
+	_mRender();
+};
+(window as any).soMemberDownload = () => {
+	const src = _mPhotos[_mIndex];
+	if (!src) return;
+	const link = document.createElement("a");
+	link.href = src;
+	const mimeMatch = src.match(/^data:image\/(\w+);base64,/);
+	const ext = mimeMatch ? mimeMatch[1] : "jpg";
+	link.download = `uye_fotograf_${_mIndex + 1}.${ext}`;
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+};
+// ────────────────────────────────────────────────────────────────────────────
 
 /**
  * @namespace com.openui5.webdb.controller.client
@@ -61,5 +102,54 @@ export default class ClientMembers extends BaseController {
 			return profilePicture;
 		}
 		return `${API_BASE}${profilePicture}`;
+	}
+
+	public async onNavigateToMemberDetail(oEvent: Event): Promise<void> {
+		const oCtx = (oEvent.getSource() as any).getBindingContext("cMembersData");
+		const member = oCtx.getObject();
+
+		const oDialog = this.byId("memberDetailDialog") as Dialog;
+		const oHtml = this.byId("memberPhotosHtml") as any;
+		const oNoPhotos = this.byId("memberNoPhotosBox") as any;
+
+		this.getView().setBusy(true);
+		try {
+			const mediaList = await MediaService.getByUser(member.id);
+
+			if (!mediaList || mediaList.length === 0) {
+				oHtml.setVisible(false);
+				oNoPhotos.setVisible(true);
+			} else {
+				oHtml.setVisible(true);
+				oNoPhotos.setVisible(false);
+				_mPhotos = new Array(mediaList.length).fill("");
+				_mIndex = 0;
+			}
+
+			oDialog.setTitle(`${member.firstName} ${member.lastName} - Fotoğraflar`);
+			oDialog.open();
+
+			if (mediaList && mediaList.length > 0) {
+				mediaList.forEach(async (photo: any, index: number) => {
+					try {
+						const content = await MediaService.getContent(photo.id);
+						if (content) {
+							_mPhotos[index] = content;
+							if (index === _mIndex) _mRender();
+						}
+					} catch (e) {
+						console.error("Fotoğraf yüklenemedi:", photo.id, e);
+					}
+				});
+			}
+		} catch {
+			MessageToast.show("Fotoğraflar yüklenirken hata oluştu.");
+		} finally {
+			this.getView().setBusy(false);
+		}
+	}
+
+	public onCloseMemberDetail(): void {
+		(this.byId("memberDetailDialog") as Dialog).close();
 	}
 }
