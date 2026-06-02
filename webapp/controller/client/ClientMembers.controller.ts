@@ -59,35 +59,40 @@ export default class ClientMembers extends BaseController {
 	}
 
 	private async loadData(): Promise<void> {
-		const user = AuthService.getCurrentUser();
-		if (!user) return;
-		const allMembers = await UserService.getByRole("member");
-		const activeMembers = allMembers.filter(m => m.status === "active");
-		
-		const favs = StorageService.get<IFavorite[]>("favorites") || [];
-		const userFavs = favs.filter(f => f.clientId === user.id).map(f => f.memberId);
-
-		const members = [];
-		for (const m of activeMembers) {
-			const photoCount = await MediaService.getCountByUser(m.id);
-			members.push({
-				...m,
-				initials: `${m.firstName?.[0] || ""}${m.lastName?.[0] || ""}`.toUpperCase(),
-				photoCount: photoCount.toString(),
-				isFavorite: userFavs.includes(m.id)
-			});
-		}
-
-		members.sort((a, b) => {
-			if (a.isFavorite && !b.isFavorite) return -1;
-			if (!a.isFavorite && b.isFavorite) return 1;
+		this.getView().setBusy(true);
+		try {
+			const user = AuthService.getCurrentUser();
+			if (!user) return;
+			const allMembers = await UserService.getByRole("member");
+			const activeMembers = allMembers.filter(m => m.status === "active");
 			
-			const nameA = `${a.firstName || ""} ${a.lastName || ""}`.toLowerCase();
-			const nameB = `${b.firstName || ""} ${b.lastName || ""}`.toLowerCase();
-			return nameA.localeCompare(nameB);
-		});
+			const favs = StorageService.get<IFavorite[]>("favorites") || [];
+			const userFavs = favs.filter(f => f.clientId === user.id).map(f => f.memberId);
 
-		this.getView().setModel(new JSONModel({ members }), "cMembersData");
+			const members = [];
+			for (const m of activeMembers) {
+				const photoCount = await MediaService.getCountByUser(m.id);
+				members.push({
+					...m,
+					initials: `${m.firstName?.[0] || ""}${m.lastName?.[0] || ""}`.toUpperCase(),
+					photoCount: photoCount.toString(),
+					isFavorite: userFavs.includes(m.id)
+				});
+			}
+
+			members.sort((a, b) => {
+				if (a.isFavorite && !b.isFavorite) return -1;
+				if (!a.isFavorite && b.isFavorite) return 1;
+				
+				const nameA = `${a.firstName || ""} ${a.lastName || ""}`.toLowerCase();
+				const nameB = `${b.firstName || ""} ${b.lastName || ""}`.toLowerCase();
+				return nameA.localeCompare(nameB);
+			});
+
+			this.getView().setModel(new JSONModel({ members }), "cMembersData");
+		} finally {
+			this.getView().setBusy(false);
+		}
 	}
 
 	public onToggleFavorite(oEvent: Event): void {

@@ -6,6 +6,7 @@
 /* === Login / Register Page centering === */
 .antigravityLoginBg {
     background: linear-gradient(135deg, #f8f9fa 0%, #e0ebf5 100%) !important;
+    min-height: 100vh !important;
 }
 
 .antigravityLoginBg .sapMPageBgSolid {

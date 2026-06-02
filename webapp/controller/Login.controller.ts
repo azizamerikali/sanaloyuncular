@@ -96,6 +96,7 @@ export default class Login extends BaseController {
 	}
 
 	private async loginAsUser(userId: string, password?: string): Promise<void> {
+		this.getView().setBusy(true);
 		try {
 			const user = await AuthService.login(userId, password);
 			if (user) {
@@ -123,6 +124,8 @@ export default class Login extends BaseController {
 			}
 		} catch (error: any) {
 			MessageToast.show(error.message || "Giriş sırasında bir hata oluştu.");
+		} finally {
+			this.getView().setBusy(false);
 		}
 	}
 

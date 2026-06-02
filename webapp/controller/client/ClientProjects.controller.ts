@@ -22,24 +22,29 @@ export default class ClientProjects extends BaseController {
 	}
 
 	private async loadData(): Promise<void> {
-		const user = AuthService.getCurrentUser();
-		if (!user) return;
-		
-		const allProjects = await ProjectService.getAll();
-		const clientProjects = allProjects.filter(p => p.createdBy === user.id);
-		
-		const projects = [];
-		for (const p of clientProjects) {
-			const assignments = await ProjectService.getAssignmentsByProject(p.id);
-			projects.push({
-				...p,
-				statusText: formatter.formatStatus(p.status),
-				statusState: formatter.formatStatusState(p.status),
-				createdAtFormatted: formatter.formatDate(p.createdAt),
-				memberCount: assignments.length.toString()
-			});
+		this.getView().setBusy(true);
+		try {
+			const user = AuthService.getCurrentUser();
+			if (!user) return;
+			
+			const allProjects = await ProjectService.getAll();
+			const clientProjects = allProjects.filter(p => p.createdBy === user.id);
+			
+			const projects = [];
+			for (const p of clientProjects) {
+				const assignments = await ProjectService.getAssignmentsByProject(p.id);
+				projects.push({
+					...p,
+					statusText: formatter.formatStatus(p.status),
+					statusState: formatter.formatStatusState(p.status),
+					createdAtFormatted: formatter.formatDate(p.createdAt),
+					memberCount: assignments.length.toString()
+				});
+			}
+			this.getView().setModel(new JSONModel({ projects }), "cProjData");
+		} finally {
+			this.getView().setBusy(false);
 		}
-		this.getView().setModel(new JSONModel({ projects }), "cProjData");
 	}
 
 	public onCreateProject(): void {

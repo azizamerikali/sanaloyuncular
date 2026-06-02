@@ -29,22 +29,27 @@ export default class ClientProjectDetail extends BaseController {
 	}
 
 	private async loadData(): Promise<void> {
-		const proj = await ProjectService.getById(this.projectId);
-		if (!proj) { this.onNavBack(); return; }
-		const assignments = await ProjectService.getAssignmentsByProject(this.projectId);
-		
-		const members = [];
-		for (const a of assignments) {
-			const u = await UserService.getById(a.userId);
-			if (u) members.push(u);
+		this.getView().setBusy(true);
+		try {
+			const proj = await ProjectService.getById(this.projectId);
+			if (!proj) { this.onNavBack(); return; }
+			const assignments = await ProjectService.getAssignmentsByProject(this.projectId);
+			
+			const members = [];
+			for (const a of assignments) {
+				const u = await UserService.getById(a.userId);
+				if (u) members.push(u);
+			}
+			
+			this.getView().setModel(new JSONModel({
+				...proj,
+				statusText: formatter.formatStatus(proj.status),
+				statusState: formatter.formatStatusState(proj.status),
+				assignedMembers: members
+			}), "cProjDetailData");
+		} finally {
+			this.getView().setBusy(false);
 		}
-		
-		this.getView().setModel(new JSONModel({
-			...proj,
-			statusText: formatter.formatStatus(proj.status),
-			statusState: formatter.formatStatusState(proj.status),
-			assignedMembers: members
-		}), "cProjDetailData");
 	}
 
 	public async onAssignFavorite(): Promise<void> {
