@@ -40,6 +40,24 @@ function _renderSlide(): void {
 	_renderSlide();
 };
 
+(window as any).soDownloadPhoto = () => {
+	const src = _sliderPhotos[_sliderIndex];
+	if (!src) return;
+
+	// base64 data URL'ini dosya olarak indir
+	const link = document.createElement("a");
+	link.href = src;
+
+	// Uzantıyı mime tipinden çıkar
+	const mimeMatch = src.match(/^data:image\/(\w+);base64,/);
+	const ext = mimeMatch ? mimeMatch[1] : "jpg";
+	link.download = `oyuncu_fotograf_${_sliderIndex + 1}.${ext}`;
+
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+};
+
 /**
  * @namespace com.openui5.webdb.controller.client
  */
