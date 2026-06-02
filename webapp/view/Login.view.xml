@@ -20,6 +20,14 @@
 
 					<!-- Form Section -->
 					<VBox width="100%" class="sapUiLargeMarginTop">
+						<Title text="Üye Girişi" class="soLoginSectionTitle sapUiSmallMarginBottom" />
+						
+						<!-- Google Login -->
+						<core:HTML content='&lt;div id="googleButtonContainer" class="sapUiSmallMarginBottom" style="display:flex; justify-content:center; width:100%;"&gt;&lt;/div&gt;' />
+
+						<!-- Divider -->
+						<core:HTML content="&lt;div class='soLoginDivider'&gt;Veya&lt;/div&gt;" />
+
 						<Title text="Müşteri Girişi" class="soLoginSectionTitle sapUiSmallMarginBottom" />
 						
 						<Label text="Kullanıcı Adı" labelFor="usernameInput" />
@@ -30,12 +38,6 @@
 
 						<Button text="Giriş Yap" type="Emphasized" width="100%" 
 							press=".onLoginPress" class="soLoginBtn sapUiSmallMarginBottom" />
-
-						<!-- Divider -->
-						<core:HTML content="&lt;div class='soLoginDivider'&gt;Veya&lt;/div&gt;" />
-
-						<!-- Google Login -->
-						<core:HTML content='&lt;div id="googleButtonContainer" class="sapUiSmallMarginBottom" style="display:flex; justify-content:center; width:100%;"&gt;&lt;/div&gt;' />
 					</VBox>
 				</VBox>
 
