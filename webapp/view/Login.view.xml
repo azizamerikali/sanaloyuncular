@@ -19,21 +19,17 @@
 					</VBox>
 
 					<!-- Form Section -->
-					<VBox width="100%">
-						<Title text="Müşteri Girişi" class="soLoginSectionTitle" />
+					<VBox width="100%" class="sapUiLargeMarginTop">
+						<Title text="Müşteri Girişi" class="soLoginSectionTitle sapUiSmallMarginBottom" />
 						
-						<HBox alignItems="Center" class="soLoginInputWrapper sapUiSmallMarginBottom">
-							<core:Icon src="sap-icon://person-placeholder" class="soLoginInputIcon" />
-							<Input id="usernameInput" placeholder="Kullanıcı Adı" class="soLoginInput" width="100%" valueLiveUpdate="true" />
-						</HBox>
+						<Label text="Kullanıcı Adı" labelFor="usernameInput" />
+						<Input id="usernameInput" class="sapUiSmallMarginBottom" width="100%" valueLiveUpdate="true" />
 
-						<HBox alignItems="Center" class="soLoginInputWrapper sapUiSmallMarginBottom">
-							<core:Icon src="sap-icon://locked" class="soLoginInputIcon" />
-							<Input id="passwordInput" placeholder="Şifre" type="Password" class="soLoginInput" width="100%" valueLiveUpdate="true" />
-						</HBox>
+						<Label text="Şifre" labelFor="passwordInput" />
+						<Input id="passwordInput" type="Password" class="sapUiMediumMarginBottom" width="100%" valueLiveUpdate="true" />
 
 						<Button text="Giriş Yap" type="Emphasized" width="100%" 
-							press=".onLoginPress" class="soLoginBtn sapUiSmallMarginBottom sapUiTinyMarginTop" />
+							press=".onLoginPress" class="soLoginBtn sapUiSmallMarginBottom" />
 
 						<!-- Divider -->
 						<core:HTML content="&lt;div class='soLoginDivider'&gt;Veya&lt;/div&gt;" />
