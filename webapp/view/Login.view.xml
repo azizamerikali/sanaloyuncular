@@ -10,33 +10,37 @@
 			<FlexBox alignItems="Center" justifyContent="Center" height="100%" width="100%"
 				fitContainer="true" direction="Column">
 
-				<VBox class="soLoginContainer" alignItems="Center">
-					<!-- Header Section -->
-					<core:Icon src="sap-icon://unwired" class="soLoginLogo" />
-					<Title text="{i18n>appTitle}" class="soLoginTitle sapUiTinyMarginBottom" />
-					<Text text="{i18n>loginSubtitle}" class="soLoginSubtitle sapUiMediumMarginBottom" />
+				<VBox class="soLoginContainer">
+					<!-- Header Section (Centered) -->
+					<VBox alignItems="Center" width="100%">
+						<core:Icon src="sap-icon://photo-voltaic" class="soLoginLogo" />
+						<Title text="{i18n>appTitle}" class="soLoginTitle sapUiTinyMarginBottom" />
+						<Text text="{i18n>loginSubtitle}" class="soLoginSubtitle sapUiMediumMarginBottom" />
+					</VBox>
 
 					<!-- Form Section -->
-					<Title text="Müşteri Girişi" class="soLoginSectionTitle" />
-					
-					<HBox alignItems="Center" class="soLoginInputWrapper">
-						<core:Icon src="sap-icon://person-placeholder" class="soLoginInputIcon" />
-						<Input id="usernameInput" placeholder="Kullanıcı Adı" class="soLoginInput" width="100%" valueLiveUpdate="true" />
-					</HBox>
+					<VBox width="100%">
+						<Title text="Müşteri Girişi" class="soLoginSectionTitle" />
+						
+						<HBox alignItems="Center" class="soLoginInputWrapper sapUiSmallMarginBottom">
+							<core:Icon src="sap-icon://person-placeholder" class="soLoginInputIcon" />
+							<Input id="usernameInput" placeholder="Kullanıcı Adı" class="soLoginInput" width="100%" valueLiveUpdate="true" />
+						</HBox>
 
-					<HBox alignItems="Center" class="soLoginInputWrapper">
-						<core:Icon src="sap-icon://locked" class="soLoginInputIcon" />
-						<Input id="passwordInput" placeholder="Şifre" type="Password" class="soLoginInput" width="100%" valueLiveUpdate="true" />
-					</HBox>
+						<HBox alignItems="Center" class="soLoginInputWrapper sapUiSmallMarginBottom">
+							<core:Icon src="sap-icon://locked" class="soLoginInputIcon" />
+							<Input id="passwordInput" placeholder="Şifre" type="Password" class="soLoginInput" width="100%" valueLiveUpdate="true" />
+						</HBox>
 
-					<Button text="Giriş Yap" type="Emphasized" width="100%" 
-						press=".onLoginPress" class="soLoginBtn sapUiSmallMarginBottom sapUiTinyMarginTop" />
+						<Button text="Giriş Yap" type="Emphasized" width="100%" 
+							press=".onLoginPress" class="soLoginBtn sapUiSmallMarginBottom sapUiTinyMarginTop" />
 
-					<!-- Divider -->
-					<core:HTML content="&lt;div class='soLoginDivider'&gt;Veya&lt;/div&gt;" />
+						<!-- Divider -->
+						<core:HTML content="&lt;div class='soLoginDivider'&gt;Veya&lt;/div&gt;" />
 
-					<!-- Google Login -->
-					<core:HTML content='&lt;div id="googleButtonContainer" class="sapUiSmallMarginBottom" style="display:flex; justify-content:center; width:100%;"&gt;&lt;/div&gt;' />
+						<!-- Google Login -->
+						<core:HTML content='&lt;div id="googleButtonContainer" class="sapUiSmallMarginBottom" style="display:flex; justify-content:center; width:100%;"&gt;&lt;/div&gt;' />
+					</VBox>
 				</VBox>
 
 			</FlexBox>
