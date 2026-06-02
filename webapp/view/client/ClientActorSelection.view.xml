@@ -7,7 +7,7 @@
 				<content>
 					<Carousel id="actorPhotosCarousel" pages="{cPhotosData>/photos}" height="100%" loop="true">
 						<pages>
-							<Image src="{path: 'cPhotosData>filePath', formatter: '.formatProfilePicture'}" width="100%" height="100%" densityAware="false" style="object-fit: contain;" />
+							<Image src="{cPhotosData>fileData}" width="100%" height="100%" densityAware="false" style="object-fit: contain; border-radius: 8px;" />
 						</pages>
 					</Carousel>
 					<VBox id="noPhotosBox" visible="false" alignItems="Center" justifyContent="Center" height="100%" class="sapUiMediumMargin">

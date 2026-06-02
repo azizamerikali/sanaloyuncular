@@ -42,8 +42,13 @@ export default class MemberProfile extends BaseController {
 		if (!user) return;
 		const remoteUser = await UserService.getById(user.id);
 		const fresh = remoteUser || user;
+
+		// Sunucudan profil fotoğrafı gelmediyse session'dakini koru
+		const profilePicture = fresh.profilePicture || user.profilePicture || "";
+
 		const oModel = new JSONModel({
 			...fresh,
+			profilePicture,
 			statusText: formatter.formatStatus(fresh.status),
 			statusState: formatter.formatStatusState(fresh.status),
 			createdAtFormatted: formatter.formatDate(fresh.createdAt)

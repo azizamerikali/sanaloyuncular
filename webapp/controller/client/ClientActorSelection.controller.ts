@@ -138,23 +138,40 @@ export default class ClientActorSelection extends BaseController {
 		this.getView().setBusy(true);
 		try {
 			const mediaList = await MediaService.getByUser(actor.id);
-			let photos = mediaList;
-			
+
 			const oDialog = this.byId("actorDetailDialog") as Dialog;
 			const oCarousel = this.byId("actorPhotosCarousel") as any;
 			const oNoPhotosBox = this.byId("noPhotosBox") as any;
-			
-			if (photos && photos.length > 0) {
+
+			if (mediaList && mediaList.length > 0) {
 				oCarousel.setVisible(true);
 				oNoPhotosBox.setVisible(false);
+
+				// Önce boş src ile aç, sonra arka planda içerikleri yükle
+				const photos = mediaList.map(m => ({ ...m, fileData: "" }));
+				const oModel = new JSONModel({ photos });
+				this.getView().setModel(oModel, "cPhotosData");
+				oDialog.setTitle(`${actor.firstName} ${actor.lastName} - Fotoğraflar`);
+				oDialog.open();
+
+				// İçerikleri arka planda yükle
+				photos.forEach(async (photo, index) => {
+					try {
+						const content = await MediaService.getContent(photo.id);
+						if (content) {
+							oModel.setProperty(`/photos/${index}/fileData`, content);
+						}
+					} catch (e) {
+						console.error("Fotoğraf içeriği yüklenemedi:", photo.id, e);
+					}
+				});
 			} else {
 				oCarousel.setVisible(false);
 				oNoPhotosBox.setVisible(true);
+				this.getView().setModel(new JSONModel({ photos: [] }), "cPhotosData");
+				oDialog.setTitle(`${actor.firstName} ${actor.lastName} - Fotoğraflar`);
+				oDialog.open();
 			}
-
-			this.getView().setModel(new JSONModel({ photos }), "cPhotosData");
-			oDialog.setTitle(`${actor.firstName} ${actor.lastName} - Fotoğraflar`);
-			oDialog.open();
 
 		} catch (e: any) {
 			MessageToast.show("Fotoğraflar yüklenirken bir hata oluştu.");
