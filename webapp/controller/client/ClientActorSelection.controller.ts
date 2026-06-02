@@ -12,6 +12,34 @@ import SelectDialog from "sap/m/SelectDialog";
 import Filter from "sap/ui/model/Filter";
 import FilterOperator from "sap/ui/model/FilterOperator";
 
+// Slider state (module-level, lives alongside controller)
+let _sliderPhotos: string[] = [];
+let _sliderIndex = 0;
+
+function _renderSlide(): void {
+	const img = document.getElementById("so-slide-img") as HTMLImageElement | null;
+	const counter = document.getElementById("so-slide-counter") as HTMLElement | null;
+	if (!img) return;
+	img.style.opacity = "0";
+	setTimeout(() => {
+		img.src = _sliderPhotos[_sliderIndex] || "";
+		if (counter) counter.textContent = `${_sliderIndex + 1} / ${_sliderPhotos.length}`;
+		img.style.opacity = "1";
+	}, 150);
+}
+
+(window as any).soPrevPhoto = () => {
+	if (_sliderPhotos.length === 0) return;
+	_sliderIndex = (_sliderIndex - 1 + _sliderPhotos.length) % _sliderPhotos.length;
+	_renderSlide();
+};
+
+(window as any).soNextPhoto = () => {
+	if (_sliderPhotos.length === 0) return;
+	_sliderIndex = (_sliderIndex + 1) % _sliderPhotos.length;
+	_renderSlide();
+};
+
 /**
  * @namespace com.openui5.webdb.controller.client
  */
@@ -135,42 +163,44 @@ export default class ClientActorSelection extends BaseController {
 		const oCtx = oImage.getBindingContext("cActorsData");
 		const actor = oCtx.getObject();
 
+		const oDialog = this.byId("actorDetailDialog") as Dialog;
+		const oNoPhotosBox = this.byId("noPhotosBox") as any;
+		const oHtmlContainer = this.byId("actorPhotosHtml") as any;
+
 		this.getView().setBusy(true);
 		try {
 			const mediaList = await MediaService.getByUser(actor.id);
 
-			const oDialog = this.byId("actorDetailDialog") as Dialog;
-			const oCarousel = this.byId("actorPhotosCarousel") as any;
-			const oNoPhotosBox = this.byId("noPhotosBox") as any;
-
-			if (mediaList && mediaList.length > 0) {
-				oCarousel.setVisible(true);
+			if (!mediaList || mediaList.length === 0) {
+				oHtmlContainer.setVisible(false);
+				oNoPhotosBox.setVisible(true);
+			} else {
+				oHtmlContainer.setVisible(true);
 				oNoPhotosBox.setVisible(false);
 
-				// Önce boş src ile aç, sonra arka planda içerikleri yükle
-				const photos = mediaList.map(m => ({ ...m, fileData: "" }));
-				const oModel = new JSONModel({ photos });
-				this.getView().setModel(oModel, "cPhotosData");
-				oDialog.setTitle(`${actor.firstName} ${actor.lastName} - Fotoğraflar`);
-				oDialog.open();
+				// Slider’ı sıfırla, dialog’u aç
+				_sliderPhotos = new Array(mediaList.length).fill("");
+				_sliderIndex = 0;
+			}
 
-				// İçerikleri arka planda yükle
-				photos.forEach(async (photo, index) => {
+			oDialog.setTitle(`${actor.firstName} ${actor.lastName} - Fotoğraflar`);
+			oDialog.open();
+
+			if (mediaList && mediaList.length > 0) {
+				// İlk fotoğrafı önceliğli yükle, sonra geri kalanlar
+				mediaList.forEach(async (photo, index) => {
 					try {
 						const content = await MediaService.getContent(photo.id);
 						if (content) {
-							oModel.setProperty(`/photos/${index}/fileData`, content);
+							_sliderPhotos[index] = content;
+							if (index === _sliderIndex) {
+								_renderSlide();
+							}
 						}
 					} catch (e) {
 						console.error("Fotoğraf içeriği yüklenemedi:", photo.id, e);
 					}
 				});
-			} else {
-				oCarousel.setVisible(false);
-				oNoPhotosBox.setVisible(true);
-				this.getView().setModel(new JSONModel({ photos: [] }), "cPhotosData");
-				oDialog.setTitle(`${actor.firstName} ${actor.lastName} - Fotoğraflar`);
-				oDialog.open();
 			}
 
 		} catch (e: any) {
