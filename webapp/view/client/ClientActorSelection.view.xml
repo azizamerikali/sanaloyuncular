@@ -30,7 +30,8 @@
 
 		<content>
 			<VBox>
-				<HBox alignItems="Center" class="sapUiBottomMargin">
+				<VBox class="sapUiTinyMarginBottom">
+				<HBox alignItems="Center">
 					<Label text="Proje: " class="sapUiSmallMarginEnd" design="Bold" />
 					<Input id="projectInput" 
 							placeholder="Proje Seçin..." 
@@ -38,8 +39,9 @@
 							valueHelpOnly="true"
 							valueHelpRequest=".onProjectValueHelp" 
 							width="300px" />
-					<Text text="(Oyuncu eklemek/çıkarmak için proje seçimi zorunludur)" class="sapUiSmallMarginLeft" style="color: #666; font-size: 0.9em; font-style: italic;" />
 				</HBox>
+				<Text text="(Oyuncu eklemek/çıkarmak için proje seçimi zorunludur)" style="color: #999; font-size: 0.75rem; font-style: italic;" class="sapUiTinyMarginTop" />
+			</VBox>
 
 				<!-- Grid for Actors -->
 				<FlexBox id="actorsGrid" 
