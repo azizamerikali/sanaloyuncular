@@ -256,15 +256,33 @@ body, .sapMText, .sapMTitle, .sapMInput .sapMInputBaseInner,
         background-color: #ffffff;
     }
 
-    .soPageContainer {
-        padding-bottom: 64px !important;
+    /* SAP UI5 Page scroll container — içerik alt navbar'ın altında kalmasın */
+    .sapMPage > section,
+    .sapMPageScroll,
+    .sapMPageWithHeader .sapMPageScroll,
+    .sapMPageSection {
+        padding-bottom: 72px !important;
+        box-sizing: border-box !important;
     }
 
-    /* Adjust the standard TNT side navigation display on mobile */
-    .sapTntToolPageSideNavigation {
-        /* let the framework handle side menu off-canvas logic, but we can hide toggle button if desired */
+    /* TNT ToolPage ana içerik alanı — alt navbar kadar boşluk */
+    .sapTntToolPageMain {
+        padding-bottom: 64px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* NavContainer / Page height — alt navbar kadar küçülsün */
+    .sapMNav,
+    .sapMNavItemRendering {
+        height: calc(100% - 64px) !important;
+    }
+
+    /* Tile grid mobile */
+    .tileContainer {
+        padding-bottom: 16px !important;
     }
 }
+
 
 .soMobileBottomNav .sapMITBHead {
     margin: 0 !important;
