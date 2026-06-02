@@ -28,16 +28,18 @@
 						<!-- Divider -->
 						<core:HTML content="&lt;div class='soLoginDivider'&gt;Veya&lt;/div&gt;" />
 
-						<Title text="Müşteri Girişi" class="soLoginSectionTitle sapUiSmallMarginBottom" />
-						
-						<Label text="Kullanıcı Adı" labelFor="usernameInput" />
-						<Input id="usernameInput" class="sapUiSmallMarginBottom" width="100%" valueLiveUpdate="true" />
+						<VBox class="soLoginCard sapUiMediumMarginTop">
+							<Title text="Müşteri Girişi" class="soLoginSectionTitle sapUiSmallMarginBottom" />
+							
+							<Label text="Kullanıcı Adı" labelFor="usernameInput" />
+							<Input id="usernameInput" class="sapUiSmallMarginBottom" width="100%" valueLiveUpdate="true" />
 
-						<Label text="Şifre" labelFor="passwordInput" />
-						<Input id="passwordInput" type="Password" class="sapUiMediumMarginBottom" width="100%" valueLiveUpdate="true" />
+							<Label text="Şifre" labelFor="passwordInput" />
+							<Input id="passwordInput" type="Password" class="sapUiMediumMarginBottom" width="100%" valueLiveUpdate="true" />
 
-						<Button text="Giriş Yap" type="Emphasized" width="100%" 
-							press=".onLoginPress" class="soLoginBtn sapUiSmallMarginBottom" />
+							<Button text="Giriş Yap" type="Emphasized" width="100%" 
+								press=".onLoginPress" />
+						</VBox>
 					</VBox>
 				</VBox>
 

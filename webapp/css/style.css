@@ -12,12 +12,19 @@
     background: transparent !important;
 }
 
-/* === New Login Redesign === */
+/* --- New Login Redesign --- */
 .soLoginContainer {
     max-width: 400px;
     width: 100%;
     margin: 0 auto;
     padding: 2rem 1.5rem;
+}
+.soLoginCard {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+    border: 1px solid #eaeaea;
 }
 .soLoginLogo {
     color: #1a365d !important;
@@ -39,30 +46,6 @@
 }
 /* Input Fields are standard SAP UI5 */
 
-/* Login Button */
-.soLoginBtn {
-    border-radius: 24px !important;
-    display: block !important;
-    width: 100% !important;
-}
-.soLoginBtn .sapMBtnInner {
-    background: #0d1b2a !important;
-    border-color: #0d1b2a !important;
-    border-radius: 24px !important;
-    height: 48px !important;
-    text-shadow: none !important;
-    box-shadow: 0 4px 6px rgba(13, 27, 42, 0.2) !important;
-}
-.soLoginBtn .sapMBtnContent {
-    line-height: 48px !important;
-    color: #ffffff !important;
-    font-size: 1.1rem !important;
-    font-weight: 600 !important;
-}
-.soLoginBtn:hover .sapMBtnInner {
-    background: #1b263b !important;
-    border-color: #1b263b !important;
-}
 /* Divider */
 .soLoginDivider {
     display: flex;
