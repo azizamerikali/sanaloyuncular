@@ -12,7 +12,7 @@
 				growing="true" growingThreshold="20">
 				<columns>
 					<Column>
-						<Text text="Fotoğraf" />
+						<Text text="{i18n>photo}" />
 					</Column>
 					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
 						<Text text="{i18n>uploadDate}" />
