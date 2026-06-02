@@ -1,5 +1,7 @@
 <mvc:View controllerName="com.openui5.webdb.controller.client.ClientProjectDetail"
-	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core"
+	xmlns:form="sap.ui.layout.form"
+	xmlns:f="sap.f" xmlns:cssgrid="sap.ui.layout.cssgrid">
 
 	<Page id="clientProjectDetailPage" title="{i18n>projectDetail}" showNavButton="true"
 		navButtonPress=".onNavBack" class="sapUiContentPadding">
@@ -27,7 +29,7 @@
 					<Table items="{cProjDetailData>/assignedMembers}" noDataText="{i18n>noMembers}"
 						autoPopinMode="true" fixedLayout="false">
 						<columns>
-							<Column width="120px" hAlign="Center">
+							<Column width="100px" hAlign="Center">
 								<Text text="" />
 							</Column>
 							<Column>
@@ -44,12 +46,10 @@
 							</Column>
 						</columns>
 						<items>
-							<ColumnListItem vAlign="Middle">
-								<Image src="{path: 'cProjDetailData>profilePicture', formatter: '.formatProfilePicture'}" 
-									width="90px" 
-									height="90px" 
-									densityAware="false" 
-									style="border-radius: 50%; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" 
+							<ColumnListItem vAlign="Middle" type="Active" press=".onMemberPress">
+								<Image src="{path: 'cProjDetailData>profilePicture', formatter: '.formatProfilePicture'}"
+									width="80px" height="80px" densityAware="false"
+									style="border-radius: 50%; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
 									class="sapUiTinyMarginTopBottom" />
 								<Text text="{cProjDetailData>firstName}" />
 								<Text text="{cProjDetailData>lastName}" />
@@ -62,5 +62,106 @@
 				</Panel>
 			</VBox>
 		</content>
+
+		<dependents>
+			<!-- Üye Detay Dialog -->
+			<Dialog id="memberDetailDialog"
+				contentWidth="680px"
+				verticalScrolling="true"
+				resizable="true"
+				draggable="true"
+				stretch="{device>/system/phone}">
+				<customHeader>
+					<Bar>
+						<contentLeft>
+							<Avatar src="{memberDetailData>/profilePicture}"
+								initials="{memberDetailData>/initials}"
+								displaySize="S" displayShape="Circle"
+								fallbackIcon="sap-icon://person-placeholder"
+								class="sapUiTinyMarginEnd" />
+							<Title text="{memberDetailData>/fullName}" level="H4" />
+						</contentLeft>
+						<contentRight>
+							<Button icon="sap-icon://decline" type="Transparent" press=".onCloseMemberDetail" />
+						</contentRight>
+					</Bar>
+				</customHeader>
+				<content>
+					<VBox class="sapUiMediumMarginBeginEnd sapUiSmallMarginTopBottom">
+
+						<!-- Profil Bilgileri -->
+						<Title text="Profil Bilgileri" level="H5" class="sapUiSmallMarginBottom" />
+						<form:SimpleForm editable="false" layout="ResponsiveGridLayout"
+							labelSpanXL="4" labelSpanL="4" labelSpanM="4" labelSpanS="12"
+							columnsXL="2" columnsL="2" columnsM="1">
+							<form:content>
+								<Label text="E-posta" />
+								<Text text="{memberDetailData>/email}" />
+								<Label text="Telefon" />
+								<Text text="{memberDetailData>/phone}" />
+								<Label text="Şehir" />
+								<Text text="{memberDetailData>/city}" />
+								<Label text="Doğum Tarihi" />
+								<Text text="{memberDetailData>/birthDate}" />
+								<Label text="Oyunculuk Eğitimi" />
+								<Text text="{= ${memberDetailData>/actingTraining} || '—'}" />
+								<Label text="Oyunculuk Deneyimi" />
+								<Text text="{= ${memberDetailData>/actingExperience} || '—'}" />
+							</form:content>
+						</form:SimpleForm>
+
+						<!-- Fotoğraflar -->
+						<core:HTML content="&lt;hr class='soCardDivider' style='margin:16px 0'/&gt;" />
+						<HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+							<Title text="Fotoğraflar" level="H5" />
+							<Text text="{= ${memberDetailData>/photoCount} + ' fotoğraf'}"
+								class="soMemberCardEmail" />
+						</HBox>
+
+						<f:GridList id="memberPhotoGrid"
+							items="{memberDetailData>/photos}"
+							noDataText="Fotoğraf bulunamadı"
+							showSeparators="None"
+							growing="false">
+							<f:customLayout>
+								<cssgrid:GridBoxLayout boxMinWidth="160px" />
+							</f:customLayout>
+							<f:GridListItem type="Active" press=".onPhotoPress">
+								<VBox>
+									<Image src="{= ${memberDetailData>fileData} ? ${memberDetailData>fileData} : ''}"
+										width="100%" height="160px" densityAware="false"
+										visible="{= !!${memberDetailData>fileData}}"
+										style="object-fit:cover; border-radius:8px;" />
+									<core:Icon
+										src="sap-icon://attachment-photo"
+										size="4rem" color="#c6c5d4"
+										visible="{= !${memberDetailData>fileData}}"
+										style="display:flex; align-items:center; justify-content:center; height:160px; border-radius:8px; background:#f2f4f7;" />
+									<Text text="{memberDetailData>fileName}"
+										class="soMemberCardEmail sapUiTinyMarginTop"
+										maxLines="1" />
+								</VBox>
+							</f:GridListItem>
+						</f:GridList>
+
+					</VBox>
+				</content>
+				<beginButton>
+					<Button text="Kapat" press=".onCloseMemberDetail" />
+				</beginButton>
+			</Dialog>
+
+			<!-- Fotoğraf Tam Ekran Önizleme -->
+			<Dialog id="photoPreviewDialog" contentWidth="80vw" contentHeight="80vh" resizable="true">
+				<content>
+					<VBox alignItems="Center" justifyContent="Center" height="100%" class="sapUiContentPadding">
+						<Image src="{photoPreview>/src}" width="auto" height="100%" densityAware="false" />
+					</VBox>
+				</content>
+				<buttons>
+					<Button text="Kapat" press=".onClosePhotoPreview" />
+				</buttons>
+			</Dialog>
+		</dependents>
 	</Page>
 </mvc:View>

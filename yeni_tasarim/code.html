@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SanalOyuncular - Üyeler</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-fixed": "#d9e2ff",
+                      "on-background": "#191c1e",
+                      "surface-container-highest": "#e0e3e6",
+                      "primary-fixed-dim": "#bdc2ff",
+                      "surface-variant": "#e0e3e6",
+                      "on-primary": "#ffffff",
+                      "surface-container-low": "#f2f4f7",
+                      "inverse-primary": "#bdc2ff",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed-variant": "#343d96",
+                      "tertiary": "#001c35",
+                      "surface-bright": "#f7f9fc",
+                      "surface-container-high": "#e6e8eb",
+                      "error-container": "#ffdad6",
+                      "on-error": "#ffffff",
+                      "inverse-on-surface": "#eff1f4",
+                      "on-secondary-fixed-variant": "#00429c",
+                      "outline": "#767683",
+                      "surface": "#f7f9fc",
+                      "primary-container": "#1a237e",
+                      "on-secondary": "#ffffff",
+                      "secondary-fixed-dim": "#b0c6ff",
+                      "error": "#ba1a1a",
+                      "tertiary-container": "#003157",
+                      "on-tertiary-fixed": "#001d36",
+                      "secondary-container": "#759efd",
+                      "outline-variant": "#c6c5d4",
+                      "tertiary-fixed": "#d1e4ff",
+                      "primary": "#000666",
+                      "on-primary-fixed": "#000767",
+                      "on-secondary-fixed": "#001945",
+                      "on-secondary-container": "#00337c",
+                      "on-surface": "#191c1e",
+                      "background": "#f7f9fc",
+                      "surface-tint": "#4c56af",
+                      "on-tertiary-container": "#2c9bf9",
+                      "secondary": "#2b5bb5",
+                      "on-primary-container": "#8690ee",
+                      "on-tertiary-fixed-variant": "#00497d",
+                      "on-tertiary": "#ffffff",
+                      "primary-fixed": "#e0e0ff",
+                      "inverse-surface": "#2d3133",
+                      "surface-container": "#eceef1",
+                      "surface-dim": "#d8dadd",
+                      "on-surface-variant": "#454652",
+                      "tertiary-fixed-dim": "#9ecaff",
+                      "surface-container-lowest": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "gutter": "24px",
+                      "sm": "12px",
+                      "xl": "32px",
+                      "sidebar-width": "260px",
+                      "xs": "4px",
+                      "margin-desktop": "32px",
+                      "md": "16px",
+                      "lg": "24px",
+                      "base": "8px"
+              },
+              "fontFamily": {
+                      "label-md": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "headline-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Mobile specific hiding rules for navs */
+        @media (max-width: 767px) {
+            .desktop-sidebar { display: none !important; }
+        }
+        @media (min-width: 768px) {
+            .mobile-bottom-nav { display: none !important; }
+            .mobile-top-bar { display: none !important; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md antialiased h-screen overflow-hidden flex flex-col md:flex-row">
+<!-- TopAppBar (Mobile Only) -->
+<header class="mobile-top-bar docked full-width top-0 bg-surface-container-lowest dark:bg-inverse-surface shadow-sm dark:shadow-none flex justify-between items-center w-full px-margin-mobile h-14 z-40 transition-colors duration-200">
+<div class="flex items-center gap-4">
+<button aria-label="Menu" class="text-on-surface-variant hover:bg-surface-container rounded-full p-2">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<span class="text-headline-sm font-headline-sm font-bold text-secondary dark:text-secondary-fixed-dim">SanalOyuncular</span>
+</div>
+<div class="flex items-center">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-label-sm mr-2">
+                ÖB
+            </div>
+<button aria-label="Logout" class="text-on-surface-variant hover:bg-surface-container rounded-full p-2">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+</button>
+</div>
+</header>
+<!-- NavigationDrawer (Desktop Only) -->
+<nav class="desktop-sidebar fixed left-0 top-0 h-full w-[260px] bg-surface dark:bg-on-background shadow-xl flex flex-col py-lg z-40 flex-shrink-0 transition-all duration-300 ease-in-out">
+<div class="px-gutter mb-6 flex items-center justify-between">
+<span class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed-dim">SanalOyuncular</span>
+<button aria-label="Menu" class="text-on-surface-variant hover:bg-surface-container-high rounded-full p-2">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+<div class="px-gutter mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-label-md">
+                ÖB
+            </div>
+<div class="flex flex-col overflow-hidden">
+<span class="text-label-md font-label-md truncate">Öner Biberkökü</span>
+<span class="text-label-sm text-on-surface-variant truncate">oner.biberkoku@gm...</span>
+</div>
+<button aria-label="Logout" class="ml-auto text-on-surface-variant hover:bg-surface-container-high rounded-full p-1">
+<span class="material-symbols-outlined text-sm" data-icon="logout">logout</span>
+</button>
+</div>
+<ul class="flex flex-col gap-1 px-2 flex-grow">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all duration-300 ease-in-out text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Kullanıcı Paneli
+                </a>
+</li>
+<li>
+<!-- Active State Applied Here: Üyeler -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant dark:bg-secondary-container dark:text-on-secondary-container rounded-r-full font-bold hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all duration-300 ease-in-out text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined filled" data-icon="group" data-weight="fill">group</span>
+                    Üyeler
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all duration-300 ease-in-out text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="folder_special">folder_special</span>
+                    Projeler
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all duration-300 ease-in-out text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="person_search">person_search</span>
+                    Oyuncu Seç
+                </a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col md:ml-[260px] h-full overflow-hidden bg-background">
+<!-- Desktop Header Area for Content -->
+<div class="hidden md:flex items-center justify-between px-margin-desktop py-lg border-b border-surface-container-highest bg-surface-container-lowest">
+<h1 class="text-headline-md font-headline-md font-bold text-on-surface">Üyeler</h1>
+<div class="flex items-center gap-4">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 rounded-lg border border-outline-variant bg-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-body-md transition-colors" placeholder="Üye Ara..." type="text"/>
+</div>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg text-label-md font-label-md hover:bg-primary-container transition-colors flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    Yeni Üye
+                </button>
+</div>
+</div>
+<!-- Mobile Header Area for Content -->
+<div class="md:hidden px-margin-mobile py-4 flex flex-col gap-4 bg-surface-container-lowest border-b border-surface-container-highest z-10 shadow-sm">
+<div class="flex items-center justify-between">
+<h1 class="text-headline-sm font-headline-sm font-bold text-on-surface">Üyeler</h1>
+<button class="bg-primary text-on-primary w-8 h-8 rounded-full flex items-center justify-center hover:bg-primary-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-body-md transition-colors" placeholder="Üye Ara..." type="text"/>
+</div>
+</div>
+<!-- Scrollable Content Area -->
+<div class="flex-grow overflow-y-auto p-margin-mobile md:p-margin-desktop bg-background pb-24 md:pb-margin-desktop">
+<!-- Bento/Grid Layout for Member Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter">
+<!-- Member Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-surface-container-high hover:shadow-md transition-shadow duration-200 relative group flex flex-col h-full">
+<button aria-label="Favorilere Ekle" class="absolute top-4 right-4 text-outline hover:text-secondary-container transition-colors p-1">
+<span class="material-symbols-outlined" data-icon="star_border">star_border</span>
+</button>
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-primary-fixed text-on-primary-fixed-variant flex items-center justify-center font-bold text-headline-sm">
+                            AA
+                        </div>
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface line-clamp-1">Aziz Akal</h2>
+<p class="text-label-sm font-label-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">mail</span>
+                                azizamerikali@gmail.com
+                            </p>
+</div>
+</div>
+<div class="mt-auto flex items-center justify-between pt-4 border-t border-surface-container-high">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">photo_library</span>
+<span class="text-body-md font-body-md">3 Fotoğraf</span>
+</div>
+<button class="text-primary text-label-sm font-label-md hover:underline">Detaylar</button>
+</div>
+</div>
+<!-- Member Card 2 (Mock Data for visual weight) -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-surface-container-high hover:shadow-md transition-shadow duration-200 relative group flex flex-col h-full">
+<button aria-label="Favorilerden Çıkar" class="absolute top-4 right-4 text-secondary-container p-1">
+<span class="material-symbols-outlined filled" data-icon="star" data-weight="fill">star</span>
+</button>
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center font-bold text-headline-sm">
+                            MY
+                        </div>
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface line-clamp-1">Mehmet Yılmaz</h2>
+<p class="text-label-sm font-label-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">mail</span>
+                                myilmaz@example.com
+                            </p>
+</div>
+</div>
+<div class="mt-auto flex items-center justify-between pt-4 border-t border-surface-container-high">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">photo_library</span>
+<span class="text-body-md font-body-md">12 Fotoğraf</span>
+</div>
+<button class="text-primary text-label-sm font-label-md hover:underline">Detaylar</button>
+</div>
+</div>
+<!-- Member Card 3 (Mock Data) -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-surface-container-high hover:shadow-md transition-shadow duration-200 relative group flex flex-col h-full">
+<button aria-label="Favorilere Ekle" class="absolute top-4 right-4 text-outline hover:text-secondary-container transition-colors p-1">
+<span class="material-symbols-outlined" data-icon="star_border">star_border</span>
+</button>
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-error-container text-on-error-container flex items-center justify-center font-bold text-headline-sm">
+                            AK
+                        </div>
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface line-clamp-1">Ayşe Kaya</h2>
+<p class="text-label-sm font-label-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">mail</span>
+                                akaya@company.tr
+                            </p>
+</div>
+</div>
+<div class="mt-auto flex items-center justify-between pt-4 border-t border-surface-container-high">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">photo_library</span>
+<span class="text-body-md font-body-md">0 Fotoğraf</span>
+</div>
+<button class="text-primary text-label-sm font-label-md hover:underline">Detaylar</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="mobile-bottom-nav fixed bottom-0 left-0 w-full flex justify-around items-center h-16 pb-safe bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant dark:border-outline z-50 transition-transform">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-variant active:scale-95 transition-transform flex-1 h-full py-1" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="dashboard">dashboard</span>
+<span class="text-label-sm font-label-sm mt-1">Panel</span>
+</a>
+<!-- Active State Applied Here: Üyeler -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim font-bold hover:bg-surface-container dark:hover:bg-surface-variant active:scale-95 transition-transform flex-1 h-full py-1" href="#">
+<span class="material-symbols-outlined filled text-[24px]" data-icon="group" data-weight="fill">group</span>
+<span class="text-label-sm font-label-sm mt-1">Üyeler</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-variant active:scale-95 transition-transform flex-1 h-full py-1" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="folder_special">folder_special</span>
+<span class="text-label-sm font-label-sm mt-1">Projeler</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-variant active:scale-95 transition-transform flex-1 h-full py-1" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="person_search">person_search</span>
+<span class="text-label-sm font-label-sm mt-1">Seç</span>
+</a>
+</nav>
+<script>
+        // Simple JS for interactive elements (optional, to match requirements)
+        document.addEventListener('DOMContentLoaded', () => {
+            const starButtons = document.querySelectorAll('button[aria-label^="Favori"]');
+            starButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const icon = this.querySelector('.material-symbols-outlined');
+                    if (icon.textContent === 'star_border') {
+                        icon.textContent = 'star';
+                        icon.classList.add('filled');
+                        this.classList.remove('text-outline');
+                        this.classList.add('text-secondary-container');
+                        this.setAttribute('aria-label', 'Favorilerden Çıkar');
+                    } else {
+                        icon.textContent = 'star_border';
+                        icon.classList.remove('filled');
+                        this.classList.add('text-outline');
+                        this.classList.remove('text-secondary-container');
+                        this.setAttribute('aria-label', 'Favorilere Ekle');
+                    }
+                });
+            });
+        });
+    </script>
+</body></html>

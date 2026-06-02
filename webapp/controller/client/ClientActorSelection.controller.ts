@@ -4,8 +4,10 @@ import Event from "sap/ui/base/Event";
 import MessageToast from "sap/m/MessageToast";
 import ProjectService from "../../service/ProjectService";
 import UserService from "../../service/UserService";
+import MediaService from "../../service/MediaService";
 import type { IUser } from "../../model/MockData";
 import { API_BASE } from "../../service/ApiClient";
+import Dialog from "sap/m/Dialog";
 
 /**
  * @namespace com.openui5.webdb.controller.client
@@ -20,15 +22,16 @@ export default class ClientActorSelection extends BaseController {
 	private async onRouteMatched(): void {
 		// Reset view state
 		this.selectedProjectId = "";
-		this.byId("noProjectMessage")?.setVisible(true);
-		this.byId("actorsGrid")?.setVisible(false);
 		
 		const oSelect = this.byId("projectSelect") as any;
 		if (oSelect) {
 			oSelect.setSelectedKey("");
 		}
 
-		await this.loadProjects();
+		await Promise.all([
+			this.loadProjects(),
+			this.loadActors()
+		]);
 	}
 
 	private async loadProjects(): Promise<void> {
@@ -40,27 +43,22 @@ export default class ClientActorSelection extends BaseController {
 		const oSelect = oEvent.getSource() as any;
 		this.selectedProjectId = oSelect.getSelectedKey();
 
-		const bHasProject = !!this.selectedProjectId;
-		this.byId("noProjectMessage")?.setVisible(!bHasProject);
-		this.byId("actorsGrid")?.setVisible(bHasProject);
-
-		if (bHasProject) {
-			await this.loadActors();
-		}
+		// Reload actors to reflect new assignments
+		await this.loadActors();
 	}
 
 	private async loadActors(): Promise<void> {
-		if (!this.selectedProjectId) return;
 		this.getView().setBusy(true);
 
 		try {
-			// Fetch all members and assignments for this project
-			const [allMembers, assignments] = await Promise.all([
-				UserService.getByRole("member"),
-				ProjectService.getAssignmentsByProject(this.selectedProjectId)
-			]);
-
-			const assignedUserIds = assignments.map(a => a.userId);
+			// Fetch all members
+			const allMembers = await UserService.getByRole("member");
+			
+			let assignedUserIds: string[] = [];
+			if (this.selectedProjectId) {
+				const assignments = await ProjectService.getAssignmentsByProject(this.selectedProjectId);
+				assignedUserIds = assignments.map(a => a.userId);
+			}
 
 			const activeActors = allMembers
 				.filter(m => m.status === "active")
@@ -80,7 +78,10 @@ export default class ClientActorSelection extends BaseController {
 	}
 
 	public async onToggleAssignment(oEvent: Event): Promise<void> {
-		if (!this.selectedProjectId) return;
+		if (!this.selectedProjectId) {
+			MessageToast.show("İşlem yapmadan önce lütfen yukarıdan bir proje seçin!");
+			return;
+		}
 
 		const oButton = oEvent.getSource() as any;
 		const oCtx = oButton.getBindingContext("cActorsData");
@@ -91,11 +92,11 @@ export default class ClientActorSelection extends BaseController {
 			if (actor.isAssigned) {
 				// Remove
 				await ProjectService.removeMember(this.selectedProjectId, actor.id);
-				MessageToast.show("Oyuncu projeden çıkarıldı.");
+				MessageToast.show(`${actor.firstName} projeden çıkarıldı.`);
 			} else {
 				// Add
 				await ProjectService.assignMember(this.selectedProjectId, actor.id);
-				MessageToast.show("Oyuncu projeye eklendi.");
+				MessageToast.show(`${actor.firstName} projeye eklendi.`);
 			}
 			// Refresh list to show updated status
 			await this.loadActors();
@@ -104,6 +105,44 @@ export default class ClientActorSelection extends BaseController {
 		} finally {
 			this.getView().setBusy(false);
 		}
+	}
+
+	public async onActorImagePress(oEvent: Event): Promise<void> {
+		const oImage = oEvent.getSource() as any;
+		const oCtx = oImage.getBindingContext("cActorsData");
+		const actor = oCtx.getObject();
+
+		this.getView().setBusy(true);
+		try {
+			const mediaList = await MediaService.getByUser(actor.id);
+			let photos = mediaList;
+			
+			const oDialog = this.byId("actorDetailDialog") as Dialog;
+			const oCarousel = this.byId("actorPhotosCarousel") as any;
+			const oNoPhotosBox = this.byId("noPhotosBox") as any;
+			
+			if (photos && photos.length > 0) {
+				oCarousel.setVisible(true);
+				oNoPhotosBox.setVisible(false);
+			} else {
+				oCarousel.setVisible(false);
+				oNoPhotosBox.setVisible(true);
+			}
+
+			this.getView().setModel(new JSONModel({ photos }), "cPhotosData");
+			oDialog.setTitle(`${actor.firstName} ${actor.lastName} - Fotoğraflar`);
+			oDialog.open();
+
+		} catch (e: any) {
+			MessageToast.show("Fotoğraflar yüklenirken bir hata oluştu.");
+		} finally {
+			this.getView().setBusy(false);
+		}
+	}
+
+	public onCloseDetailDialog(): void {
+		const oDialog = this.byId("actorDetailDialog") as Dialog;
+		oDialog.close();
 	}
 
 	public formatProfilePicture(profilePicture: string): string {

@@ -2,6 +2,24 @@
 	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core" xmlns:f="sap.f">
 
 	<Page id="clientActorSelectionPage" title="{i18n>clientActorSelection}" showNavButton="false" class="sapUiContentPadding">
+		<dependents>
+			<Dialog id="actorDetailDialog" title="Oyuncu Fotoğrafları" contentWidth="600px" contentHeight="500px" draggable="true" resizable="true">
+				<content>
+					<Carousel id="actorPhotosCarousel" pages="{cPhotosData>/photos}" height="100%" loop="true">
+						<pages>
+							<Image src="{path: 'cPhotosData>filePath', formatter: '.formatProfilePicture'}" width="100%" height="100%" densityAware="false" style="object-fit: contain;" />
+						</pages>
+					</Carousel>
+					<VBox id="noPhotosBox" visible="false" alignItems="Center" justifyContent="Center" height="100%" class="sapUiMediumMargin">
+						<Title text="Bu oyuncuya ait fotoğraf bulunamadı." level="H3" />
+					</VBox>
+				</content>
+				<buttons>
+					<Button text="Kapat" press=".onCloseDetailDialog" />
+				</buttons>
+			</Dialog>
+		</dependents>
+
 		<content>
 			<VBox class="sapUiSmallMargin">
 				<HBox alignItems="Center" class="sapUiBottomMargin">
@@ -13,44 +31,39 @@
 							forceSelection="false">
 						<core:Item key="{cProjects>id}" text="{cProjects>name}" />
 					</Select>
+					<Text text="(Oyuncu eklemek/çıkarmak için proje seçimi zorunludur)" class="sapUiSmallMarginLeft" style="color: #666; font-size: 0.9em; font-style: italic;" />
 				</HBox>
-
-				<!-- Mesaj eğer proje seçilmediyse -->
-				<MessageStrip id="noProjectMessage" 
-					text="Lütfen oyuncu eklemek veya çıkarmak için yukarıdan bir proje seçin." 
-					type="Information" 
-					showIcon="true" 
-					visible="true"
-					class="sapUiBottomMargin" />
 
 				<!-- Grid for Actors -->
 				<FlexBox id="actorsGrid" 
 					items="{cActorsData>/actors}" 
 					wrap="Wrap" 
-					justifyContent="SpaceBetween" 
-					visible="false">
+					justifyContent="Start" 
+					visible="true">
 					<items>
-						<VBox class="sapUiSmallMargin sapUiTinyMarginBottom" 
-							width="200px" 
+						<VBox class="sapUiSmallMargin sapUiTinyMarginBottom actorCard" 
+							width="240px" 
 							alignItems="Center" 
-							style="border: 1px solid #ddd; border-radius: 8px; padding: 10px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+							style="border: 1px solid #eaeaea; border-radius: 12px; padding: 20px 15px; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s;">
 							
 							<Image src="{path: 'cActorsData>profilePicture', formatter: '.formatProfilePicture'}" 
-								width="150px" 
-								height="150px" 
+								width="160px" 
+								height="160px" 
 								densityAware="false" 
 								class="sapUiTinyMarginBottom"
-								style="object-fit: cover; border-radius: 50%;" />
+								style="object-fit: cover; border-radius: 50%; border: 3px solid #f0f0f0; cursor: pointer;"
+								press=".onActorImagePress"
+								tooltip="Fotoğrafları görmek için tıklayın" />
 							
-							<Title text="{cActorsData>firstName} {cActorsData>lastName}" level="H4" class="sapUiTinyMarginBottom" />
-							<Text text="{cActorsData>email}" class="sapUiTinyMarginBottom" />
+							<Title text="{cActorsData>firstName} {cActorsData>lastName}" level="H3" class="sapUiTinyMarginTop sapUiTinyMarginBottom" titleStyle="H4" textAlign="Center" />
 							
 							<!-- Action Button (Add / Remove) -->
-							<Button text="{= ${cActorsData>isAssigned} ? 'Çıkar' : 'Projeye Ekle'}" 
+							<Button text="{= ${cActorsData>isAssigned} ? 'Projeden Çıkar' : 'Projeye Ekle'}" 
 									icon="{= ${cActorsData>isAssigned} ? 'sap-icon://delete' : 'sap-icon://add'}"
 									type="{= ${cActorsData>isAssigned} ? 'Reject' : 'Emphasized'}" 
 									press=".onToggleAssignment" 
-									width="100%" />
+									width="100%" 
+									class="sapUiSmallMarginTop" />
 						</VBox>
 					</items>
 				</FlexBox>

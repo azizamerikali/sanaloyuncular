@@ -7,6 +7,7 @@ import Event from "sap/ui/base/Event";
 import AuthService from "../../service/AuthService";
 import ProjectService from "../../service/ProjectService";
 import UserService from "../../service/UserService";
+import MediaService from "../../service/MediaService";
 import StorageService from "../../service/StorageService";
 import formatter from "../../model/formatter";
 import type { IFavorite } from "../../model/MockData";
@@ -79,6 +80,51 @@ export default class ClientProjectDetail extends BaseController {
 		const oCtx = (oEvent.getSource() as any).getBindingContext("cProjDetailData");
 		await ProjectService.removeMember(this.projectId, oCtx.getProperty("id"));
 		MessageToast.show("Üye çıkarıldı."); await this.loadData();
+	}
+
+	public async onMemberPress(oEvent: Event): Promise<void> {
+		const oCtx = (oEvent.getSource() as any).getBindingContext("cProjDetailData");
+		const member = oCtx.getObject();
+
+		const initials = `${member.firstName?.[0] || ""}${member.lastName?.[0] || ""}`.toUpperCase();
+		const mediaList = await MediaService.getByUser(member.id);
+
+		const photos = mediaList.map((m: any) => ({ ...m, fileData: "" }));
+
+		const oModel = new JSONModel({
+			...member,
+			fullName: `${member.firstName} ${member.lastName}`,
+			initials,
+			photoCount: photos.length,
+			photos
+		});
+		this.getView().setModel(oModel, "memberDetailData");
+
+		(this.byId("memberDetailDialog") as any).open();
+
+		// Arka planda fotoğraf içeriklerini yükle
+		photos.forEach(async (photo: any, index: number) => {
+			try {
+				const content = await MediaService.getContent(photo.id);
+				if (content) oModel.setProperty(`/photos/${index}/fileData`, content);
+			} catch (_) {}
+		});
+	}
+
+	public onCloseMemberDetail(): void {
+		(this.byId("memberDetailDialog") as any).close();
+	}
+
+	public onPhotoPress(oEvent: Event): void {
+		const oCtx = (oEvent.getSource() as any).getBindingContext("memberDetailData");
+		const src = oCtx.getProperty("fileData");
+		if (!src) return;
+		this.getView().setModel(new JSONModel({ src }), "photoPreview");
+		(this.byId("photoPreviewDialog") as any).open();
+	}
+
+	public onClosePhotoPreview(): void {
+		(this.byId("photoPreviewDialog") as any).close();
 	}
 
 	public formatProfilePicture(profilePicture: string): string {
