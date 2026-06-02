@@ -17,7 +17,7 @@
 						<VBox>
 							<HBox justifyContent="SpaceBetween" alignItems="Start" class="sapUiSmallMarginBottom">
 								<HBox alignItems="Center">
-									<Avatar initials="{cMembersData>initials}" displaySize="M" displayShape="Circle" fallbackIcon="sap-icon://person-placeholder" class="sapUiSmallMarginEnd soMemberAvatar" />
+									<Avatar src="{path: 'cMembersData>profilePicture', formatter: '.formatProfilePicture'}" initials="{cMembersData>initials}" displaySize="M" displayShape="Circle" fallbackIcon="sap-icon://person-placeholder" class="sapUiSmallMarginEnd soMemberAvatar" />
 									<VBox>
 										<Title text="{cMembersData>firstName} {cMembersData>lastName}" level="H4" class="soMemberCardName sapUiTinyMarginBottom" />
 										<HBox alignItems="Center">

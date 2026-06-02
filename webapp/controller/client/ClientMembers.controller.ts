@@ -7,6 +7,7 @@ import UserService from "../../service/UserService";
 import MediaService from "../../service/MediaService";
 import StorageService from "../../service/StorageService";
 import type { IFavorite } from "../../model/MockData";
+import { API_BASE } from "../../service/ApiClient";
 
 /**
  * @namespace com.openui5.webdb.controller.client
@@ -50,5 +51,15 @@ export default class ClientMembers extends BaseController {
 		}
 		StorageService.set("favorites", favs);
 		this.loadData();
+	}
+
+	public formatProfilePicture(profilePicture: string): string {
+		if (!profilePicture) {
+			return "";
+		}
+		if (profilePicture.startsWith("http") || profilePicture.startsWith("data:")) {
+			return profilePicture;
+		}
+		return `${API_BASE}${profilePicture}`;
 	}
 }

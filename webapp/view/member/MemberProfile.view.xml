@@ -6,7 +6,8 @@
 			<VBox>
 				<Panel headerText="{i18n>memberProfile}">
 					<VBox alignItems="Center" class="sapUiMediumMarginBottom">
-						<Avatar src="{profileData>/profilePicture}" displaySize="XL" displayShape="Circle" backgroundColor="Accent6" />
+						<Avatar src="{profileData>/profilePicture}" displaySize="XL" displayShape="Circle" backgroundColor="Accent6" class="sapUiSmallMarginBottom" />
+						<Button text="Fotoğrafı Değiştir" icon="sap-icon://camera" press=".onUploadPress" />
 					</VBox>
 					<f:SimpleForm id="profileForm" editable="true" layout="ResponsiveGridLayout"
 						labelSpanXL="3" labelSpanL="4" labelSpanM="4" labelSpanS="12"
@@ -42,5 +43,29 @@
 				</Panel>
 			</VBox>
 		</content>
+		<dependents>
+			<ActionSheet id="uploadActionSheet" title="Fotoğraf Seçimi" showCancelButton="true" cancelButtonText="İptal">
+				<buttons>
+					<Button text="Kamera ile Çek" icon="sap-icon://camera" press=".onCameraCapture" />
+					<Button text="Galeriden Seç" icon="sap-icon://attachment-photo" press=".onGallerySelect" />
+				</buttons>
+			</ActionSheet>
+
+			<Dialog id="cameraDialog" title="Kamera ile Fotoğraf Çek"
+				contentWidth="520px" contentHeight="420px"
+				afterOpen=".onCameraDialogAfterOpen"
+				afterClose=".onCameraDialogAfterClose">
+				<content>
+					<VBox alignItems="Center" justifyContent="Center" width="100%" class="sapUiContentPadding">
+						<core:HTML id="cameraHtml"
+							content="&lt;div style='position:relative;width:100%;text-align:center'&gt;&lt;video id='so-profile-video' autoplay playsinline muted style='width:100%;max-width:480px;max-height:320px;border-radius:8px;background:#000'&gt;&lt;/video&gt;&lt;canvas id='so-profile-canvas' style='display:none'&gt;&lt;/canvas&gt;&lt;/div&gt;" />
+					</VBox>
+				</content>
+				<buttons>
+					<Button id="captureBtn" text="Fotoğraf Çek" icon="sap-icon://camera" type="Emphasized" press=".onCapturePhoto" />
+					<Button text="İptal" press=".onCloseCamera" />
+				</buttons>
+			</Dialog>
+		</dependents>
 	</Page>
 </mvc:View>
