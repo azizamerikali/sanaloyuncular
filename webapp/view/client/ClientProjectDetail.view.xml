@@ -22,7 +22,7 @@
 					<headerToolbar>
 						<Toolbar>
 							<ToolbarSpacer />
-							<Button text="Favori Üye Ata" icon="sap-icon://add-favorite"
+							<Button text="{i18n>assignFavoriteMember}" icon="sap-icon://add-favorite"
 								press=".onAssignFavorite" />
 						</Toolbar>
 					</headerToolbar>
@@ -90,22 +90,22 @@
 					<VBox class="sapUiMediumMarginBeginEnd sapUiSmallMarginTopBottom">
 
 						<!-- Profil Bilgileri -->
-						<Title text="Profil Bilgileri" level="H5" class="sapUiSmallMarginBottom" />
+						<Title text="{i18n>profileInformation}" level="H5" class="sapUiSmallMarginBottom" />
 						<form:SimpleForm editable="false" layout="ResponsiveGridLayout"
 							labelSpanXL="4" labelSpanL="4" labelSpanM="4" labelSpanS="12"
 							columnsXL="2" columnsL="2" columnsM="1">
 							<form:content>
-								<Label text="E-posta" />
+								<Label text="{i18n>email}" />
 								<Text text="{memberDetailData>/email}" />
-								<Label text="Telefon" />
+								<Label text="{i18n>phone}" />
 								<Text text="{memberDetailData>/phone}" />
-								<Label text="Şehir" />
+								<Label text="{i18n>city}" />
 								<Text text="{memberDetailData>/city}" />
-								<Label text="Doğum Tarihi" />
+								<Label text="{i18n>birthDate}" />
 								<Text text="{memberDetailData>/birthDate}" />
-								<Label text="Oyunculuk Eğitimi" />
+								<Label text="{i18n>actingTraining}" />
 								<Text text="{= ${memberDetailData>/actingTraining} || '—'}" />
-								<Label text="Oyunculuk Deneyimi" />
+								<Label text="{i18n>actingExperience}" />
 								<Text text="{= ${memberDetailData>/actingExperience} || '—'}" />
 							</form:content>
 						</form:SimpleForm>
@@ -113,14 +113,14 @@
 						<!-- Fotoğraflar -->
 						<core:HTML content="&lt;hr class='soCardDivider' style='margin:16px 0'/&gt;" />
 						<HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
-							<Title text="Fotoğraflar" level="H5" />
-							<Text text="{= ${memberDetailData>/photoCount} + ' fotoğraf'}"
+							<Title text="{i18n>photosTitle}" level="H5" />
+							<Text text="{= ${memberDetailData>/photoCount} + ' ' + ${i18n>photoCountSuffix}}"
 								class="soMemberCardEmail" />
 						</HBox>
 
 						<f:GridList id="memberPhotoGrid"
 							items="{memberDetailData>/photos}"
-							noDataText="Fotoğraf bulunamadı"
+							noDataText="{i18n>noPhotos}"
 							showSeparators="None"
 							growing="false">
 							<f:customLayout>
@@ -147,7 +147,7 @@
 					</VBox>
 				</content>
 				<beginButton>
-					<Button text="Kapat" press=".onCloseMemberDetail" />
+					<Button text="{i18n>close}" press=".onCloseMemberDetail" />
 				</beginButton>
 			</Dialog>
 
@@ -159,7 +159,7 @@
 					</VBox>
 				</content>
 				<buttons>
-					<Button text="Kapat" press=".onClosePhotoPreview" />
+					<Button text="{i18n>close}" press=".onClosePhotoPreview" />
 				</buttons>
 			</Dialog>
 		</dependents>

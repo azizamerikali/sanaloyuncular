@@ -21,7 +21,7 @@
 
 							<!-- Google Login Gateway -->
 							<VBox visible="{newMember>/isGoogleAuthPending}">
-								<Text text="Kayıt formunu doldurabilmek için önce ad, soyad ve e-posta bilginizi doğrulamalısınız." textAlign="Center" width="100%" class="sapUiSmallMarginBottom" />
+								<Text text="{i18n>googleAuthPending}" textAlign="Center" width="100%" class="sapUiSmallMarginBottom" />
 								<core:HTML content='&lt;div id="googleButtonContainerReg" class="sapUiSmallMarginBottom" style="display:flex; justify-content:center; width:100%;"&gt;&lt;/div&gt;' />
 							</VBox>
 

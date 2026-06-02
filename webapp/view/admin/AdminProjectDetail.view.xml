@@ -15,7 +15,7 @@
 						<ObjectAttribute text="{projDetail>/description}" />
 					</attributes>
 					<statuses>
-						<ObjectStatus text="Oluşturulma: {projDetail>/createdAtFormatted}" />
+						<ObjectStatus text="{i18n>createdAtPrefix} {projDetail>/createdAtFormatted}" />
 					</statuses>
 				</ObjectHeader>
 

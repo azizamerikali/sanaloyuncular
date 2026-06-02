@@ -12,7 +12,7 @@
 				growing="true" growingThreshold="20">
 				<columns>
 					<Column>
-						<Text text="Üye" />
+						<Text text="{i18n>memberLabel}" />
 					</Column>
 					<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
 						<Text text="{i18n>projectName}" />

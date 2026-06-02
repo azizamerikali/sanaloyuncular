@@ -34,15 +34,15 @@
 		</content>
 		<dependents>
 			<!-- Kaynak seçim menüsü -->
-			<ActionSheet id="uploadActionSheet" title="Fotoğraf Ekle" showCancelButton="true" cancelButtonText="İptal">
+			<ActionSheet id="uploadActionSheet" title="{i18n>photoSelection}" showCancelButton="true" cancelButtonText="{i18n>cancel}">
 				<buttons>
-					<Button text="Kamera ile Çek" icon="sap-icon://camera" press=".onCameraCapture" />
-					<Button text="Galeriden / Dosyadan Seç" icon="sap-icon://attachment-photo" press=".onGallerySelect" />
+					<Button text="{i18n>takeWithCamera}" icon="sap-icon://camera" press=".onCameraCapture" />
+					<Button text="{i18n>selectFromGallery}" icon="sap-icon://attachment-photo" press=".onGallerySelect" />
 				</buttons>
 			</ActionSheet>
 
 			<!-- Canlı kamera önizleme diyaloğu -->
-			<Dialog id="cameraDialog" title="Kamera ile Fotoğraf Çek"
+			<Dialog id="cameraDialog" title="{i18n>takePhotoWithCamera}"
 				contentWidth="520px" contentHeight="420px"
 				afterOpen=".onCameraDialogAfterOpen"
 				afterClose=".onCameraDialogAfterClose">
@@ -53,20 +53,20 @@
 					</VBox>
 				</content>
 				<buttons>
-					<Button id="captureBtn" text="Fotoğraf Çek" icon="sap-icon://camera" type="Emphasized" press=".onCapturePhoto" />
-					<Button text="İptal" press=".onCloseCamera" />
+					<Button id="captureBtn" text="{i18n>takePhotoAction}" icon="sap-icon://camera" type="Emphasized" press=".onCapturePhoto" />
+					<Button text="{i18n>cancel}" press=".onCloseCamera" />
 				</buttons>
 			</Dialog>
 
 			<!-- Önizleme diyaloğu -->
-			<Dialog id="imagePreviewDialog" title="Fotoğraf Önizleme" contentWidth="80vw" contentHeight="80vh" resizable="true">
+			<Dialog id="imagePreviewDialog" title="{i18n>photoPreview}" contentWidth="80vw" contentHeight="80vh" resizable="true">
 				<content>
 					<VBox alignItems="Center" justifyContent="Center" class="sapUiContentPadding" height="100%">
 						<Image src="{preview>/src}" width="auto" height="100%" densityAware="false" />
 					</VBox>
 				</content>
 				<buttons>
-					<Button text="Kapat" press=".onClosePreview" />
+					<Button text="{i18n>close}" press=".onClosePreview" />
 				</buttons>
 			</Dialog>
 		</dependents>

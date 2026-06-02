@@ -6,28 +6,28 @@
 	xmlns:unified="sap.ui.unified"
 	xmlns:core="sap.ui.core">
 
-	<Page title="Sistem Yönetimi" showNavButton="false" class="sapUiContentPadding">
+	<Page title="{i18n>systemManagement}" showNavButton="false" class="sapUiContentPadding">
 		<content>
 			<VBox spacing="1rem">
 				
-				<Panel headerText="Veritabanı Yedekleme ve Geri Yükleme" class="sapUiResponsiveMargin">
+				<Panel headerText="{i18n>dbBackupRestore}" class="sapUiResponsiveMargin">
 					<VBox spacing="Medium">
 						<HBox alignItems="Center">
 							<core:Icon src="sap-icon://status-completed" color="Positive" size="2rem" class="sapUiSmallMarginEnd" />
 							<VBox>
-								<Title text="Veritabanı Yedeği Al" level="H3" />
-								<Text text="Mevcut veritabanını .json dosyası olarak bilgisayarınıza indirin." />
+								<Title text="{i18n>downloadDbBackup}" level="H3" />
+								<Text text="{i18n>downloadDbBackupDesc}" />
 							</VBox>
 						</HBox>
-						<Button text="Yedek İndir" icon="sap-icon://download" type="Emphasized" press=".onDownloadBackup" width="200px" />
+						<Button text="{i18n>downloadBackupBtn}" icon="sap-icon://download" type="Emphasized" press=".onDownloadBackup" width="200px" />
 						
 						<VBox class="sapUiMediumMarginTopBottom" />
 
 						<HBox alignItems="Center">
 							<core:Icon src="sap-icon://upload-to-cloud" color="Critical" size="2rem" class="sapUiSmallMarginEnd" />
 							<VBox>
-								<Title text="Veritabanı Yedeği Yükle" level="H3" />
-								<Text text="Dikkat: Bu işlem tüm mevcut verilerin üzerine yazacaktır! Sadece geçerli bir .json dosyası yükleyin." />
+								<Title text="{i18n>uploadDbBackup}" level="H3" />
+								<Text text="{i18n>uploadDbBackupDesc}" />
 							</VBox>
 						</HBox>
 						
@@ -36,16 +36,16 @@
 								id="dbFileUploader"
 								name="backup"
 								fileType="json"
-								placeholder="Yedek dosyasını seçin (.json)..."
+								placeholder="{i18n>selectBackupFile}"
 								style="Emphasized"
 								width="400px"
 								change=".onFileChange" />
 							
-							<CheckBox id="confirmRestore" text="Verilerin üzerine yazılacağını biliyorum ve onaylıyorum." select=".onConfirmationChange" class="sapUiSmallMarginTop" />
+							<CheckBox id="confirmRestore" text="{i18n>confirmOverwrite}" select=".onConfirmationChange" class="sapUiSmallMarginTop" />
 							
 							<Button 
 								id="restoreButton"
-								text="Yedeği Geri Yükle" 
+								text="{i18n>restoreBackupBtn}" 
 								icon="sap-icon://refresh" 
 								type="Negative" 
 								press=".onRestoreBackup" 

@@ -3,21 +3,21 @@
 
 	<Page id="clientActorSelectionPage" title="{i18n>clientActorSelection}" showNavButton="false" class="sapUiContentPadding">
 		<dependents>
-			<Dialog id="actorDetailDialog" title="Oyuncu Fotoğrafları" contentWidth="620px" contentHeight="520px" draggable="true" resizable="true">
+			<Dialog id="actorDetailDialog" title="{i18n>actorPhotos}" contentWidth="620px" contentHeight="520px" draggable="true" resizable="true">
 				<content>
 					<core:HTML id="actorPhotosHtml" content="&lt;div id='so-photo-slider' style='width:100%;height:440px;display:flex;align-items:center;justify-content:center;background:#000;border-radius:8px;overflow:hidden;position:relative'&gt;&lt;img id='so-slide-img' src='' style='max-width:100%;max-height:440px;width:auto;height:auto;object-fit:contain;display:block;border-radius:8px;transition:opacity 0.3s ease'/&gt;&lt;button id='so-prev-btn' onclick='window.soPrevPhoto()' style='position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center'&gt;&amp;lt;&lt;/button&gt;&lt;button id='so-next-btn' onclick='window.soNextPhoto()' style='position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center'&gt;&amp;gt;&lt;/button&gt;&lt;div style='position:absolute;bottom:8px;right:12px;display:flex;align-items:center;gap:6px'&gt;&lt;button id='so-download-btn' onclick='window.soDownloadPhoto()' title='Fotoğrafı İndir' style='background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0'&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;16&quot; height=&quot;16&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4&quot;/&gt;&lt;polyline points=&quot;7 10 12 15 17 10&quot;/&gt;&lt;line x1=&quot;12&quot; y1=&quot;15&quot; x2=&quot;12&quot; y2=&quot;3&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;div id='so-slide-counter' style='background:rgba(0,0,0,0.55);color:#fff;font-size:12px;padding:2px 8px;border-radius:12px'&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" />
 					<VBox id="noPhotosBox" visible="false" alignItems="Center" justifyContent="Center" class="sapUiLargeMargin">
 						<core:Icon src="sap-icon://attachment-photo" size="3rem" color="#ccc" class="sapUiSmallMarginBottom" />
-						<Title text="Bu oyuncuya ait fotoğraf bulunamadı." level="H3" />
+						<Title text="{i18n>noPhotosForMember}" level="H3" />
 					</VBox>
 				</content>
 				<buttons>
-					<Button text="Kapat" press=".onCloseDetailDialog" />
+					<Button text="{i18n>close}" press=".onCloseDetailDialog" />
 				</buttons>
 			</Dialog>
 
 			<SelectDialog id="projectSelectDialog"
-				title="Proje Seçimi"
+				title="{i18n>projectSelection}"
 				search=".onProjectSearch"
 				confirm=".onProjectConfirm"
 				items="{cProjects>/projects}">
@@ -32,9 +32,9 @@
 			<VBox>
 				<VBox class="sapUiTinyMarginBottom">
 				<HBox alignItems="Center">
-					<Label text="Proje: " class="sapUiSmallMarginEnd" design="Bold" />
+					<Label text="{i18n>projectLabel}" class="sapUiSmallMarginEnd" design="Bold" />
 					<Input id="projectInput" 
-							placeholder="Proje Seçin..." 
+							placeholder="{i18n>selectProject}" 
 							showValueHelp="true" 
 							valueHelpOnly="true"
 							valueHelpRequest=".onProjectValueHelp" 
@@ -56,14 +56,14 @@
 								densityAware="false" 
 								class="soCleanTileImg"
 								press=".onActorImagePress"
-								tooltip="Fotoğrafları görmek için tıklayın" />
+								tooltip="{i18n>clickToViewPhotos}" />
 							
 							<HBox alignItems="Center" justifyContent="SpaceBetween" class="soCleanTileFooter">
 								<Text text="{cActorsData>firstName} {cActorsData>lastName}" class="soCleanTileName" />
 								<Button icon="{= ${cActorsData>isAssigned} ? 'sap-icon://decline' : 'sap-icon://add-employee'}"
 										type="{= ${cActorsData>isAssigned} ? 'Reject' : 'Emphasized'}" 
 										press=".onToggleAssignment" 
-										tooltip="{= ${cActorsData>isAssigned} ? 'Projeden Çıkar' : 'Projeye Ekle'}"
+										tooltip="{= ${cActorsData>isAssigned} ? ${i18n>removeFromProject} : ${i18n>addToProject}}"
 										class="soCleanTileBtn" />
 							</HBox>
 						</VBox>

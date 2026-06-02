@@ -7,7 +7,7 @@
 		<headerContent>
 			<SearchField id="memberSearch" placeholder="{i18n>searchMembers}"
 				liveChange=".onSearchMembers" width="auto" />
-			<Button text="Yeni Üye Ekle" icon="sap-icon://add" type="Emphasized" press=".onOpenAddMember" class="sapUiSmallMarginBegin" />
+			<Button text="{i18n>addNewMember}" icon="sap-icon://add" type="Emphasized" press=".onOpenAddMember" class="sapUiSmallMarginBegin" />
 		</headerContent>
 		<content>
 			<f:GridList id="adminMembersGrid" items="{membersData>/members}"
@@ -44,13 +44,13 @@
 							<HBox>
 								<Button icon="sap-icon://accept" type="Accept"
 									visible="{= ${membersData>status} !== 'active'}"
-									press=".onApprove" tooltip="Aktifleştir"
+									press=".onApprove" tooltip="{i18n>activate}"
 									class="sapUiTinyMarginEnd" />
 								<Button icon="sap-icon://decline" type="Reject"
 									visible="{= ${membersData>status} === 'active'}"
-									press=".onDeactivate" tooltip="Pasifleştir" />
+									press=".onDeactivate" tooltip="{i18n>deactivate}" />
 								<Button icon="sap-icon://delete" type="Reject"
-									press=".onDeleteMember" tooltip="Sil"
+									press=".onDeleteMember" tooltip="{i18n>delete}"
 									class="sapUiTinyMarginBegin" />
 							</HBox>
 						</HBox>
@@ -59,59 +59,59 @@
 			</f:GridList>
 		</content>
 		<dependents>
-			<Dialog id="addMemberDialog" title="Yeni Üye Ekle" contentWidth="650px" verticalScrolling="true" stretch="{device>/system/phone}">
+			<Dialog id="addMemberDialog" title="{i18n>addNewMember}" contentWidth="650px" verticalScrolling="true" stretch="{device>/system/phone}">
 				<content>
 					<form:SimpleForm editable="true" layout="ResponsiveGridLayout" labelSpanXL="4" labelSpanL="4" labelSpanM="4" labelSpanS="12">
 						<form:content>
-							<Label text="Ad" required="true" />
+							<Label text="{i18n>firstName}" required="true" />
 							<Input value="{newMember>/firstName}" liveChange=".onNameChange" />
-							<Label text="Soyad" required="true" />
+							<Label text="{i18n>lastName}" required="true" />
 							<Input value="{newMember>/lastName}" liveChange=".onNameChange" />
-							<Label text="E-posta" required="true" />
+							<Label text="{i18n>email}" required="true" />
 							<Input value="{newMember>/email}" type="Email" />
-							<Label text="Şifre" required="true" />
+							<Label text="{i18n>password}" required="true" />
 							<Input value="{newMember>/password}" />
-							<Label text="Telefon" required="true" />
+							<Label text="{i18n>phone}" required="true" />
 							<Input value="{newMember>/phone}" type="Tel" />
 
-							<Label text="Şehir" required="true" />
+							<Label text="{i18n>city}" required="true" />
 							<ComboBox items="{cities>/}" selectedKey="{newMember>/city}">
 								<core:Item key="{cities>key}" text="{cities>name}" />
 							</ComboBox>
 
-							<Label text="Doğum Tarihi" required="true" />
+							<Label text="{i18n>birthDate}" required="true" />
 							<DatePicker id="dpBirthDate" displayFormat="dd.MM.yyyy" valueFormat="yyyy-MM-dd" value="{newMember>/birthDate}" change=".onBirthDateChange" />
 
-							<Label text="Anne/Baba/Vasi Ad Soyad" required="{newMember>/isUnder18}" visible="{newMember>/isUnder18}" />
+							<Label text="{i18n>parentName}" required="{newMember>/isUnder18}" visible="{newMember>/isUnder18}" />
 							<Input id="inParentName" value="{newMember>/parentName}" visible="{newMember>/isUnder18}" liveChange=".onParentNameChange" />
 
-							<Label text="Veli Onay Belgesi" required="{newMember>/isUnder18}" visible="{newMember>/isUnder18}" />
-							<u:FileUploader id="fuConsent" width="100%" placeholder="Belge yüklemek için seçin" change=".onConsentFileChange" visible="{newMember>/isUnder18}" />
+							<Label text="{i18n>consentDoc}" required="{newMember>/isUnder18}" visible="{newMember>/isUnder18}" />
+							<u:FileUploader id="fuConsent" width="100%" placeholder="{i18n>selectDocumentToUpload}" change=".onConsentFileChange" visible="{newMember>/isUnder18}" />
 
-							<Label text="IBAN Sahibi" required="true" />
+							<Label text="{i18n>ibanHolder}" required="true" />
 							<ComboBox id="cbIbanHolder" selectedKey="{newMember>/ibanHolder}" items="{newMember>/ibanHolderList}">
 								<core:Item key="{newMember>name}" text="{newMember>name}" />
 							</ComboBox>
 
-							<Label text="IBAN" required="true" />
+							<Label text="{i18n>iban}" required="true" />
 							<Input id="inIban" value="{newMember>/iban}" placeholder="..." liveChange=".onIbanChange" valueState="{newMember>/ibanState}" valueStateText="{newMember>/ibanStateText}" />
 
-							<Label text="Oyunculuk Eğitimi" />
+							<Label text="{i18n>actingTraining}" />
 							<TextArea value="{newMember>/actingTraining}" rows="2" />
-							<Label text="Oyunculuk Deneyimi" />
+							<Label text="{i18n>actingExperience}" />
 							<TextArea value="{newMember>/actingExperience}" rows="2" />
 
-							<Label text="Durum" />
+							<Label text="{i18n>status}" />
 							<Select selectedKey="{newMember>/status}" width="100%">
-								<core:Item key="active" text="Aktif" />
-								<core:Item key="pending" text="Onay Bekliyor" />
+								<core:Item key="active" text="{i18n>active}" />
+								<core:Item key="pending" text="{i18n>pendingApproval}" />
 							</Select>
 						</form:content>
 					</form:SimpleForm>
 				</content>
 				<buttons>
-					<Button text="Kaydet" type="Emphasized" press=".onSaveNewMember" />
-					<Button text="İptal" press=".onCancelAddMember" />
+					<Button text="{i18n>save}" type="Emphasized" press=".onSaveNewMember" />
+					<Button text="{i18n>cancel}" press=".onCancelAddMember" />
 				</buttons>
 			</Dialog>
 		</dependents>
