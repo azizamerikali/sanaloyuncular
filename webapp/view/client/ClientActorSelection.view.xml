@@ -18,19 +18,29 @@
 					<Button text="Kapat" press=".onCloseDetailDialog" />
 				</buttons>
 			</Dialog>
+
+			<SelectDialog id="projectSelectDialog"
+				title="Proje Seçimi"
+				search=".onProjectSearch"
+				confirm=".onProjectConfirm"
+				items="{cProjects>/projects}">
+				<StandardListItem
+					title="{cProjects>name}"
+					description="{cProjects>description}"
+					type="Active" />
+			</SelectDialog>
 		</dependents>
 
 		<content>
 			<VBox class="sapUiSmallMargin">
 				<HBox alignItems="Center" class="sapUiBottomMargin">
 					<Label text="Proje Seçimi: " class="sapUiSmallMarginEnd" design="Bold" />
-					<Select id="projectSelect" 
-							items="{cProjects>/projects}" 
-							change=".onProjectChange" 
-							width="300px"
-							forceSelection="false">
-						<core:Item key="{cProjects>id}" text="{cProjects>name}" />
-					</Select>
+					<Input id="projectInput" 
+							placeholder="Proje Seçin..." 
+							showValueHelp="true" 
+							valueHelpOnly="true"
+							valueHelpRequest=".onProjectValueHelp" 
+							width="300px" />
 					<Text text="(Oyuncu eklemek/çıkarmak için proje seçimi zorunludur)" class="sapUiSmallMarginLeft" style="color: #666; font-size: 0.9em; font-style: italic;" />
 				</HBox>
 

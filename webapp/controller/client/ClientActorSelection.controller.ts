@@ -8,6 +8,9 @@ import MediaService from "../../service/MediaService";
 import type { IUser } from "../../model/MockData";
 import { API_BASE } from "../../service/ApiClient";
 import Dialog from "sap/m/Dialog";
+import SelectDialog from "sap/m/SelectDialog";
+import Filter from "sap/ui/model/Filter";
+import FilterOperator from "sap/ui/model/FilterOperator";
 
 /**
  * @namespace com.openui5.webdb.controller.client
@@ -23,9 +26,9 @@ export default class ClientActorSelection extends BaseController {
 		// Reset view state
 		this.selectedProjectId = "";
 		
-		const oSelect = this.byId("projectSelect") as any;
-		if (oSelect) {
-			oSelect.setSelectedKey("");
+		const oInput = this.byId("projectInput") as any;
+		if (oInput) {
+			oInput.setValue("");
 		}
 
 		await Promise.all([
@@ -39,12 +42,32 @@ export default class ClientActorSelection extends BaseController {
 		this.getView().setModel(new JSONModel({ projects }), "cProjects");
 	}
 
-	public async onProjectChange(oEvent: Event): Promise<void> {
-		const oSelect = oEvent.getSource() as any;
-		this.selectedProjectId = oSelect.getSelectedKey();
+	public onProjectValueHelp(): void {
+		const oDialog = this.byId("projectSelectDialog") as SelectDialog;
+		oDialog.getBinding("items")?.filter([]); // Reset filter
+		oDialog.open();
+	}
 
-		// Reload actors to reflect new assignments
-		await this.loadActors();
+	public onProjectSearch(oEvent: Event): void {
+		const sValue = oEvent.getParameter("value") as string;
+		const oFilter = new Filter("name", FilterOperator.Contains, sValue);
+		const oBinding = oEvent.getParameter("itemsBinding") as any;
+		oBinding.filter([oFilter]);
+	}
+
+	public async onProjectConfirm(oEvent: Event): void {
+		const oSelectedItem = oEvent.getParameter("selectedItem") as any;
+		if (oSelectedItem) {
+			const oCtx = oSelectedItem.getBindingContext("cProjects");
+			const project = oCtx.getObject();
+			this.selectedProjectId = project.id;
+
+			const oInput = this.byId("projectInput") as any;
+			oInput.setValue(project.name);
+
+			// Reload actors to reflect new assignments
+			await this.loadActors();
+		}
 	}
 
 	private async loadActors(): Promise<void> {
