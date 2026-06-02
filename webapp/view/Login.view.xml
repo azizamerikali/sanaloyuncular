@@ -15,11 +15,11 @@
 					<VBox alignItems="Center" width="100%">
 						<core:Icon src="sap-icon://photo-voltaic" class="soLoginLogo" />
 						<Title text="{i18n>appTitle}" class="soLoginTitle sapUiTinyMarginBottom" />
-						<Text text="{i18n>loginSubtitle}" class="soLoginSubtitle sapUiMediumMarginBottom" />
+						<Text text="{i18n>loginSubtitle}" class="soLoginSubtitle sapUiSmallMarginBottom" />
 					</VBox>
 
 					<!-- Form Section -->
-					<VBox width="100%" class="sapUiLargeMarginTop">
+					<VBox width="100%" class="sapUiSmallMarginTop">
 						<Title text="Üye Girişi" class="soLoginSectionTitle sapUiSmallMarginBottom" />
 						
 						<!-- Google Login -->
@@ -28,7 +28,7 @@
 						<!-- Divider -->
 						<core:HTML content="&lt;div class='soLoginDivider'&gt;Veya&lt;/div&gt;" />
 
-						<VBox class="soLoginCard sapUiMediumMarginTop">
+						<VBox class="soLoginCard sapUiSmallMarginTop">
 							<Title text="Müşteri Girişi" class="soLoginSectionTitle sapUiSmallMarginBottom" />
 							
 							<Label text="Kullanıcı Adı" labelFor="usernameInput" />
