@@ -80,4 +80,23 @@ export default abstract class BaseController extends Controller {
 			this.getRouter().navTo("main", {}, undefined, true);
 		}
 	}
+
+	/**
+	 * Changes the application language and saves preference to localStorage.
+	 * @param sLang Language code (e.g., 'tr' or 'en')
+	 */
+	public changeLanguage(sLang: string): void {
+		localStorage.setItem("so_language", sLang);
+		sap.ui.getCore().getConfiguration().setLanguage(sLang);
+		
+		// Force refresh the router to update bindings that might not be fully reactive
+		// Or simply just let the UI bindings update automatically (UI5 usually handles this well).
+	}
+
+	/**
+	 * Gets the current application language (defaults to 'tr').
+	 */
+	public getCurrentLanguage(): string {
+		return localStorage.getItem("so_language") || "tr";
+	}
 }

@@ -13,6 +13,16 @@
 				<VBox class="soLoginContainer">
 					<!-- Header Section (Centered) -->
 					<VBox alignItems="Center" width="100%">
+						<!-- Language Switcher -->
+						<HBox width="100%" justifyContent="End" class="sapUiTinyMarginBottom">
+							<SegmentedButton id="langSwitch" selectedKey="{= ${appView>/currentLanguage} || 'tr' }" selectionChange=".onLanguageChange">
+								<items>
+									<SegmentedButtonItem text="TR" key="tr" />
+									<SegmentedButtonItem text="EN" key="en" />
+								</items>
+							</SegmentedButton>
+						</HBox>
+
 						<core:Icon src="sap-icon://photo-voltaic" class="soLoginLogo" />
 						<Title text="{i18n>appTitle}" class="soLoginTitle sapUiTinyMarginBottom" />
 						<Text text="{i18n>loginSubtitle}" class="soLoginSubtitle sapUiSmallMarginBottom" />
@@ -20,24 +30,24 @@
 
 					<!-- Form Section -->
 					<VBox width="100%" class="sapUiSmallMarginTop">
-						<Title text="Üye Girişi" class="soLoginSectionTitle sapUiSmallMarginBottom" />
+						<Title text="{i18n>memberLogin}" class="soLoginSectionTitle sapUiSmallMarginBottom" />
 						
 						<!-- Google Login -->
 						<core:HTML content='&lt;div id="googleButtonContainer" class="sapUiSmallMarginBottom" style="display:flex; justify-content:center; width:100%;"&gt;&lt;/div&gt;' />
 
 						<!-- Divider -->
-						<core:HTML content="&lt;div class='soLoginDivider'&gt;Veya&lt;/div&gt;" />
+						<core:HTML content="&lt;div class='soLoginDivider'&gt;{i18n>orText}&lt;/div&gt;" />
 
 						<VBox class="soLoginCard sapUiSmallMarginTop">
-							<Title text="Müşteri Girişi" class="soLoginSectionTitle sapUiSmallMarginBottom" />
+							<Title text="{i18n>clientLogin}" class="soLoginSectionTitle sapUiSmallMarginBottom" />
 							
-							<Label text="Kullanıcı Adı" labelFor="usernameInput" />
+							<Label text="{i18n>username}" labelFor="usernameInput" />
 							<Input id="usernameInput" class="sapUiSmallMarginBottom" width="100%" valueLiveUpdate="true" />
 
-							<Label text="Şifre" labelFor="passwordInput" />
+							<Label text="{i18n>password}" labelFor="passwordInput" />
 							<Input id="passwordInput" type="Password" class="sapUiMediumMarginBottom" width="100%" valueLiveUpdate="true" />
 
-							<Button text="Giriş Yap" type="Emphasized" width="100%" 
+							<Button text="{i18n>loginTitle}" type="Emphasized" width="100%" 
 								press=".onLoginPress" />
 						</VBox>
 					</VBox>

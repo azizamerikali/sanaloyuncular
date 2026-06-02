@@ -397,8 +397,10 @@ export default class Register extends BaseController {
 	// Submission Logic
 	public async onRegister(): Promise<void> {
 		const consentAccepted = (this.byId("consentCheckbox") as CheckBox).getSelected();
+		const oBundle = await this.getResourceBundle();
+
 		if (!consentAccepted) {
-			MessageBox.warning("Lütfen sözleşmeyi kabul edin.");
+			MessageBox.warning(oBundle.getText("consentRequired"));
 			return;
 		}
 
@@ -406,17 +408,17 @@ export default class Register extends BaseController {
 		const oData = oModel.getData();
 
 		if (!oData.firstName || !oData.lastName || !oData.email || !oData.photoFront || !oData.photoRight || !oData.photoLeft || !oData.birthDate || !oData.phone || !oData.city || !oData.iban) {
-			MessageBox.warning("Lütfen İsim, Soyisim, Üç Açıdan Fotoğraflar, E-posta, Telefon, Şehir, Doğum Tarihi ve IBAN gibi zorunlu alanları eksiksiz doldurun.");
+			MessageBox.warning(oBundle.getText("fillRequired"));
 			return;
 		}
 
 		if (oData.isUnder18 && (!oData.parentName || !oData.consentDocument)) {
-			MessageBox.warning("18 Yaş altı üyeler için Veli bilgileri ve izin belgesi zorunludur.");
+			MessageBox.warning(oBundle.getText("fillRequired")); // Veli bilgileri eksik
 			return;
 		}
 
 		if (oData.ibanState === "Error" || oData.ibanState === "Warning") {
-			MessageBox.warning("Lütfen geçerli bir IBAN numarası giriniz.");
+			MessageBox.warning(oBundle.getText("fillRequired")); // IBAN geçersiz
 			return;
 		}
 

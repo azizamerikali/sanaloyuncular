@@ -16,6 +16,10 @@ export default class Component extends UIComponent {
 	public init(): void {
 		super.init();
 
+		// Check and apply stored language or default to TR
+		const savedLang = localStorage.getItem("so_language") || "tr";
+		sap.ui.getCore().getConfiguration().setLanguage(savedLang);
+
 		// Create models
 		this.setModel(models.createDeviceModel(), "device");
 		this.setModel(models.createAppViewModel(), "appView");

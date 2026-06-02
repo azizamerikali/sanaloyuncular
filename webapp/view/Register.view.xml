@@ -28,44 +28,44 @@
 							<!-- Full Registration Form -->
 							<VBox visible="{newMember>/isGoogleAuthCompleted}">
 								<VBox alignItems="Center" class="sapUiSmallMarginBottom">
-									<Label text="Lütfen Üç Açıdan Fotoğrafınızı Çekin (Zorunlu)" required="true" class="sapUiTinyMarginBottom" />
+									<Label text="{i18n>takeThreePhotos}" required="true" class="sapUiTinyMarginBottom" />
 									
 									<HBox wrap="Wrap" justifyContent="Center" class="sapUiSmallMarginBottom">
 										<VBox alignItems="Center" class="sapUiSmallMarginEnd">
-											<Avatar src="{newMember>/photoFront}" displaySize="L" press=".onSlotPress" tooltip="Karşıdan" 
+											<Avatar src="{newMember>/photoFront}" displaySize="L" press=".onSlotPress" tooltip="{i18n>front}" 
 												displayShape="Square" class="photoSlot {= ${newMember>/activeSlot} === 'front' ? 'activeSlot' : '' }" />
-											<Label text="Karşı" />
+											<Label text="{i18n>front}" />
 										</VBox>
 										<VBox alignItems="Center" class="sapUiSmallMarginEnd">
-											<Avatar src="{newMember>/photoRight}" displaySize="L" press=".onSlotPress" tooltip="Sağ Profil"
+											<Avatar src="{newMember>/photoRight}" displaySize="L" press=".onSlotPress" tooltip="{i18n>rightProfile}"
 												displayShape="Square" class="photoSlot {= ${newMember>/activeSlot} === 'right' ? 'activeSlot' : '' }" />
-											<Label text="Sağ Profil" />
+											<Label text="{i18n>rightProfile}" />
 										</VBox>
 										<VBox alignItems="Center">
-											<Avatar src="{newMember>/photoLeft}" displaySize="L" press=".onSlotPress" tooltip="Sol Profil"
+											<Avatar src="{newMember>/photoLeft}" displaySize="L" press=".onSlotPress" tooltip="{i18n>leftProfile}"
 												displayShape="Square" class="photoSlot {= ${newMember>/activeSlot} === 'left' ? 'activeSlot' : '' }" />
-											<Label text="Sol Profil" />
+											<Label text="{i18n>leftProfile}" />
 										</VBox>
 									</HBox>
 
 									<SegmentedButton selectedKey="{newMember>/activeSlot}" width="100%" class="sapUiSmallMarginBottom">
 										<items>
-											<SegmentedButtonItem text="Karşı" key="front" />
-											<SegmentedButtonItem text="Sağ Profil" key="right" />
-											<SegmentedButtonItem text="Sol Profil" key="left" />
+											<SegmentedButtonItem text="{i18n>front}" key="front" />
+											<SegmentedButtonItem text="{i18n>rightProfile}" key="right" />
+											<SegmentedButtonItem text="{i18n>leftProfile}" key="left" />
 										</items>
 									</SegmentedButton>
 
 									<HBox>
-										<Button text="Kamerayı Başlat" icon="sap-icon://camera" press=".onStartCamera" tooltip="Kamerayı başlatın" />
-										<Button text="{= ${newMember>/activeSlot} === 'front' ? 'Karşı Çek' : (${newMember>/activeSlot} === 'right' ? 'Sağ Profil Çek' : 'Sol Profil Çek') }" 
+										<Button text="{i18n>startCamera}" icon="sap-icon://camera" press=".onStartCamera" tooltip="{i18n>startCamera}" />
+										<Button text="{= ${newMember>/activeSlot} === 'front' ? ${i18n>takePhotoFront} : (${newMember>/activeSlot} === 'right' ? ${i18n>takePhotoRight} : ${i18n>takePhotoLeft}) }" 
 											type="Emphasized" icon="sap-icon://attachment-photo" press=".onTakePhoto" 
 											visible="{newMember>/isCameraActive}" class="sapUiSmallMarginBegin" />
 									</HBox>
 
 									<VBox visible="{newMember>/isCameraActive}" class="sapUiSmallMarginTop" alignItems="Center">
 										<core:HTML content='&lt;div style="width:100%;max-width:480px;text-align:center"&gt;&lt;video id="videoPlayer" autoplay playsinline muted style="width:100%;border-radius:8px;background:#000"&gt;&lt;/video&gt;&lt;canvas id="captureCanvas" style="display:none;"&gt;&lt;/canvas&gt;&lt;/div&gt;' />
-										<Text text="Kameraya bakın ve Fotoğraf Çek butonuna basın." class="sapUiTinyMarginTop" />
+										<Text text="{i18n>lookAtCamera}" class="sapUiTinyMarginTop" />
 									</VBox>
 								</VBox>
 
@@ -89,32 +89,32 @@
 									<Label text="{i18n>phone}" required="true" />
 									<Input id="phoneInput" value="{newMember>/phone}" type="Tel" />
 
-									<Label text="Şehir" required="true" />
+									<Label text="{i18n>city}" required="true" />
 									<ComboBox items="{cities>/}" selectedKey="{newMember>/city}" width="100%">
 										<core:Item key="{cities>key}" text="{cities>name}" />
 									</ComboBox>
 
-									<Label text="Doğum Tarihi" required="true" />
+									<Label text="{i18n>birthDate}" required="true" />
 									<DatePicker id="dpBirthDate" displayFormat="dd.MM.yyyy" valueFormat="yyyy-MM-dd" value="{newMember>/birthDate}" change=".onBirthDateChange" />
 
-									<Label text="Anne/Baba/Vasi Ad Soyad" required="{newMember>/isUnder18}" visible="{newMember>/isUnder18}" />
+									<Label text="{i18n>parentName}" required="{newMember>/isUnder18}" visible="{newMember>/isUnder18}" />
 									<Input id="inParentName" value="{newMember>/parentName}" visible="{newMember>/isUnder18}" liveChange=".onParentNameChange" />
 
-									<Label text="Veli Onay Belgesi" required="{newMember>/isUnder18}" visible="{newMember>/isUnder18}" />
-									<u:FileUploader id="fuConsent" width="100%" placeholder="Belge yüklemek için seçin" change=".onConsentFileChange" visible="{newMember>/isUnder18}" />
+									<Label text="{i18n>consentDoc}" required="{newMember>/isUnder18}" visible="{newMember>/isUnder18}" />
+									<u:FileUploader id="fuConsent" width="100%" placeholder="..." change=".onConsentFileChange" visible="{newMember>/isUnder18}" />
 
-									<Label text="IBAN Sahibi" required="true" />
+									<Label text="{i18n>ibanHolder}" required="true" />
 									<Select id="cbIbanHolder" selectedKey="{newMember>/ibanHolder}" items="{newMember>/ibanHolderList}" width="100%">
 										<core:Item key="{newMember>name}" text="{newMember>name}" />
 									</Select>
 
-									<Label text="IBAN" required="true" />
+									<Label text="{i18n>iban}" required="true" />
 									<Input id="inIban" value="{newMember>/iban}" placeholder="..." liveChange=".onIbanChange" valueState="{newMember>/ibanState}" valueStateText="{newMember>/ibanStateText}" />
 
-									<Label text="Oyunculuk Eğitimi" />
+									<Label text="{i18n>actingTraining}" />
 									<TextArea value="{newMember>/actingTraining}" rows="2" />
 									
-									<Label text="Oyunculuk Deneyimi" />
+									<Label text="{i18n>actingExperience}" />
 									<TextArea value="{newMember>/actingExperience}" rows="2" />
 								</f:SimpleForm>
 

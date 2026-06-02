@@ -20,11 +20,24 @@ export default class Login extends BaseController {
 		const password = passwordInput.getValue().trim();
 
 		if (!userId || !password) {
-			MessageToast.show("Lütfen kullanıcı adı ve şifrenizi giriniz.");
+			const oBundle = await this.getResourceBundle();
+			MessageToast.show(oBundle.getText("fillRequired"));
 			return;
 		}
 
 		await this.loginAsUser(userId, password);
+	}
+
+	public onLanguageChange(oEvent: Event): void {
+		const oSegmentedButton = oEvent.getSource() as any;
+		const sSelectedKey = oSegmentedButton.getSelectedKey();
+		this.changeLanguage(sSelectedKey);
+		
+		// Update appView model to reflect the change
+		const appViewModel = this.getOwnerComponent().getModel("appView") as JSONModel;
+		if (appViewModel) {
+			appViewModel.setProperty("/currentLanguage", sSelectedKey);
+		}
 	}
 
 	public async onInit(): Promise<void> {
@@ -91,7 +104,8 @@ export default class Login extends BaseController {
 			MessageToast.show("Google hesabınız kayıtlı değil. Lütfen bilgilerinizi onaylayarak kaydolun.");
 			this.getRouter().navTo("register");
 		} else {
-			MessageToast.show(result.error || "Google Girişi Başarısız.");
+			const oBundle = await this.getResourceBundle();
+			MessageToast.show(result.error || oBundle.getText("loginFailed"));
 		}
 	}
 
@@ -120,10 +134,12 @@ export default class Login extends BaseController {
 						break;
 				}
 			} else {
-				MessageToast.show("Giriş başarısız! Kullanıcı aktif değil.");
+				const oBundle = await this.getResourceBundle();
+				MessageToast.show(oBundle.getText("loginFailed") + "! Kullanıcı aktif değil.");
 			}
 		} catch (error: any) {
-			MessageToast.show(error.message || "Giriş sırasında bir hata oluştu.");
+			const oBundle = await this.getResourceBundle();
+			MessageToast.show(error.message || oBundle.getText("error"));
 		} finally {
 			this.getView().setBusy(false);
 		}
