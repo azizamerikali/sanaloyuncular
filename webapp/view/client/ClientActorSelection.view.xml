@@ -29,9 +29,9 @@
 		</dependents>
 
 		<content>
-			<VBox class="sapUiSmallMargin">
+			<VBox>
 				<HBox alignItems="Center" class="sapUiBottomMargin">
-					<Label text="Proje Seçimi: " class="sapUiSmallMarginEnd" design="Bold" />
+					<Label text="Proje: " class="sapUiSmallMarginEnd" design="Bold" />
 					<Input id="projectInput" 
 							placeholder="Proje Seçin..." 
 							showValueHelp="true" 
