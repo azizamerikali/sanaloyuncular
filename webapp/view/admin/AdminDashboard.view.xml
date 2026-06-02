@@ -4,13 +4,13 @@
 	<Page id="adminDashboardPage" title="{i18n>adminDashboardTitle}" showNavButton="false">
 		<content>
 			<VBox class="sapUiSmallMargin">
-				<Title text="Yönetim Paneli" level="H2" titleStyle="H4" class="sapUiMediumMarginBottom" />
+				<Title text="{i18n>adminPanelTitle}" level="H2" titleStyle="H4" class="sapUiMediumMarginBottom" />
 
 				<!-- KPI Tiles Row 1 -->
 				<FlexBox wrap="Wrap" class="sapUiSmallMarginBottom">
 					<GenericTile
-						header="Üyeler"
-						subheader="{adminData>/pendingCount} onay bekliyor"
+						header="{i18n>members}"
+						subheader="{adminData>/pendingCount} {i18n>pendingCountSuffix}"
 						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom"
 						press=".onNavToMembers">
 						<TileContent>
@@ -21,7 +21,7 @@
 						</TileContent>
 					</GenericTile>
 					<GenericTile
-						header="Projeler"
+						header="{i18n>projects}"
 						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom"
 						press=".onNavToProjects">
 						<TileContent>
@@ -32,8 +32,8 @@
 						</TileContent>
 					</GenericTile>
 					<GenericTile
-						header="Ödemeler"
-						subheader="{adminData>/unpaidTotal} ödenmemiş"
+						header="{i18n>payments}"
+						subheader="{adminData>/unpaidTotal} {i18n>unpaidSuffix}"
 						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom"
 						press=".onNavToPayments">
 						<TileContent>
@@ -49,7 +49,7 @@
 				<!-- KPI Tiles Row 2 -->
 				<FlexBox wrap="Wrap" class="sapUiSmallMarginBottom">
 					<GenericTile
-						header="Medya"
+						header="{i18n>media}"
 						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom"
 						press=".onNavToMedia">
 						<TileContent>
@@ -60,7 +60,7 @@
 						</TileContent>
 					</GenericTile>
 					<GenericTile
-						header="Müşteriler"
+						header="{i18n>clients}"
 						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom"
 						press=".onNavToClients">
 						<TileContent>
@@ -71,7 +71,7 @@
 						</TileContent>
 					</GenericTile>
 					<GenericTile
-						header="Toplam Ödeme"
+						header="{i18n>totalPaymentsDashboard}"
 						class="sapUiTinyMarginBeginEnd sapUiTinyMarginTopBottom"
 						press=".onNavToPayments">
 						<TileContent>
@@ -84,21 +84,21 @@
 				</FlexBox>
 
 				<!-- Pending Members Table -->
-				<Panel headerText="Onay Bekleyen Üyeler" class="sapUiMediumMarginTop">
-					<Table items="{adminData>/pendingMembers}" noDataText="Onay bekleyen üye yok"
+				<Panel headerText="{i18n>pendingMembersList}" class="sapUiMediumMarginTop">
+					<Table items="{adminData>/pendingMembers}" noDataText="{i18n>noPendingMembers}"
 						autoPopinMode="true" fixedLayout="false">
 						<columns>
 							<Column>
-								<Text text="Ad Soyad" />
+								<Text text="{i18n>fullName}" />
 							</Column>
 							<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
-								<Text text="E-posta" />
+								<Text text="{i18n>email}" />
 							</Column>
 							<Column minScreenWidth="Desktop" demandPopin="true" popinDisplay="Inline">
-								<Text text="Kayıt Tarihi" />
+								<Text text="{i18n>createdAt}" />
 							</Column>
 							<Column hAlign="End">
-								<Text text="İşlem" />
+								<Text text="{i18n>actions}" />
 							</Column>
 						</columns>
 						<items>
@@ -106,7 +106,7 @@
 								<Text text="{adminData>firstName} {adminData>lastName}" />
 								<Text text="{adminData>email}" />
 								<Text text="{adminData>createdAtFormatted}" />
-								<Button text="Onayla" type="Accept" press=".onApproveMember" />
+								<Button text="{i18n>approve}" type="Accept" press=".onApproveMember" />
 							</ColumnListItem>
 						</items>
 					</Table>

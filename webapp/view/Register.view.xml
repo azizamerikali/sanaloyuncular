@@ -10,7 +10,7 @@
 	<Page id="registerPage" title="{i18n>registerTitle}" showNavButton="true"
 		navButtonPress=".onNavBack" class="antigravityLoginBg">
 		<content>
-			<FlexBox alignItems="Center" justifyContent="Center" width="100%" direction="Column">
+			<VBox alignItems="Center" width="100%" class="soLoginWrapper">
 				<VBox class="registerCard sapUiResponsiveMargin">
 					<Panel>
 						<VBox class="sapUiContentPadding">
@@ -138,7 +138,7 @@
 						</VBox>
 					</Panel>
 				</VBox>
-			</FlexBox>
+			</VBox>
 		</content>
 	</Page>
 
