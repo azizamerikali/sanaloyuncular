@@ -4,12 +4,15 @@
    ============================================= */
 
 /* === Login / Register Page centering === */
-.antigravityLoginBg {
+html, body, .sapUiBody, .sapTntToolPage {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e0ebf5 100%) !important;
+    min-height: 100vh;
+}
+.sapTntToolPageMainBackground-Standard {
     background: transparent !important;
 }
-
-.antigravityLoginBg .sapMPageBgSolid {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e0ebf5 100%) !important;
+.antigravityLoginBg, .antigravityLoginBg .sapMPageBgSolid {
+    background: transparent !important;
 }
 
 /* --- New Login Redesign --- */
