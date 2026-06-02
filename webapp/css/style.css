@@ -64,6 +64,28 @@ html, body, .sapUiBody, .sapTntToolPage {
     margin: 0.5rem 0;
     width: 100%;
 }
+
+/* Mobile Adjustments for Login */
+@media (max-width: 600px) {
+    .soLoginContainer {
+        padding: 0.75rem 1rem;
+    }
+    .soLoginCard {
+        padding: 1rem;
+    }
+    .soLoginLogo {
+        font-size: 2.5rem !important;
+    }
+    .soLoginTitle {
+        font-size: 1.5rem !important;
+    }
+    .soLoginSubtitle {
+        font-size: 0.875rem !important;
+    }
+    .soLoginSectionTitle {
+        font-size: 1.1rem !important;
+    }
+}
 .soLoginDivider::before,
 .soLoginDivider::after {
     content: '';
