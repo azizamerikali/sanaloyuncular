@@ -57,7 +57,17 @@
     font-size: 1.2rem !important;
     margin-right: 12px !important;
 }
-.soLoginInput .sapMInputBaseContentWrapper {
+.soLoginInput.sapMInputBase .sapMInputBaseContentWrapper {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    min-height: unset !important;
+}
+.soLoginInput.sapMInputBase.sapMFocus .sapMInputBaseContentWrapper,
+.soLoginInput.sapMInputBase:focus .sapMInputBaseContentWrapper,
+.soLoginInput.sapMInputBase:active .sapMInputBaseContentWrapper,
+.soLoginInput.sapMInputBase:hover .sapMInputBaseContentWrapper {
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
@@ -66,10 +76,12 @@
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
-    height: 46px !important;
+    height: 48px !important;
     padding: 0 !important;
+    margin: 0 !important;
     font-size: 1rem !important;
     color: #4a5568 !important;
+    line-height: normal !important;
 }
 /* Login Button */
 .soLoginBtn {
