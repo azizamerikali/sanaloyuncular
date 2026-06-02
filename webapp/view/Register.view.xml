@@ -64,8 +64,7 @@
 									</HBox>
 
 									<VBox visible="{newMember>/isCameraActive}" class="sapUiSmallMarginTop" alignItems="Center">
-										<core:HTML content='&lt;video id="videoPlayer" autoplay width="280" height="210" style="border: 4px solid #3f51b1; border-radius: 8px; object-fit: cover;"&gt;&lt;/video&gt;' />
-										<core:HTML content='&lt;canvas id="captureCanvas" width="280" height="210" style="display:none;"&gt;&lt;/canvas&gt;' />
+										<core:HTML content='&lt;div style="width:100%;max-width:480px;text-align:center"&gt;&lt;video id="videoPlayer" autoplay playsinline muted style="width:100%;border-radius:8px;background:#000"&gt;&lt;/video&gt;&lt;canvas id="captureCanvas" style="display:none;"&gt;&lt;/canvas&gt;&lt;/div&gt;' />
 										<Text text="Kameraya bakın ve Fotoğraf Çek butonuna basın." class="sapUiTinyMarginTop" />
 									</VBox>
 								</VBox>

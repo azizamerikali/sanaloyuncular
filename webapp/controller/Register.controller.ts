@@ -320,8 +320,8 @@ export default class Register extends BaseController {
 			const stream = await navigator.mediaDevices.getUserMedia({ 
 				video: { 
 					facingMode: "user",
-					width: { ideal: 640 },
-					height: { ideal: 480 }
+					width: { ideal: 1280 },
+					height: { ideal: 720 }
 				} 
 			});
 			
@@ -349,17 +349,12 @@ export default class Register extends BaseController {
 		if (video && canvas) {
 			const context = canvas.getContext("2d");
 			if (context) {
-				// Round capture logic: we capture a square and UI hides the rest
-				const size = Math.min(video.videoWidth, video.videoHeight);
-				const x = (video.videoWidth - size) / 2;
-				const y = (video.videoHeight - size) / 2;
+				canvas.width = video.videoWidth;
+				canvas.height = video.videoHeight;
 				
-				canvas.width = 400; // Fixed size for DB storage
-				canvas.height = 400;
+				context.drawImage(video, 0, 0, canvas.width, canvas.height);
 				
-				context.drawImage(video, x, y, size, size, 0, 0, 400, 400);
-				
-				const base64 = canvas.toDataURL("image/jpeg", 0.8);
+				const base64 = canvas.toDataURL("image/jpeg", 0.9);
 				const sSlot = oModel.getProperty("/activeSlot");
 				
 				if (sSlot === "front") {
