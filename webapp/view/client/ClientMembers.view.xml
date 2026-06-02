@@ -10,31 +10,39 @@
 				showSeparators="None"
 				class="soMemberGrid sapUiNoContentPadding">
 				<f:customLayout>
-					<cssgrid:GridBoxLayout boxMinWidth="280px" />
+					<cssgrid:GridBoxLayout boxMinWidth="300px" />
 				</f:customLayout>
 				<f:GridListItem>
-					<VBox class="soMemberCard">
-						<HBox alignItems="Center" class="sapUiSmallMarginBottom">
-							<Avatar
-								initials="{cMembersData>initials}"
-								displaySize="M"
-								displayShape="Circle"
-								fallbackIcon="sap-icon://person-placeholder"
-								class="sapUiSmallMarginEnd" />
-							<VBox>
-								<Title text="{cMembersData>firstName} {cMembersData>lastName}"
-									level="H5" class="soMemberCardName" />
-								<Text text="{cMembersData>email}" class="soMemberCardEmail" />
-							</VBox>
-						</HBox>
-						<core:HTML content="&lt;hr class='soCardDivider'/&gt;" />
-						<HBox justifyContent="SpaceBetween" alignItems="Center">
-							<Text text="{= ${cMembersData>photoCount} + ' fotoğraf'}" class="soMemberCardEmail" />
-							<Button
-								icon="{= ${cMembersData>isFavorite} ? 'sap-icon://favorite' : 'sap-icon://unfavorite'}"
-								type="Transparent"
-								press=".onToggleFavorite" />
-						</HBox>
+					<VBox class="soMemberCard" height="100%" justifyContent="SpaceBetween">
+						<VBox>
+							<HBox justifyContent="SpaceBetween" alignItems="Start" class="sapUiSmallMarginBottom">
+								<HBox alignItems="Center">
+									<Avatar initials="{cMembersData>initials}" displaySize="M" displayShape="Circle" fallbackIcon="sap-icon://person-placeholder" class="sapUiSmallMarginEnd soMemberAvatar" />
+									<VBox>
+										<Title text="{cMembersData>firstName} {cMembersData>lastName}" level="H4" class="soMemberCardName sapUiTinyMarginBottom" />
+										<HBox alignItems="Center">
+											<core:Icon src="sap-icon://email" size="0.8rem" color="#767683" class="sapUiTinyMarginEnd" />
+											<Text text="{cMembersData>email}" class="soMemberCardEmail" />
+										</HBox>
+									</VBox>
+								</HBox>
+								<Button icon="{= ${cMembersData>isFavorite} ? 'sap-icon://favorite' : 'sap-icon://unfavorite'}" 
+									type="Transparent" 
+									press=".onToggleFavorite" 
+									class="{= ${cMembersData>isFavorite} ? 'soStarButtonActive' : 'soStarButton'}" />
+							</HBox>
+						</VBox>
+						
+						<VBox>
+							<core:HTML content="&lt;hr class='soCardDivider'/&gt;" />
+							<HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginTop">
+								<HBox alignItems="Center">
+									<core:Icon src="sap-icon://photo-voltaic" size="1.2rem" color="#767683" class="sapUiSmallMarginEnd" />
+									<Text text="{= ${cMembersData>photoCount} + ' Fotoğraf'}" class="soPhotoCountText" />
+								</HBox>
+								<Link text="Detaylar" press=".onNavigateToMemberDetail" class="soDetailLink" />
+							</HBox>
+						</VBox>
 					</VBox>
 				</f:GridListItem>
 			</f:GridList>

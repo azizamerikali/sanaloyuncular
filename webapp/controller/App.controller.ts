@@ -120,6 +120,16 @@ export default class App extends BaseController {
 				key: item.key
 			}));
 		});
+
+		// Also build mobile nav items
+		const mobileItems = items.map(item => {
+			return {
+				key: item.key,
+				text: oBundle.getText(item.title) || item.title,
+				icon: item.icon
+			};
+		});
+		this.getAppViewModel().setProperty("/mobileNavItems", mobileItems);
 	}
 
 	private navigateByRole(role: string): void {
@@ -145,6 +155,16 @@ export default class App extends BaseController {
 			return;
 		}
 
+		const role = this.getAppViewModel().getProperty("/currentRole");
+		const items = NAV_ITEMS[role] || [];
+		const navItem = items.find((i: NavItem) => i.key === sKey);
+		if (navItem) {
+			this.getRouter().navTo(navItem.route);
+		}
+	}
+
+	public onBottomNavSelect(oEvent: Event): void {
+		const sKey = (oEvent.getParameter("key") as string);
 		const role = this.getAppViewModel().getProperty("/currentRole");
 		const items = NAV_ITEMS[role] || [];
 		const navItem = items.find((i: NavItem) => i.key === sKey);

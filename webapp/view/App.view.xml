@@ -58,7 +58,19 @@
 		</tnt:sideContent>
 
 		<tnt:mainContents>
-			<NavContainer id="pageContainer" />
+			<NavContainer id="pageContainer" class="soPageContainer" />
+			<IconTabBar id="mobileBottomNav" class="soMobileBottomNav" 
+				visible="{appView>/showShell}" 
+				select=".onBottomNavSelect" 
+				selectedKey="{appView>/selectedKey}"
+				showOverflowSelectList="false" 
+				applyContentPadding="false" 
+				backgroundDesign="Solid"
+				items="{appView>/mobileNavItems}">
+				<items>
+					<IconTabFilter key="{appView>key}" icon="{appView>icon}" text="{appView>text}" />
+				</items>
+			</IconTabBar>
 		</tnt:mainContents>
 	</tnt:ToolPage>
 

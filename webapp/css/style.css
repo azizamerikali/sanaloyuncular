@@ -237,3 +237,77 @@ body, .sapMText, .sapMTitle, .sapMInput .sapMInputBaseInner,
 .sapMGT:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
+
+/* --- Mobile Bottom Navigation --- */
+.soMobileBottomNav {
+    display: none !important;
+}
+
+@media (max-width: 767px) {
+    .soMobileBottomNav {
+        display: block !important;
+        position: fixed !important;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        border-top: 1px solid #e6e8eb;
+        background-color: #ffffff;
+    }
+
+    .soPageContainer {
+        padding-bottom: 64px !important;
+    }
+
+    /* Adjust the standard TNT side navigation display on mobile */
+    .sapTntToolPageSideNavigation {
+        /* let the framework handle side menu off-canvas logic, but we can hide toggle button if desired */
+    }
+}
+
+.soMobileBottomNav .sapMITBHead {
+    margin: 0 !important;
+    border: none !important;
+    justify-content: space-around;
+    padding: 4px 0 !important;
+}
+.soMobileBottomNav .sapMITBFilter {
+    flex: 1;
+    text-align: center;
+    padding: 4px 0 !important;
+}
+.soMobileBottomNav .sapMITBText {
+    font-size: 11px !important;
+    font-weight: 500;
+}
+.soMobileBottomNav .sapMITBSelected .sapMITBText {
+    font-weight: 700 !important;
+    color: #000666 !important;
+}
+.soMobileBottomNav .sapMITBSelected .sapUiIcon {
+    color: #000666 !important;
+}
+
+/* --- Member Card Details Updates --- */
+.soMemberAvatar {
+    background-color: #e0e0ff !important;
+    color: #000767 !important;
+    font-weight: bold !important;
+}
+.soStarButton {
+    color: #767683 !important;
+}
+.soStarButtonActive {
+    color: #2b5bb5 !important; /* Secondary container or warning color depending on fav */
+}
+.soPhotoCountText {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #454652 !important;
+}
+.soDetailLink {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #000666 !important;
+}
