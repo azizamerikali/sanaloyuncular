@@ -329,3 +329,50 @@ body, .sapMText, .sapMTitle, .sapMInput .sapMInputBaseInner,
     font-weight: 600 !important;
     color: #000666 !important;
 }
+
+/* --- Compact Actor Card for Selection --- */
+.soActorTile {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    background: #e6e6e6;
+}
+.soActorTileImg {
+    display: block;
+    object-fit: cover;
+    cursor: pointer;
+}
+.soActorTileBtn {
+    position: absolute !important;
+    top: 6px;
+    right: 6px;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important;
+    z-index: 10;
+    padding: 0 !important;
+}
+.soActorTileBtn .sapMBtnInner {
+    padding: 0 !important;
+    border-radius: 50% !important;
+}
+.soActorTileNameBar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.65);
+    padding: 6px 4px;
+    text-align: center;
+}
+.soActorTileName {
+    color: #fff !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}

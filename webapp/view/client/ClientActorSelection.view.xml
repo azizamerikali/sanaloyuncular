@@ -50,29 +50,25 @@
 					justifyContent="Start" 
 					visible="true">
 					<items>
-						<VBox class="sapUiSmallMargin sapUiTinyMarginBottom actorCard" 
-							width="240px" 
-							alignItems="Center" 
-							style="border: 1px solid #eaeaea; border-radius: 12px; padding: 20px 15px; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s;">
-							
+						<VBox class="sapUiTinyMargin actorCard soActorTile" width="130px" height="170px">
 							<Image src="{path: 'cActorsData>profilePicture', formatter: '.formatProfilePicture'}" 
-								width="160px" 
-								height="160px" 
+								width="100%" 
+								height="100%" 
 								densityAware="false" 
-								class="sapUiTinyMarginBottom"
-								style="object-fit: cover; border-radius: 50%; border: 3px solid #f0f0f0; cursor: pointer;"
+								class="soActorTileImg"
 								press=".onActorImagePress"
 								tooltip="Fotoğrafları görmek için tıklayın" />
 							
-							<Title text="{cActorsData>firstName} {cActorsData>lastName}" level="H3" class="sapUiTinyMarginTop sapUiTinyMarginBottom" titleStyle="H4" textAlign="Center" />
-							
-							<!-- Action Button (Add / Remove) -->
-							<Button text="{= ${cActorsData>isAssigned} ? 'Projeden Çıkar' : 'Projeye Ekle'}" 
-									icon="{= ${cActorsData>isAssigned} ? 'sap-icon://delete' : 'sap-icon://add'}"
+							<!-- Compact Action Button (+ / -) -->
+							<Button icon="{= ${cActorsData>isAssigned} ? 'sap-icon://minus' : 'sap-icon://add'}"
 									type="{= ${cActorsData>isAssigned} ? 'Reject' : 'Emphasized'}" 
 									press=".onToggleAssignment" 
-									width="100%" 
-									class="sapUiSmallMarginTop" />
+									tooltip="{= ${cActorsData>isAssigned} ? 'Projeden Çıkar' : 'Projeye Ekle'}"
+									class="soActorTileBtn" />
+							
+							<VBox class="soActorTileNameBar">
+								<Text text="{cActorsData>firstName} {cActorsData>lastName}" class="soActorTileName" />
+							</VBox>
 						</VBox>
 					</items>
 				</FlexBox>
