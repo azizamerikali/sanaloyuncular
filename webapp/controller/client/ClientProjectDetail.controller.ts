@@ -1,6 +1,7 @@
 import BaseController from "../BaseController";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import MessageToast from "sap/m/MessageToast";
+import MessageBox from "sap/m/MessageBox";
 import SelectDialog from "sap/m/SelectDialog";
 import StandardListItem from "sap/m/StandardListItem";
 import Event from "sap/ui/base/Event";
@@ -40,12 +41,21 @@ export default class ClientProjectDetail extends BaseController {
 				const u = await UserService.getById(a.userId);
 				if (u) members.push(u);
 			}
-			
+
+			const memberCount = members.length;
+			const royaltyFee = proj.royaltyFee || 0;
+			const maxMembers = proj.maxMembers || 0;
+
 			this.getView().setModel(new JSONModel({
 				...proj,
 				statusText: formatter.formatStatus(proj.status),
 				statusState: formatter.formatStatusState(proj.status),
-				assignedMembers: members
+				assignedMembers: members,
+				royaltyFee,
+				maxMembers,
+				royaltyFeeFormatted: formatter.formatCurrency(royaltyFee),
+				totalBudgetFormatted: formatter.formatCurrency(royaltyFee * memberCount),
+				membersLabel: maxMembers > 0 ? `${memberCount} / ${maxMembers}` : memberCount.toString()
 			}), "cProjDetailData");
 		} finally {
 			this.getView().setBusy(false);
@@ -58,7 +68,15 @@ export default class ClientProjectDetail extends BaseController {
 		
 		const assignments = await ProjectService.getAssignmentsByProject(this.projectId);
 		const assigned = assignments.map(a => a.userId);
-		
+
+		// Enforce the project's max-member limit (0 = unlimited)
+		const oDetailModel = this.getView().getModel("cProjDetailData") as JSONModel;
+		const maxMembers = (oDetailModel?.getProperty("/maxMembers") as number) || 0;
+		if (maxMembers > 0 && assigned.length >= maxMembers) {
+			MessageBox.warning(`Bu projeye en fazla ${maxMembers} üye eklenebilir. Üye limiti dolu.`);
+			return;
+		}
+
 		// For now showing all active members instead of favorites
 		const allMembers = await UserService.getByRole("member");
 		const available = allMembers.filter(m => m.status === "active" && !assigned.includes(m.id));

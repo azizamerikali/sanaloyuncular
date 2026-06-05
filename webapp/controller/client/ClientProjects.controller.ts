@@ -6,6 +6,7 @@ import Dialog from "sap/m/Dialog";
 import Input from "sap/m/Input";
 import TextArea from "sap/m/TextArea";
 import Label from "sap/m/Label";
+import Text from "sap/m/Text";
 import Button from "sap/m/Button";
 import VBox from "sap/m/VBox";
 import Event from "sap/ui/base/Event";
@@ -33,12 +34,16 @@ export default class ClientProjects extends BaseController {
 			const projects = [];
 			for (const p of clientProjects) {
 				const assignments = await ProjectService.getAssignmentsByProject(p.id);
+				const memberCount = assignments.length;
+				const maxMembers = p.maxMembers || 0;
 				projects.push({
 					...p,
 					statusText: formatter.formatStatus(p.status),
 					statusState: formatter.formatStatusState(p.status),
 					createdAtFormatted: formatter.formatDate(p.createdAt),
-					memberCount: assignments.length.toString()
+					memberCount: memberCount.toString(),
+					membersLabel: maxMembers > 0 ? `${memberCount} / ${maxMembers}` : memberCount.toString(),
+					budgetFormatted: formatter.formatCurrency((p.royaltyFee || 0) * memberCount)
 				});
 			}
 			this.getView().setModel(new JSONModel({ projects }), "cProjData");
@@ -50,14 +55,25 @@ export default class ClientProjects extends BaseController {
 	public onCreateProject(): void {
 		const nameInput = new Input({ placeholder: "Proje adı" });
 		const descInput = new TextArea({ placeholder: "Açıklama", rows: 3 });
+		const feeInput = new Input({ value: "1000", type: "Number" as any });
+		const maxInput = new Input({ value: "10", type: "Number" as any });
 		const oDialog = new Dialog({
 			title: "Yeni Proje",
-			content: [new VBox({ items: [new Label({ text: "Proje Adı", required: true }), nameInput, new Label({ text: "Açıklama" }), descInput] }).addStyleClass("sapUiSmallMargin")],
+			content: [new VBox({ items: [
+				new Label({ text: "Proje Adı", required: true }), nameInput,
+				new Label({ text: "Açıklama" }), descInput,
+				new Label({ text: "Üye Telif Ücreti (₺)" }), feeInput,
+				new Label({ text: "Seçilecek Max Üye" }), maxInput,
+				new Label({ text: "Toplam Bütçe" }),
+				new Text({ text: "Üye eklendikçe hesaplanır (₺0)" })
+			] }).addStyleClass("sapUiSmallMargin")],
 			beginButton: new Button({ text: "Oluştur", type: "Emphasized", press: async () => {
 				const name = nameInput.getValue().trim();
 				if (!name) { MessageBox.warning("Proje adı gerekli."); return; }
+				const royaltyFee = parseFloat(feeInput.getValue()) || 0;
+				const maxMembers = parseInt(maxInput.getValue(), 10) || 0;
 				const user = AuthService.getCurrentUser();
-				await ProjectService.create({ name, description: descInput.getValue(), createdBy: user ? user.id : "" });
+				await ProjectService.create({ name, description: descInput.getValue(), createdBy: user ? user.id : "", royaltyFee, maxMembers });
 				MessageToast.show("Proje oluşturuldu!"); oDialog.close(); await this.loadData();
 			}}),
 			endButton: new Button({ text: "İptal", press: () => oDialog.close() }),

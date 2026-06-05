@@ -227,7 +227,16 @@ async function start() {
     console.error("❌ Legal records table not found — create it in Supabase SQL Editor", e);
   }
 
-  // Column migrations handled in Supabase SQL Editor
+  // Column migrations: ensure new project columns exist (idempotent)
+  try {
+    await db.exec(`
+      ALTER TABLE projects ADD COLUMN IF NOT EXISTS royalty_fee numeric DEFAULT 0;
+      ALTER TABLE projects ADD COLUMN IF NOT EXISTS max_members integer DEFAULT 0;
+    `);
+    console.log("✅ Project columns (royalty_fee, max_members) ensured");
+  } catch (e) {
+    console.error("❌ Project column migration failed", e);
+  }
 
   // Bootstrap default admins if they don't exist
   await bootstrapAdmins();

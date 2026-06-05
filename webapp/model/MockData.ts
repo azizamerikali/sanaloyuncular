@@ -49,6 +49,8 @@ export interface IProject {
 	createdBy: string;
 	status: string;
 	createdAt: string;
+	royaltyFee?: number;
+	maxMembers?: number;
 }
 
 export interface IAssignment {

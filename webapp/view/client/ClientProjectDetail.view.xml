@@ -15,10 +15,13 @@
 					fullScreenOptimized="true">
 					<attributes>
 						<ObjectAttribute text="{cProjDetailData>/description}" />
+						<ObjectAttribute title="{i18n>royaltyFee}" text="{cProjDetailData>/royaltyFeeFormatted}" />
+						<ObjectAttribute title="{i18n>maxSelectableMembers}" text="{cProjDetailData>/maxMembers}" />
+						<ObjectAttribute title="{i18n>totalBudget}" text="{cProjDetailData>/totalBudgetFormatted}" />
 					</attributes>
 				</ObjectHeader>
 
-				<Panel headerText="{i18n>assignedMembers}" class="sapUiSmallMarginTop">
+				<Panel headerText="{= ${i18n>assignedMembers} + ' (' + ${cProjDetailData>/membersLabel} + ')' }" class="sapUiSmallMarginTop">
 					<headerToolbar>
 						<Toolbar>
 							<ToolbarSpacer />

@@ -25,9 +25,11 @@
 						<Text text="{projListData>description}" class="soProjectDesc" />
 						<core:HTML content="&lt;hr class='soCardDivider'/&gt;" />
 						<HBox justifyContent="SpaceBetween" alignItems="Center">
-							<HBox alignItems="Center">
+							<HBox alignItems="Center" wrap="Wrap">
 								<core:Icon src="sap-icon://group" class="sapUiTinyMarginEnd soMemberCardEmail" />
-								<Text text="{projListData>memberCount}" class="soMemberCardEmail sapUiTinyMarginEnd" />
+								<Text text="{projListData>membersLabel}" class="soMemberCardEmail sapUiSmallMarginEnd" />
+								<core:Icon src="sap-icon://money-bills" class="sapUiTinyMarginEnd soMemberCardEmail" />
+								<Text text="{projListData>budgetFormatted}" class="soMemberCardEmail sapUiSmallMarginEnd" />
 								<Text text="{projListData>createdAtFormatted}" class="soMemberCardEmail" />
 							</HBox>
 							<Button icon="sap-icon://delete" type="Reject"

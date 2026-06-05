@@ -24,9 +24,11 @@
 						</HBox>
 						<Text text="{cProjData>description}" class="soProjectDesc" />
 						<core:HTML content="&lt;hr class='soCardDivider'/&gt;" />
-						<HBox alignItems="Center">
+						<HBox alignItems="Center" wrap="Wrap">
 							<core:Icon src="sap-icon://group" class="sapUiTinyMarginEnd soMemberCardEmail" />
-							<Text text="{cProjData>memberCount}" class="soMemberCardEmail sapUiTinyMarginEnd" />
+							<Text text="{cProjData>membersLabel}" class="soMemberCardEmail sapUiSmallMarginEnd" />
+							<core:Icon src="sap-icon://money-bills" class="sapUiTinyMarginEnd soMemberCardEmail" />
+							<Text text="{cProjData>budgetFormatted}" class="soMemberCardEmail sapUiSmallMarginEnd" />
 							<Text text="{cProjData>createdAtFormatted}" class="soMemberCardEmail" />
 						</HBox>
 					</VBox>

@@ -13,13 +13,16 @@
 					fullScreenOptimized="true">
 					<attributes>
 						<ObjectAttribute text="{projDetail>/description}" />
+						<ObjectAttribute title="{i18n>royaltyFee}" text="{projDetail>/royaltyFeeFormatted}" />
+						<ObjectAttribute title="{i18n>maxSelectableMembers}" text="{projDetail>/maxMembers}" />
+						<ObjectAttribute title="{i18n>totalBudget}" text="{projDetail>/totalBudgetFormatted}" />
 					</attributes>
 					<statuses>
 						<ObjectStatus text="{i18n>createdAtPrefix} {projDetail>/createdAtFormatted}" />
 					</statuses>
 				</ObjectHeader>
 
-				<Panel headerText="{i18n>assignedMembers}" class="sapUiSmallMarginTop">
+				<Panel headerText="{= ${i18n>assignedMembers} + ' (' + ${projDetail>/membersLabel} + ')' }" class="sapUiSmallMarginTop">
 					<headerToolbar>
 						<Toolbar>
 							<ToolbarSpacer />
