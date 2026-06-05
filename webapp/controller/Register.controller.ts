@@ -25,13 +25,13 @@ export default class Register extends BaseController {
 
 	public onInit(): void {
 		this.getView().setModel(new JSONModel(cities), "cities");
-		
+
 		// 1. Initialize completely fresh newMember model BEFORE route match
 		this.resetNewMemberModel();
 
 		// 2. Attach route synchronously so we don't miss the initial fire!
 		this.getRouter().getRoute("register").attachPatternMatched(this.onRouteMatched, this);
-		
+
 		// 3. Fire and forget async initializations
 		this.loadConsentText();
 		this.loadLegalTemplate();
@@ -50,10 +50,10 @@ export default class Register extends BaseController {
 		try {
 			let consentText = await ConsentService.getConsentText();
 			const today = new Date().toLocaleDateString("tr-TR");
-			
+
 			// Replace static date pattern (e.g., 2025-01-01) with current date
 			consentText = consentText.replace(/\d{4}-\d{2}-\d{2}/g, today);
-			
+
 			const appDataModel = new JSONModel({ consentText: consentText });
 			this.getView().setModel(appDataModel, "appData");
 		} catch (e) {
@@ -102,10 +102,10 @@ export default class Register extends BaseController {
 			const tryRender = (attempts = 0) => {
 				const btnContainer = document.getElementById("googleButtonContainerReg");
 				if (btnContainer) {
-					google.accounts.id.renderButton(btnContainer, { 
-						theme: "outline", 
-						size: "large", 
-						type: "standard", 
+					google.accounts.id.renderButton(btnContainer, {
+						theme: "outline",
+						size: "large",
+						type: "standard",
 						width: "350",
 						text: "continue_with"
 					});
@@ -122,10 +122,10 @@ export default class Register extends BaseController {
 			const draft = draftModel.getData();
 			if (draft.email) {
 				const fullName = `${draft.firstName || ""} ${draft.lastName || ""}`.trim();
-				
+
 				// Open legal consent dialog BEFORE pre-filling form
 				const bApproved = await this.openLegalConsentDialog(draft.email, fullName, true);
-				
+
 				if (bApproved) {
 					const newMemberModel = this.getView().getModel("newMember") as JSONModel;
 					newMemberModel.setProperty("/email", draft.email);
@@ -160,7 +160,7 @@ export default class Register extends BaseController {
 	private async handleGoogleCredentialResponse(response: any): Promise<void> {
 		const idToken = response.credential;
 		const result = await AuthService.googleLogin(idToken);
-		
+
 		if (result.success && result.user) {
 			// This person is already registered!
 			MessageToast.show("Bu hesapla zaten kayıtlısınız, giriş yapılıyor.");
@@ -179,10 +179,10 @@ export default class Register extends BaseController {
 		} else if (result.notFound && result.googlePayload) {
 			const payload = result.googlePayload;
 			const fullName = `${payload.firstName || ""} ${payload.lastName || ""}`.trim();
-			
+
 			// Open legal consent dialog BEFORE pre-filling form
 			const bApproved = await this.openLegalConsentDialog(payload.email || "", fullName, true);
-			
+
 			if (bApproved) {
 				// User approved, pre-fill fields and show the form
 				const newMemberModel = this.getView().getModel("newMember") as JSONModel;
@@ -248,10 +248,10 @@ export default class Register extends BaseController {
 		if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
 			age--;
 		}
-		
+
 		const oModel = this.getView().getModel("newMember") as JSONModel;
 		oModel.setProperty("/isUnder18", age < 18);
-		
+
 		if (age >= 18) {
 			oModel.setProperty("/parentName", "");
 			oModel.setProperty("/consentDocument", "");
@@ -285,7 +285,7 @@ export default class Register extends BaseController {
 		const oInput = oEvent.getSource() as any;
 		let sValue = oInput.getValue().replace(/\s+/g, "").toUpperCase();
 		const oModel = this.getView().getModel("newMember") as JSONModel;
-		
+
 		if (!sValue) {
 			oModel.setProperty("/ibanState", "None");
 			oModel.setProperty("/ibanStateText", "");
@@ -315,18 +315,18 @@ export default class Register extends BaseController {
 	// Camera Logic
 	public async onStartCamera(): Promise<void> {
 		const oModel = this.getView().getModel("newMember") as JSONModel;
-		
+
 		try {
-			const stream = await navigator.mediaDevices.getUserMedia({ 
-				video: { 
+			const stream = await navigator.mediaDevices.getUserMedia({
+				video: {
 					facingMode: "user",
 					width: { ideal: 1280 },
 					height: { ideal: 720 }
-				} 
+				}
 			});
-			
+
 			oModel.setProperty("/isCameraActive", true);
-			
+
 			// Small delay for UI to render video element
 			setTimeout(() => {
 				const video = document.getElementById("videoPlayer") as HTMLVideoElement;
@@ -335,7 +335,7 @@ export default class Register extends BaseController {
 					(this as any)._cameraStream = stream;
 				}
 			}, 500);
-			
+
 		} catch (error) {
 			MessageBox.error("Kamera erişimi reddedildi veya cihazda kamera bulunamadı.");
 		}
@@ -351,12 +351,12 @@ export default class Register extends BaseController {
 			if (context) {
 				canvas.width = video.videoWidth;
 				canvas.height = video.videoHeight;
-				
+
 				context.drawImage(video, 0, 0, canvas.width, canvas.height);
-				
+
 				const base64 = canvas.toDataURL("image/jpeg", 0.9);
 				const sSlot = oModel.getProperty("/activeSlot");
-				
+
 				if (sSlot === "front") {
 					oModel.setProperty("/photoFront", base64);
 					oModel.setProperty("/profilePicture", base64); // Front is main profile pic
@@ -381,7 +381,7 @@ export default class Register extends BaseController {
 		let sSlot = "front";
 		if (sTooltip === "Sağ Profil") sSlot = "right";
 		if (sTooltip === "Sol Profil") sSlot = "left";
-		
+
 		this.getView().getModel("newMember").setProperty("/activeSlot", sSlot);
 	}
 
@@ -443,7 +443,7 @@ export default class Register extends BaseController {
 		payload.id = payload.email; // Use Email as Username
 		payload.role = "member";
 		payload.status = "pending";
-		
+
 		// Optimization: Include legal approval in the same request to avoid race conditions on Vercel
 		payload.legalApprove = true;
 		payload.legalText = this._approvedLegalText;
@@ -470,14 +470,14 @@ export default class Register extends BaseController {
 
 		const oBundle = await this.getResourceBundle();
 		const sDate = new Date().toLocaleDateString('tr-TR');
-		const sCompany = "Ludens Casting";
-		
+		const sCompany = "Ümit Ufuk TOSUN";
+
 		const sFinalText = (this._legalTextTemplate || "Sözleşme metni yüklenemedi. Lütfen sayfayı yenileyiniz.")
 			.replace(/\[ŞİRKET ADI\]/g, sCompany)
 			.replace(/\[Ad Soyad\]/g, fullName)
 			.replace(/\[Tarih\]/g, sDate)
 			.replace(/\[ŞİRKET MERKEZİ İLİ\]/g, "İstanbul");
-		
+
 		this._approvedLegalText = sFinalText;
 
 		return new Promise((resolve) => {
