@@ -30,7 +30,12 @@ export default class AdminMemberDetail extends BaseController {
 		if (!user) { this.onNavBack(); return; }
 
 		const mediaList = await MediaService.getByUser(memberId);
-		const photos = mediaList.map(m => ({ ...m, createdAtFormatted: formatter.formatDate(m.createdAt) }));
+		// List endpoint omits file_data for performance; fetch each image's content separately
+		const photos = await Promise.all(mediaList.map(async m => ({
+			...m,
+			fileData: await MediaService.getContent(m.id),
+			createdAtFormatted: formatter.formatDate(m.createdAt)
+		})));
 		
 		const assignments = await ProjectService.getAssignmentsByUser(memberId);
 		const projects = [];
