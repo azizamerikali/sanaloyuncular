@@ -51,17 +51,19 @@ export default class AdminMembers extends BaseController {
 		oBinding.filter(aFilters);
 	}
 
-	public async onApprove(oEvent: Event): Promise<void> {
+	public async onToggleStatus(oEvent: Event): Promise<void> {
+		const bState = oEvent.getParameter("state") as boolean;
 		const oCtx = (oEvent.getSource() as any).getBindingContext("membersData");
-		await UserService.approve(oCtx.getProperty("id"));
-		MessageToast.show(oCtx.getProperty("firstName") + " onaylandı!");
-		await this.loadData();
-	}
+		const id = oCtx.getProperty("id");
+		const firstName = oCtx.getProperty("firstName");
 
-	public async onDeactivate(oEvent: Event): Promise<void> {
-		const oCtx = (oEvent.getSource() as any).getBindingContext("membersData");
-		await UserService.deactivate(oCtx.getProperty("id"));
-		MessageToast.show(oCtx.getProperty("firstName") + " pasifleştirildi.");
+		if (bState) {
+			await UserService.approve(id);
+			MessageToast.show(firstName + " aktifleştirildi.");
+		} else {
+			await UserService.deactivate(id);
+			MessageToast.show(firstName + " pasifleştirildi.");
+		}
 		await this.loadData();
 	}
 

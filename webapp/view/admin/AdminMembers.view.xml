@@ -41,14 +41,12 @@
 						<core:HTML content="&lt;hr class='soCardDivider'/&gt;" />
 						<HBox justifyContent="SpaceBetween" alignItems="Center">
 							<Text text="{membersData>createdAtFormatted}" class="soMemberCardEmail" />
-							<HBox>
-								<Button icon="sap-icon://accept" type="Accept"
-									visible="{= ${membersData>status} !== 'active'}"
-									press=".onApprove" tooltip="{i18n>activate}"
+							<HBox alignItems="Center">
+								<Switch state="{= ${membersData>status} === 'active'}"
+									type="AcceptReject"
+									change=".onToggleStatus"
+									tooltip="{i18n>status}"
 									class="sapUiTinyMarginEnd" />
-								<Button icon="sap-icon://decline" type="Reject"
-									visible="{= ${membersData>status} === 'active'}"
-									press=".onDeactivate" tooltip="{i18n>deactivate}" />
 								<Button icon="sap-icon://delete" type="Reject"
 									press=".onDeleteMember" tooltip="{i18n>delete}"
 									class="sapUiTinyMarginBegin" />
